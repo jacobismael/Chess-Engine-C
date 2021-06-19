@@ -1,0 +1,12 @@
+struct Move {
+
+    int move_number;
+    char white_notation[6];
+    char black_notation[6];
+
+    struct Move* next;
+
+};
+
+struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
+void PrintMoveList(struct Move* head);
