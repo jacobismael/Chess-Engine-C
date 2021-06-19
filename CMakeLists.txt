@@ -6,9 +6,6 @@ project (main)
 SET (${PROJECT_NAME}_VERSION_MAJOR 1)
 SET (${PROJECT_NAME}_VERSION_MINOR 0)
 
-# the opencv package
-find_package( OpenCV REQUIRED )
-
 set (CMAKE_C_STANDARD 11)
 SET (CMAKE_C_COMPILER             "/usr/bin/gcc")
 SET (CMAKE_C_FLAGS                "-W -Wall -std=c11")
