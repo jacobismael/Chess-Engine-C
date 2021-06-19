@@ -53,3 +53,5 @@ dkms.conf
 **/a.out
 
 .DS_Store
+**/build
+./build

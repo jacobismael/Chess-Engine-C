@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/Users/jacob/projects/c/Chess-Engine-C/include -isystem /usr/local/Cellar/opencv/4.5.2_4/include/opencv4
 
-C_FLAGS = -Wall -std=c11 -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -std=gnu11
+C_FLAGS = -W -Wall -std=c11 -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -std=gnu11
 
