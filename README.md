@@ -9,6 +9,16 @@ Build the executable:
 ./setup.sh
 ```
 
+or:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+- - -
+
 Run with:
 
 ```bash
