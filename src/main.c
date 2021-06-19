@@ -3,12 +3,10 @@
 #include <string.h>
 
 #include "pgn-functions.h"
-// #include "move.h"
-
 
 int main(int argc, char** argv) {
 
-    if(argc != 3) {
+    if(argc != 4) {
         printf("Need Event Name\n");
         return 0;
     }
@@ -40,6 +38,8 @@ int main(int argc, char** argv) {
 
     //PrintGame(game);
     PrintGameStrict(game);
+    printf("===================================\n\n");
+    SavePGNtoFile(game, argv[3]);
 
     return 0;
 }

@@ -13,5 +13,5 @@ Run with:
 
 ```bash
 cd build
-./main <Name> <Location>
+./main <Name> <Location> <Output File>
 ```

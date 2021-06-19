@@ -9,4 +9,5 @@ struct Move {
 };
 
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
+char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);

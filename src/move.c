@@ -22,9 +22,25 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
     return head_cpy;
 }
 
+char* getMoveList(struct Move* head) {
+
+    char* output = malloc(1000);
+    char* buff = malloc(200);
+
+    while(head != NULL) {
+        sprintf(buff, "%d. %s %s ", head->move_number, head->white_notation, head->black_notation);
+        strncat(output, buff, strlen(buff));
+        head = head->next;
+    }
+
+    return output;
+}
+
+
 void PrintMoveList(struct Move* head) {
     while(head != NULL) {
         printf("%d. %s %s ", head->move_number, head->white_notation, head->black_notation);
         head = head->next;
     }
 }
+
