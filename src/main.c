@@ -38,7 +38,8 @@ int main(int argc, char** argv) {
 
     game->result = MakeResult(1, 0);
 
-    PrintGame(game);
+    //PrintGame(game);
+    PrintGameStrict(game);
 
     return 0;
 }

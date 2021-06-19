@@ -27,5 +27,4 @@ void PrintMoveList(struct Move* head) {
         printf("%d. %s %s ", head->move_number, head->white_notation, head->black_notation);
         head = head->next;
     }
-    printf("\n");
 }
