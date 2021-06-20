@@ -6,6 +6,12 @@
 
 int main(int argc, char** argv) {
 
+    if(argc == 1) {
+        // visual mode
+        printf("Visual Mode\n");
+        return 0;
+    }
+
     if(argc != 4) {
         printf("Need Event Name\n");
         return 0;
