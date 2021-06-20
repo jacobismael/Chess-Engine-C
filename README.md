@@ -2,15 +2,31 @@
 
 Chess Engine written in C and CMake.
 
-## Setup and Execution
+## Setup
 
 Build the executable:
 ```bash
 ./setup.sh
 ```
 
-Run with:
+or:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
 
+- - -
+
+## Execution:
+
+Visual Mode:
+```bash
+./main
+```
+
+Terminal Mode
 ```bash
 cd build
 ./main <Name> <Location> <Output File>
