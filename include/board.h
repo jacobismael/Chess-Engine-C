@@ -1,4 +1,5 @@
 #include "move.h"
+#include <stdbool.h>
 
 struct pos { 
 	int row;

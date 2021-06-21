@@ -66,31 +66,7 @@ struct pos* findPos(struct board* inputBoard, struct piece* piece_to_find, char 
 		}
 	}
 
-
 	return NULL;
-}
-
-struct board* buildFromStart(struct board* inputBoard, struct Move* head) {
-	while (head != NULL) {
-		// head->white_notation;
-		
-		if (head->white_notation[0] == 'K') {
- 
-		}
-		
-		
-		// head->black_notation;
-
-
-		
-		
-		head = head->next;
-	}
-	return inputBoard;
-}
-
-char TeamOnSquare(struct board* inputBoard, int row, int col) {
-	return inputBoard->board[row][col].side;
 }
 
 struct pos* appendPos(struct pos* head, int row, int col){
@@ -107,6 +83,12 @@ struct pos* appendPos(struct pos* head, int row, int col){
 	return headcpy;
 }
 
+char TeamOnSquare(struct board* inputBoard, int row, int col) {
+	return inputBoard->board[row][col].side;
+}
+
+
+
 char oppositeSide(char side) {  // maybe ths should overload some operator idk
 	if (strchr("WB", side)) {
 		return side == 'W' ? 'B' : 'W';
@@ -114,11 +96,14 @@ char oppositeSide(char side) {  // maybe ths should overload some operator idk
 	return side; //for no side
 }
 
+
+
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
-	struct pos* validPositions = NULL;
+	struct pos* validPositions = malloc(sizeof(struct pos));
 	char pieceType = inputBoard->board[position->row][position->col].pieceId;
 	char side = inputBoard->board[position->row][position->col].side;
-	printf("side: %c\n", side);
+	char opside = oppositeSide(side);
+	// printf("side: %c\n", side);
 	// printPosList(position);
 
 	if (pieceType == ' ') {
@@ -127,7 +112,6 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 
 	if (pieceType == 'P') { // other pieces wont have usch hardcoded values
 		short pawnDir = side == 'W' ? 1 : -1;
-		validPositions = malloc(sizeof(struct pos));
 		validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 		if (position->row == 1) { // for moving forward two steps if on row 2
 			if (TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col) == ' ') { 
@@ -140,17 +124,59 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col) == ' ') {
 			appendPos(validPositions, position->row + 1*pawnDir, position->col);
 		}
-		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) {
+		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col - 1) == opside) {
 			appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
 			printf("left forward\n");
 		}
-		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) {
+		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == opside) {
 			appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
 			printf("right forward\n");
 		}
 	}
+	else if (pieceType == 'N') {
+		struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
+		knight_pos_offset_head->row = 2;
+		knight_pos_offset_head->col = -1; 
+		knight_pos_offset_head->next = NULL;
+		appendPos(knight_pos_offset_head, 2,   1);
+		appendPos(knight_pos_offset_head, 1,   2);
+		appendPos(knight_pos_offset_head, -1,  2);
+		appendPos(knight_pos_offset_head, -2,  1);
+		appendPos(knight_pos_offset_head, -2, -1);
+		appendPos(knight_pos_offset_head, -1,  2);
+		appendPos(knight_pos_offset_head, 1,   2);
+		// printPosList(knight_pos_offset_head);
+		validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+
+		while (knight_pos_offset_head != NULL) {
+			int new_row = position->row + knight_pos_offset_head->row;
+			int new_col = position->col + knight_pos_offset_head->col;
+			if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8)  {
+				char combined[] = { ' ', opside};
+				// printf("%s\n", combined);
+				if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : -1)][new_col].pieceId)) {
+					// printf("test\n");
+					appendPos(validPositions, new_row, new_col);
+					printf("%c: %d %d\n", side, new_row, new_col);
+				}
+			}
+			knight_pos_offset_head = knight_pos_offset_head->next;
+		}
+	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
 }
+
+
+struct board* buildFromStart(struct board* inputBoard, struct Move* head) {
+	while (head != NULL) {
+		inputBoard = buildFromMove(inputBoard, head);
+		
+		
+		head = head->next;
+	}
+	return inputBoard;
+}
+
 
 struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 	//white's move
@@ -169,7 +195,6 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 }
 
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side) {
-
 	char new_row = move[strlen(move) - 1];
 	char new_col = move[strlen(move) - 2];
 	
@@ -181,8 +206,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 	char new_piece_id = strchr(list_of_valid_chars, move[0]) ? move[0]: 'P';
 	struct pos temp_position = {.row = 0, .col = 0};
 	struct pos* lolm = malloc(sizeof(struct pos));
-	struct pos expected_result = {.row = new_row - '0' + (side == 'W' ? -1 : 0), .col = letterToCol(new_col), .next=NULL};
-
+	struct pos expected_result = {.row = new_row - '0' -1 /*(side == 'W' ? -1 : 0)*/, .col = letterToCol(new_col), .next=NULL};
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -192,8 +216,8 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 				temp_position.next = NULL;
 
 				lolm = listOfLegalMoves(inputBoard, &temp_position);
-				printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
-				printf("%c %d\n", new_col, letterToCol(new_col));
+				// printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
+				// printf("%c %d\n", new_col, letterToCol(new_col));
 				
 				if (posLlContains(lolm, &expected_result)) {	
 					inputBoard->board[i][j].pieceId = ' ';
@@ -211,7 +235,6 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 	return inputBoard;
 }
 
-
 bool posLlContains(struct pos* head, struct pos* to_compare) {
 	while(head != NULL) {
 		if (head->row == to_compare->row && head->col == to_compare->col) {
@@ -223,8 +246,6 @@ bool posLlContains(struct pos* head, struct pos* to_compare) {
 	}
 	return false;
 }
-		
-
 
 void printBoard(struct board* inputBoard) {
 	printf("\n\n\n");

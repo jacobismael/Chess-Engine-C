@@ -25,16 +25,15 @@ int main(int argc, char** argv) {
 
     strncpy(game->event,  argv[1], strlen(argv[1]));
     strncpy(game->site, argv[2], strlen(argv[2]));
-    strncpy(game->date, "2021.06.18", 10);
+    strcpy(game->date, "2021.06.18");
     game->round = 1;
-    strncpy(game->white , "Jacob", 5);
-    strncpy(game->black , "Atli", 4);
-
+    strcpy(game->white , "Jacob");
+    strcpy(game->black , "Atli");
 
     struct Move* head_move = malloc(sizeof(struct Move));
  
-    strncpy(head_move->white_notation , "e4", 2);
-    strncpy(head_move->black_notation , "e5", 2);
+    strcpy(head_move->white_notation , "e4");
+    strcpy(head_move->black_notation , "e5");
     head_move->move_number = 1;
     head_move->next = NULL;
 
@@ -53,6 +52,7 @@ int main(int argc, char** argv) {
     struct board* mainBoard = setupBoard();
     printBoard(mainBoard);
     buildFromMove(mainBoard, head_move);
+    buildFromMove(mainBoard, head_move->next);
     printBoard(mainBoard);
 
 
