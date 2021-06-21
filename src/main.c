@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
     printBoard(mainBoard);
     buildFromMove(mainBoard, head_move);
     buildFromMove(mainBoard, head_move->next);
+    // buildFromMove(mainBoard, head_move->next->next);
     printBoard(mainBoard);
 
 

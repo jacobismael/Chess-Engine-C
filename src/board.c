@@ -145,13 +145,36 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : -1)][new_col].pieceId)) {
 				// printf("test\n");
 				appendPos(validPositions, new_row, new_col);
-				printf("%c: %d %d\n", side, new_row, new_col);
+				// printf("%c: %d %d\n", side, new_row, new_col);
 			}
 		}
 		knight_pos_offset_head = knight_pos_offset_head->next;
 	}
 	return validPositions;
 }
+
+struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
+	
+	// printPosList(knight_pos_offset_head);
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+	for (int i = 0; i < 4; i ++) {
+		for (int j = 1; j < 8; j++) {
+			char combined[] = { ' ', oppositeSide(side)};
+			if (strchr(combined, inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId)) {
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId == oppositeSide(side)) {
+					break;
+				}
+			}
+		}
+	}
+	printPosList(validPositions);
+	return validPositions;
+}
+
+
 
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	struct pos* validPositions = malloc(sizeof(struct pos));
