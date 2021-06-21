@@ -46,9 +46,9 @@ int main(int argc, char** argv) {
     game->result = MakeResult(1, 0);
 
     //PrintGame(game);
-    PrintGameStrict(game);
-    printf("===================================\n\n");
-    SavePGNtoFile(game, argv[3]);
+    // PrintGameStrict(game);
+    // printf("===================================\n\n");
+    // SavePGNtoFile(game, argv[3]);
 
     struct board* mainBoard = setupBoard();
     printBoard(mainBoard);

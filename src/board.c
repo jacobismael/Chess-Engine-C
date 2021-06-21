@@ -74,7 +74,7 @@ struct board* buildFromStart(struct board* inputBoard, struct Move* head) {
 	while (head != NULL) {
 		// head->white_notation;
 		
-		if (head->white_notation[0] == "K") {
+		if (head->white_notation[0] == 'K') {
  
 		}
 		
@@ -118,6 +118,7 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	struct pos* validPositions = NULL;
 	char pieceType = inputBoard->board[position->row][position->col].pieceId;
 	char side = inputBoard->board[position->row][position->col].side;
+	printf("side: %c\n", side);
 	// printPosList(position);
 
 	if (pieceType == ' ') {
@@ -128,8 +129,6 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 		short pawnDir = side == 'W' ? 1 : -1;
 		validPositions = malloc(sizeof(struct pos));
 		validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-		// printf("opposite side %c\n", oppositeSide(side));
-		// printf("row %d\n", position->row);
 		if (position->row == 1) { // for moving forward two steps if on row 2
 			if (TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col) == ' ') { 
 				appendPos(validPositions, position->row + 2*pawnDir, position->col);
@@ -157,32 +156,49 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 	//white's move
 	char white_move[6];
 	strncpy(white_move, move->white_notation, 6);
-
-	char new_row = white_move[strlen(white_move) - 1];
-	char new_col = white_move[strlen(white_move) - 2];
 	
-	if (strchr(white_move, 'x')) { // adds replaced peeice to list of pieces that are off the board
+
+	inputBoard = buildFromHalfMove(inputBoard, white_move, 'W');
+	
+	char black_move[6];
+	strncpy(black_move, move->black_notation, 6);
+	inputBoard = buildFromHalfMove(inputBoard, black_move, 'B');
+
+
+	return inputBoard;
+}
+
+struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side) {
+
+	char new_row = move[strlen(move) - 1];
+	char new_col = move[strlen(move) - 2];
+	
+	if (strchr(move, 'x')) { // adds replaced peeice to list of pieces that are off the board
 		// printf("nrow: %c\nncol: %c\n", new_row, new_col);
 		inputBoard->off_the_board[0] = inputBoard->board[new_row - '0'][letterToCol(new_col)];	
 	}
 	char* list_of_valid_chars = "KQBNR";
-	char new_piece_id = strchr(list_of_valid_chars, white_move[0]) ? white_move[0]: 'P';
+	char new_piece_id = strchr(list_of_valid_chars, move[0]) ? move[0]: 'P';
 	struct pos temp_position = {.row = 0, .col = 0};
 	struct pos* lolm = malloc(sizeof(struct pos));
-	struct pos expected_result = {.row = new_row - '0' - 1, .col = letterToCol(new_col), .next=NULL};
+	struct pos expected_result = {.row = new_row - '0' + (side == 'W' ? -1 : 0), .col = letterToCol(new_col), .next=NULL};
 
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (inputBoard->board[i][j].pieceId == new_piece_id && inputBoard->board[i][j].side == 'W') {
-				struct pos temp_position = {.row = i, .col = j, .next = NULL};
+			if (inputBoard->board[i][j].pieceId == new_piece_id && inputBoard->board[i][j].side == side) {
+				temp_position.row = i;
+				temp_position.col = j, 
+				temp_position.next = NULL;
 
 				lolm = listOfLegalMoves(inputBoard, &temp_position);
-				// printf("%c %d\n", new_col, letterToCol(new_col));
+				printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
+				printf("%c %d\n", new_col, letterToCol(new_col));
 				
 				if (posLlContains(lolm, &expected_result)) {	
 					inputBoard->board[i][j].pieceId = ' ';
 					inputBoard->board[i][j].side = ' ';
+					printf("success at %d %d\n", i, j);
 					
 					break;
 				}
@@ -190,21 +206,18 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 		}
 	}
 	
-	struct piece temp_piece = {.pieceId=new_piece_id, .side='W'};
+	struct piece temp_piece = {.pieceId=new_piece_id, .side=side};
 	inputBoard->board[new_row - '0' - 1][letterToCol(new_col)] = temp_piece; // the -1 is required because arrs start at 0
-	
 	return inputBoard;
 }
 
 
 bool posLlContains(struct pos* head, struct pos* to_compare) {
 	while(head != NULL) {
-		// printf("%p\n", head->next);
 		if (head->row == to_compare->row && head->col == to_compare->col) {
 			return true;
 		}	
 		else {
-			printf("row %d col %d\n", head->row, head->col);
 		}
 		head = head->next;
 	}
