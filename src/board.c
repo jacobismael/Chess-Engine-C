@@ -96,72 +96,79 @@ char oppositeSide(char side) {  // maybe ths should overload some operator idk
 	return side; //for no side
 }
 
+struct pos* pawnMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
+	short pawnDir = side == 'W' ? 1 : -1;
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	if (position->row == 1) { // for moving forward two steps if on row 2
+		if (TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col) == ' ') { 
+			appendPos(validPositions, position->row + 2*pawnDir, position->col);
+		}
+		else {
+			printf("team on square = %c\n", TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col));
+		}
+	}
+	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col) == ' ') {
+		appendPos(validPositions, position->row + 1*pawnDir, position->col);
+	}
+	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) {
+		appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
+		printf("left forward\n");
+	}
+	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) {
+		appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
+		printf("right forward\n");
+	}	
+	return validPositions;
+}
 
+struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
+	struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
+	knight_pos_offset_head->row = 2;
+	knight_pos_offset_head->col = -1; 
+	knight_pos_offset_head->next = NULL;
+	appendPos(knight_pos_offset_head, 2,   1);
+	appendPos(knight_pos_offset_head, 1,   2);
+	appendPos(knight_pos_offset_head, -1,  2);
+	appendPos(knight_pos_offset_head, -2,  1);
+	appendPos(knight_pos_offset_head, -2, -1);
+	appendPos(knight_pos_offset_head, -1,  2);
+	appendPos(knight_pos_offset_head, 1,   2);
+	// printPosList(knight_pos_offset_head);
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+
+	while (knight_pos_offset_head != NULL) {
+		int new_row = position->row + knight_pos_offset_head->row;
+		int new_col = position->col + knight_pos_offset_head->col;
+		if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8)  {
+			char combined[] = { ' ', oppositeSide(side)};
+			// printf("%s\n", combined);
+			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : -1)][new_col].pieceId)) {
+				// printf("test\n");
+				appendPos(validPositions, new_row, new_col);
+				printf("%c: %d %d\n", side, new_row, new_col);
+			}
+		}
+		knight_pos_offset_head = knight_pos_offset_head->next;
+	}
+	return validPositions;
+}
 
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	struct pos* validPositions = malloc(sizeof(struct pos));
 	char pieceType = inputBoard->board[position->row][position->col].pieceId;
 	char side = inputBoard->board[position->row][position->col].side;
-	char opside = oppositeSide(side);
-	// printf("side: %c\n", side);
-	// printPosList(position);
 
-	if (pieceType == ' ') {
-		return NULL;
-	}
 
-	if (pieceType == 'P') { // other pieces wont have usch hardcoded values
-		short pawnDir = side == 'W' ? 1 : -1;
-		validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-		if (position->row == 1) { // for moving forward two steps if on row 2
-			if (TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col) == ' ') { 
-				appendPos(validPositions, position->row + 2*pawnDir, position->col);
-			}
-			else {
-				printf("team on square = %c\n", TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col));
-			}
-		}
-		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col) == ' ') {
-			appendPos(validPositions, position->row + 1*pawnDir, position->col);
-		}
-		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col - 1) == opside) {
-			appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
-			printf("left forward\n");
-		}
-		if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == opside) {
-			appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
-			printf("right forward\n");
-		}
-	}
-	else if (pieceType == 'N') {
-		struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
-		knight_pos_offset_head->row = 2;
-		knight_pos_offset_head->col = -1; 
-		knight_pos_offset_head->next = NULL;
-		appendPos(knight_pos_offset_head, 2,   1);
-		appendPos(knight_pos_offset_head, 1,   2);
-		appendPos(knight_pos_offset_head, -1,  2);
-		appendPos(knight_pos_offset_head, -2,  1);
-		appendPos(knight_pos_offset_head, -2, -1);
-		appendPos(knight_pos_offset_head, -1,  2);
-		appendPos(knight_pos_offset_head, 1,   2);
-		// printPosList(knight_pos_offset_head);
-		validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 
-		while (knight_pos_offset_head != NULL) {
-			int new_row = position->row + knight_pos_offset_head->row;
-			int new_col = position->col + knight_pos_offset_head->col;
-			if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8)  {
-				char combined[] = { ' ', opside};
-				// printf("%s\n", combined);
-				if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : -1)][new_col].pieceId)) {
-					// printf("test\n");
-					appendPos(validPositions, new_row, new_col);
-					printf("%c: %d %d\n", side, new_row, new_col);
-				}
-			}
-			knight_pos_offset_head = knight_pos_offset_head->next;
-		}
+	switch(pieceType) {
+		case ' ':
+			return NULL;
+		case'P': // other pieces wont have usch hardcoded values
+			validPositions = pawnMovement(inputBoard, validPositions, position, side);
+			break;
+		case 'N':
+			validPositions = knightMovement(inputBoard, validPositions, position, side);
+			break;
 	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
 }
