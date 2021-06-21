@@ -22,6 +22,7 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
     return head_cpy;
 }
 
+
 char* getMoveList(struct Move* head) {
 
     char* output = malloc(1000);
@@ -43,4 +44,5 @@ void PrintMoveList(struct Move* head) {
         head = head->next;
     }
 }
+
 

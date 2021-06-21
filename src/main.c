@@ -3,6 +3,9 @@
 #include <string.h>
 
 #include "pgn-functions.h"
+#include "move.h"
+#include "board.h"
+
 
 int main(int argc, char** argv) {
 
@@ -46,6 +49,12 @@ int main(int argc, char** argv) {
     PrintGameStrict(game);
     printf("===================================\n\n");
     SavePGNtoFile(game, argv[3]);
+
+    struct board* mainBoard = setupBoard();
+    printBoard(mainBoard);
+    buildFromMove(mainBoard, head_move);
+    printBoard(mainBoard);
+
 
     return 0;
 }

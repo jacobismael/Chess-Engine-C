@@ -1,7 +1,7 @@
 VPATH = ../src
 
 CC = gcc
-CFLAGS = -Wall -W -I../include
+CFLAGS = -g -Wall -W -I../include
 
 PROGRAM_NAME=chess
 
