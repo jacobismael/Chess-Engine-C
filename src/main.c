@@ -31,15 +31,16 @@ int main(int argc, char** argv) {
     strcpy(game->black , "Atli");
 
     struct Move* head_move = malloc(sizeof(struct Move));
+    head_move->move_number = 1;
+    head_move->next = NULL;
  
     strcpy(head_move->white_notation , "e4");
     strcpy(head_move->black_notation , "e5");
-    head_move->move_number = 1;
-    head_move->next = NULL;
-
     head_move = AddMove(head_move, "Nf3", "Nc6");
     head_move = AddMove(head_move, "Bb5", "a6");
-    head_move = AddMove(head_move, "Nf3", "Nc6");
+    head_move = AddMove(head_move, "Ba4", "Nf6");
+    head_move = AddMove(head_move, "O-O", "Be7");
+    head_move = AddMove(head_move, "Re1", "b5");
     game->move_head = head_move;
 
     game->result = MakeResult(1, 0);
@@ -51,9 +52,7 @@ int main(int argc, char** argv) {
 
     struct board* mainBoard = setupBoard();
     printBoard(mainBoard);
-    buildFromMove(mainBoard, head_move);
-    buildFromMove(mainBoard, head_move->next);
-    buildFromMove(mainBoard, head_move->next->next);
+    buildFromStart(mainBoard, head_move);
     printBoard(mainBoard);
 
 

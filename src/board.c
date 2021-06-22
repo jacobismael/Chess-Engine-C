@@ -171,6 +171,27 @@ struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions,
 }
 
 
+struct pos* rookMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
+	
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+	for (int i = 0; i < 4; i ++) {
+		for (int j = 1; j < 8; j++) {
+			char combined[] = { ' ', oppositeSide(side)};
+			if (strchr(combined, inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId)) {
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId == oppositeSide(side)) {
+					break;
+				}
+			}
+		}
+	}
+	// printPosList(validPositions);
+	return validPositions;
+}
+
+
 
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	struct pos* validPositions = malloc(sizeof(struct pos));
@@ -182,7 +203,7 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	switch(pieceType) {
 		case ' ':
 			return NULL;
-		case'P': // other pieces wont have usch hardcoded values
+		case 'P': // other pieces wont have usch hardcoded values
 			validPositions = pawnMovement(inputBoard, validPositions, position, side);
 			break;
 		case 'N':
@@ -190,6 +211,9 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 			break;
 		case 'B':
 			validPositions = bishopMovement(inputBoard, validPositions, position, side);
+			break;
+		case 'R':
+			validPositions = rookMovement(inputBoard, validPositions, position, side);
 			break;
 	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
@@ -224,8 +248,28 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 }
 
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side) {
+	//castle handling	
+	if (strcmp(move, "O-O") == 0) {
+		int end_row = side == 'W' ? 0 : 7;
+		struct piece blank_piece = {.pieceId = ' ', .side = ' '};
+		struct piece king_piece = {.pieceId = 'K', .side = side};
+		struct piece rook_piece = {.pieceId = 'R', .side = side};
+		
+		if (inputBoard->board[end_row][5].pieceId == ' ' && inputBoard->board[end_row][6].pieceId == ' ') { // checks that the squares between the king are empty
+			printf("here\n");
+			if(inputBoard->board[end_row][4].pieceId == 'K' && inputBoard->board[end_row][7].pieceId == 'R') {
+				inputBoard->board[end_row][4] = blank_piece;
+				inputBoard->board[end_row][5] = rook_piece;
+				inputBoard->board[end_row][6] = king_piece;
+				inputBoard->board[end_row][7] = blank_piece;
+			}
+		}
+		return inputBoard;
+	}
+	
 	char new_row = move[strlen(move) - 1];
 	char new_col = move[strlen(move) - 2];
+	
 	
 	if (strchr(move, 'x')) { // adds replaced peeice to list of pieces that are off the board
 		// printf("nrow: %c\nncol: %c\n", new_row, new_col);
