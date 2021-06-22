@@ -99,12 +99,9 @@ char oppositeSide(char side) {  // maybe ths should overload some operator idk
 struct pos* pawnMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
 	short pawnDir = side == 'W' ? 1 : -1;
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	if (position->row == 1) { // for moving forward two steps if on row 2
+	if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
 		if (TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col) == ' ') { 
 			appendPos(validPositions, position->row + 2*pawnDir, position->col);
-		}
-		else {
-			printf("team on square = %c\n", TeamOnSquare(inputBoard, position->row + 2*pawnDir, position->col));
 		}
 	}
 	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col) == ' ') {
@@ -117,7 +114,7 @@ struct pos* pawnMovement(struct board* inputBoard, struct pos* validPositions, s
 	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) {
 		appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
 		printf("right forward\n");
-	}	
+	}
 	return validPositions;
 }
 
@@ -155,7 +152,6 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 
 struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
 	
-	// printPosList(knight_pos_offset_head);
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
@@ -170,7 +166,7 @@ struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions,
 			}
 		}
 	}
-	printPosList(validPositions);
+	// printPosList(validPositions);
 	return validPositions;
 }
 
@@ -191,6 +187,9 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 			break;
 		case 'N':
 			validPositions = knightMovement(inputBoard, validPositions, position, side);
+			break;
+		case 'B':
+			validPositions = bishopMovement(inputBoard, validPositions, position, side);
 			break;
 	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
@@ -237,6 +236,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 	struct pos temp_position = {.row = 0, .col = 0};
 	struct pos* lolm = malloc(sizeof(struct pos));
 	struct pos expected_result = {.row = new_row - '0' -1 /*(side == 'W' ? -1 : 0)*/, .col = letterToCol(new_col), .next=NULL};
+	printf("expected result col = %d\n", expected_result.col);
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -252,7 +252,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 				if (posLlContains(lolm, &expected_result)) {	
 					inputBoard->board[i][j].pieceId = ' ';
 					inputBoard->board[i][j].side = ' ';
-					printf("success at %d %d\n", i, j);
+					// printf("success at %d %d\n", i, j);
 					
 					break;
 				}
