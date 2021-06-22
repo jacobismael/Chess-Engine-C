@@ -26,6 +26,7 @@ char TeamOnSquare(struct board* inputBoard, int row, int col);
 struct pos* appendPos(struct pos* head, int row, int col);
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position);
 struct board* buildFromMove(struct board* inputBoard, struct Move* move);
+struct pos* getRestrictors(char* move);
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side);
 void printBoard(struct board* inputBoard);
 void printPosList(struct pos* head);

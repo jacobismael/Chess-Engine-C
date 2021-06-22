@@ -41,6 +41,11 @@ int main(int argc, char** argv) {
     head_move = AddMove(head_move, "Ba4", "Nf6");
     head_move = AddMove(head_move, "O-O", "Be7");
     head_move = AddMove(head_move, "Re1", "b5");
+    head_move = AddMove(head_move, "Bb3", "d6");
+    head_move = AddMove(head_move, "c3", "O-O");    
+    head_move = AddMove(head_move, "h3", "Nb8");
+    head_move = AddMove(head_move, "d4", "Nbd7");
+
     game->move_head = head_move;
 
     game->result = MakeResult(1, 0);
@@ -54,6 +59,7 @@ int main(int argc, char** argv) {
     printBoard(mainBoard);
     buildFromStart(mainBoard, head_move);
     printBoard(mainBoard);
+
 
 
     return 0;

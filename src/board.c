@@ -34,7 +34,7 @@ struct board* setupBoard() {
 int letterToCol(char letter) {
 	if ((int)letter <= 96 || (int)letter >= 105) {
 		printf("letters should be between a-h. You inputed %c", letter);
-		exit(0);
+	// 	exit(0);
 	}
 	return (int)letter - 97;
 }
@@ -42,7 +42,7 @@ int letterToCol(char letter) {
 int ColToLetter(int col) {
 	if ((int)col < 0 || (int)col > 7) {
 		printf("letters should be between 0-7. You inputed %c", col);
-		exit(0);
+		// exit(0);
 	}
 	return (int)col + 97;
 }
@@ -87,8 +87,6 @@ char TeamOnSquare(struct board* inputBoard, int row, int col) {
 	return inputBoard->board[row][col].side;
 }
 
-
-
 char oppositeSide(char side) {  // maybe ths should overload some operator idk
 	if (strchr("WB", side)) {
 		return side == 'W' ? 'B' : 'W';
@@ -129,20 +127,20 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 	appendPos(knight_pos_offset_head, -2,  1);
 	appendPos(knight_pos_offset_head, -2, -1);
 	appendPos(knight_pos_offset_head, -1,  2);
-	appendPos(knight_pos_offset_head, 1,   2);
+	appendPos(knight_pos_offset_head, 1,   -2);
 	// printPosList(knight_pos_offset_head);
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 
 	while (knight_pos_offset_head != NULL) {
 		int new_row = position->row + knight_pos_offset_head->row;
 		int new_col = position->col + knight_pos_offset_head->col;
-		if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8)  {
+		if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8) {
 			char combined[] = { ' ', oppositeSide(side)};
 			// printf("%s\n", combined);
-			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : -1)][new_col].pieceId)) {
+			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : /*-1*/ 0)][new_col].pieceId)) {
 				// printf("test\n");
 				appendPos(validPositions, new_row, new_col);
-				// printf("%c: %d %d\n", side, new_row, new_col);
+				printf("%c: %d %d\n", side, new_row, new_col);
 			}
 		}
 		knight_pos_offset_head = knight_pos_offset_head->next;
@@ -170,7 +168,6 @@ struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions,
 	return validPositions;
 }
 
-
 struct pos* rookMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
 	
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
@@ -191,14 +188,32 @@ struct pos* rookMovement(struct board* inputBoard, struct pos* validPositions, s
 	return validPositions;
 }
 
+struct pos* queenMovement(struct board* inputBoard, struct pos* validPositions, struct pos* position, char side) {
+	
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+	for (int i = 0; i < 8; i ++) {
+		for (int j = 1; j < 8; j++) {
+			char combined[] = { ' ', oppositeSide(side)};
+			if (strchr(combined, inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId)) {
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (inputBoard->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]].pieceId == oppositeSide(side)) {
+					break;
+				}
+			}
+		}
+	}
+	// printPosList(validPositions);
+	return validPositions;
+}
+
 
 
 struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 	struct pos* validPositions = malloc(sizeof(struct pos));
 	char pieceType = inputBoard->board[position->row][position->col].pieceId;
 	char side = inputBoard->board[position->row][position->col].side;
-
-
 
 	switch(pieceType) {
 		case ' ':
@@ -223,6 +238,7 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 struct board* buildFromStart(struct board* inputBoard, struct Move* head) {
 	while (head != NULL) {
 		inputBoard = buildFromMove(inputBoard, head);
+		// printBoard(inputBoard);
 		
 		
 		head = head->next;
@@ -247,6 +263,53 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 	return inputBoard;
 }
 
+struct pos* getRestrictors(char* move) {
+	if (strlen(move) <= 2) {
+		return NULL;
+	}
+	char* main_move = malloc(sizeof(move));
+
+	if (move[strlen(move) - 1] == '+' || move[strlen(move) - 1] == '#') {
+		strncpy(main_move, move, strlen(move) - 3); // makes main move a clone of move without the coords
+	}
+	else {
+		strncpy(main_move, move, strlen(move) - 2); // makes main move a clone of move without the coords
+	}
+
+	char* list_of_valid_chars = "KQBNR";
+	for (int i = 0; i < strlen(list_of_valid_chars); i++) {
+		if (strchr(main_move, list_of_valid_chars[i])) {
+			main_move = &main_move[1];
+		}
+	}
+
+	// if (main_move[strlen(main_move) - 1] == 'x') {
+	// 	main_move[strlen(main_move) - 1] = '\0';
+	// }
+
+	printf("restrictor %s\n", main_move);
+	if (strlen(main_move) == 0) {
+		return NULL;
+	}
+	struct pos* restrictor = malloc(sizeof(struct pos));
+	restrictor->next = NULL;
+	if (strlen(main_move) == 1) {
+		if (main_move[0] - '0'<= 7 && main_move[0] - '0' >= 0) {
+			restrictor->row = main_move[0] - '0';
+			restrictor->col = -1;
+		}
+		else {
+			restrictor->row = -1;
+			restrictor->col = letterToCol(main_move[0]);
+		}
+	}
+	else {
+		restrictor->col = letterToCol(main_move[0]);
+		restrictor->row = main_move[1] - '0';
+	}
+	return restrictor;
+}
+
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side) {
 	//castle handling	
 	if (strcmp(move, "O-O") == 0) {
@@ -256,7 +319,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 		struct piece rook_piece = {.pieceId = 'R', .side = side};
 		
 		if (inputBoard->board[end_row][5].pieceId == ' ' && inputBoard->board[end_row][6].pieceId == ' ') { // checks that the squares between the king are empty
-			printf("here\n");
+			// printf("here\n");
 			if(inputBoard->board[end_row][4].pieceId == 'K' && inputBoard->board[end_row][7].pieceId == 'R') {
 				inputBoard->board[end_row][4] = blank_piece;
 				inputBoard->board[end_row][5] = rook_piece;
@@ -280,25 +343,44 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 	struct pos temp_position = {.row = 0, .col = 0};
 	struct pos* lolm = malloc(sizeof(struct pos));
 	struct pos expected_result = {.row = new_row - '0' -1 /*(side == 'W' ? -1 : 0)*/, .col = letterToCol(new_col), .next=NULL};
-	printf("expected result col = %d\n", expected_result.col);
+	// printf("expected result col = %d\n", expected_result.col);
+	struct pos* restrictors = getRestrictors(move);
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (inputBoard->board[i][j].pieceId == new_piece_id && inputBoard->board[i][j].side == side) {
-				temp_position.row = i;
-				temp_position.col = j, 
-				temp_position.next = NULL;
 
-				lolm = listOfLegalMoves(inputBoard, &temp_position);
-				// printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
-				// printf("%c %d\n", new_col, letterToCol(new_col));
-				
-				if (posLlContains(lolm, &expected_result)) {	
-					inputBoard->board[i][j].pieceId = ' ';
-					inputBoard->board[i][j].side = ' ';
-					// printf("success at %d %d\n", i, j);
+			if (restrictors == NULL || ((restrictors->row == i || restrictors->row == -1) && (restrictors->col == j || restrictors->col == -1))) { 
+			// this is The line to focus on
+			//also add a game.c with a game struct etc 
+
+
+			//----------------------------------------------
+
+
+				if (inputBoard->board[i][j].pieceId == new_piece_id && inputBoard->board[i][j].side == side) {
+					temp_position.row = i;
+					temp_position.col = j, 
+					temp_position.next = NULL;
+					// printf("not here %d %d %c\n", i, j, new_piece_id);
+
+
+
+					lolm = listOfLegalMoves(inputBoard, &temp_position);
+					// printPosList(lolm);
+					// printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
+					// printf("%c %d\n", new_col, letterToCol(new_col));
 					
-					break;
+					if (posLlContains(lolm, &expected_result)) {	
+						// printf("yayayay\n");
+						inputBoard->board[i][j].pieceId = ' ';
+						inputBoard->board[i][j].side = ' ';
+						// printf("success at %d %d\n", i, j);
+						
+						break;
+					}
+					else {
+						// printPosList(lolm);
+					}
 				}
 			}
 		}
