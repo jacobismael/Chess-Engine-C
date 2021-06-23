@@ -4,8 +4,7 @@
 
 #include "pgn-functions.h"
 
-struct Result *MakeResult(float w_score, float b_score)
-{
+struct Result *MakeResult(float w_score, float b_score) {
     struct Result *result = malloc(sizeof(struct Result));
 
     result->white_score = w_score;
@@ -14,14 +13,13 @@ struct Result *MakeResult(float w_score, float b_score)
     return result;
 }
 
-void PrintResult(struct Result *result)
-{
+void PrintResult(struct Result *result) {
 
     char *white_str = malloc(2);
     char *black_str = malloc(2);
 
-    snprintf(white_str, 2, "%f", result->white_score);
-    snprintf(black_str, 2, "%f", result->black_score);
+    sprintf(white_str, "%d", (short)result->white_score);
+    sprintf(black_str, "%d", (short)result->black_score);
 
     printf("%s-%s", result->white_score == 0.5 ? "1/2" : white_str, result->black_score == 0.5 ? "1/2" : black_str);
 
@@ -29,8 +27,7 @@ void PrintResult(struct Result *result)
     free(black_str);
 }
 
-char* getResult(struct Result *result)
-{
+char* getResult(struct Result *result) {
 
     char* output = malloc(1000);
     char* buff = malloc(200);
@@ -38,8 +35,8 @@ char* getResult(struct Result *result)
     char *white_str = malloc(2);
     char *black_str = malloc(2);
 
-    snprintf(white_str, 2, "%f", result->white_score);
-    snprintf(black_str, 2, "%f", result->black_score);
+    sprintf(white_str, "%d", (short)result->white_score);
+    sprintf(black_str, "%d", (short)result->black_score);
 
     sprintf(buff, "%s-%s", result->white_score == 0.5 ? "1/2" : white_str, result->black_score == 0.5 ? "1/2" : black_str);
     strncat(output, buff, strlen(buff));
@@ -51,10 +48,9 @@ char* getResult(struct Result *result)
     return output;
 }
 
-void PrintGame(struct PGN *game)
-{
+void PrintGame(struct PGN *game) {
     printf("\n===================| %s |===================\n", game->event);
-    ;
+    
     printf("Site: %s\n", game->site);
     printf("Date: %s\n", game->date);
     printf("Round: %d\n", game->round);
@@ -69,8 +65,7 @@ void PrintGame(struct PGN *game)
     printf("\n");
 }
 
-void PrintGameStrict(struct PGN *game)
-{
+void PrintGameStrict(struct PGN *game) {
     printf("[Event \"%s\"]\n", game->event);
     printf("[Site \"%s\"]\n", game->site);
     printf("[Date \"%s\"]\n", game->date);
@@ -87,8 +82,7 @@ void PrintGameStrict(struct PGN *game)
     printf("\n");
 }
 
-void SavePGNtoFile(struct PGN *game, char* filepath)
-{
+void SavePGNtoFile(struct PGN *game, char* filepath) {
     FILE *fp;
 
     char* output = malloc(1000);
@@ -122,7 +116,7 @@ void SavePGNtoFile(struct PGN *game, char* filepath)
     sprintf(buff, "\n");
     strncat(output, buff, strlen(buff));
 
-    strncat(filepath, ".pgn", 4);
+    strncat(filepath, ".pgn", 5);
     
     sprintf(path, "../games/");
     strncat(path, filepath, strlen(filepath));
