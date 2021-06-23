@@ -13,7 +13,6 @@ or:
 ```bash
 mkdir build
 cd build
-cmake ..
 make
 ```
 
@@ -23,13 +22,13 @@ make
 
 Visual Mode:
 ```bash
-./main
+./chess
 ```
 
 Terminal Mode
 ```bash
 cd build
-./main <Name> <Location> <Output File>
+./chess <Name> <Location> <Output File>
 ```
 
 - - -
