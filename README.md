@@ -31,3 +31,10 @@ Terminal Mode
 cd build
 ./main <Name> <Location> <Output File>
 ```
+
+- - -
+
+## TODO:
+
+- Chess AI
+- Graphics using OpenGL
