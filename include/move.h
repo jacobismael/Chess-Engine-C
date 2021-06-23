@@ -8,6 +8,14 @@ struct pos {
 	struct pos*  next; //optional
 };
 
+
+struct Turn {
+
+    char side;
+    char move[6];
+
+};
+
 struct Move {
 
     int move_number;

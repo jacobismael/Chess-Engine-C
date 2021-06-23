@@ -239,17 +239,18 @@ struct board* buildFromMove(struct board* input_board, struct Move* move) {
 	strncpy(white_move, move->white_notation, 6);
 	
 
-	input_board = buildFromHalfMove(input_board, white_move, 'W');
+	input_board = buildFromHalfMove(input_board, white_move, 'W', NULL);
 	
 	char black_move[6];
 	strncpy(black_move, move->black_notation, 6);
-	input_board = buildFromHalfMove(input_board, black_move, 'B');
+	input_board = buildFromHalfMove(input_board, black_move, 'B', NULL);
 
 
 	return input_board;
 }
 
-struct board* buildFromHalfMove(struct board* input_board, char* move, char side) {
+struct board* buildFromHalfMove(struct board* input_board, char* move, char side, int* status) {
+	*status = 0;
 	struct dataTurn* cmove = toDataTurn(move);
 	//castle handling
 	if (cmove->castles ==  1) {
@@ -267,6 +268,7 @@ struct board* buildFromHalfMove(struct board* input_board, char* move, char side
 				input_board->board[end_row][7] = blank_piece;
 			}
 		}
+		*status = 1;
 		return input_board;
 	}
 	
@@ -294,16 +296,18 @@ struct board* buildFromHalfMove(struct board* input_board, char* move, char side
 					if (posLlContains(lolm, &expected_result)) {
 						input_board->board[i][j].pieceId = ' ';
 						input_board->board[i][j].side = ' ';
-						
+						*status = 1;
 						break;
 					}
 				}
 			}
 		}
 	}
-	
-	struct piece temp_piece = {.pieceId=cmove->piece, .side=side};
-	input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
+	if(*status == 1) {
+		struct piece temp_piece = {.pieceId=cmove->piece, .side=side};
+		input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
+		printf("yeet\n");
+	}
 	return input_board;
 }
 
@@ -338,6 +342,8 @@ void printBoard(struct board* input_board) {
 		}
 		
 	}
+
+	printf("   a  b  c  d  e  f  g  h\n");
 }
 
 void printPosList(struct pos* head) {
