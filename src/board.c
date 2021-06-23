@@ -214,7 +214,7 @@ struct pos* listOfLegalMoves(struct board* input_board, struct pos* position) {
 			validPositions = rookMovement(input_board, validPositions, position, side);
 			break;
 		case 'Q':
-			validPositions = rookMovement(input_board, validPositions, position, side);
+			validPositions = queenMovement(input_board, validPositions, position, side);
 			break;
 	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
