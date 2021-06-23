@@ -71,7 +71,7 @@ char TeamOnSquare(struct board* inputBoard, int row, int col) {
 	return inputBoard->board[row][col].side;
 }
 
-char oppositeSide(char side) {  // maybe ths should overload some operator idk
+char oppositeSide(char side) {  // maybe this should overload some operator idk
 	if (strchr("WB", side)) {
 		return side == 'W' ? 'B' : 'W';
 	}
@@ -91,11 +91,11 @@ struct pos* pawnMovement(struct board* inputBoard, struct pos* validPositions, s
 	}
 	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) {
 		appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
-		printf("left forward\n");
+		
 	}
 	if (TeamOnSquare(inputBoard, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) {
 		appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
-		printf("right forward\n");
+		
 	}
 	return validPositions;
 }
@@ -112,7 +112,7 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 	appendPos(knight_pos_offset_head, -2, -1);
 	appendPos(knight_pos_offset_head, -1,  2);
 	appendPos(knight_pos_offset_head, 1,   -2);
-	// printPosList(knight_pos_offset_head);
+
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 
 	while (knight_pos_offset_head != NULL) {
@@ -120,11 +120,10 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 		int new_col = position->col + knight_pos_offset_head->col;
 		if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8) {
 			char combined[] = { ' ', oppositeSide(side)};
-			// printf("%s\n", combined);
+
 			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : /*-1*/ 0)][new_col].pieceId)) {
-				// printf("test\n");
+
 				appendPos(validPositions, new_row, new_col);
-				// printf("%c: %d %d\n", side, new_row, new_col);
 			}
 		}
 		knight_pos_offset_head = knight_pos_offset_head->next;
@@ -148,7 +147,7 @@ struct pos* bishopMovement(struct board* inputBoard, struct pos* validPositions,
 			}
 		}
 	}
-	// printPosList(validPositions);
+	
 	return validPositions;
 }
 
@@ -268,7 +267,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 		return inputBoard;
 	}
 	
-	if (cmove->takes) { // adds replaced peeice to list of pieces that are off the board
+	if (cmove->takes) { // adds replaced peice to list of pieces that are off the board
 		inputBoard->off_the_board[0] = inputBoard->board[cmove->final_position.row][cmove->final_position.col];	
 	}
 	struct pos temp_position = {.row = 0, .col = 0};
@@ -287,9 +286,6 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 					temp_position.row = i;
 					temp_position.col = j, 
 					temp_position.next = NULL;
-					// printf("not here %d %d %c\n", i, j, new_piece_id);
-
-
 
 					lolm = listOfLegalMoves(inputBoard, &temp_position);
 					if (posLlContains(lolm, &expected_result)) {
