@@ -258,17 +258,34 @@ struct board* buildFromHalfMove(struct board* input_board, char* move, char side
 		struct piece blank_piece = {.pieceId = ' ', .side = ' '};
 		struct piece king_piece = {.pieceId = 'K', .side = side};
 		struct piece rook_piece = {.pieceId = 'R', .side = side};
-		
-		if (input_board->board[end_row][5].pieceId == ' ' && input_board->board[end_row][6].pieceId == ' ') { // checks that the squares between the king are empty
-			// printf("here\n");
-			if(input_board->board[end_row][4].pieceId == 'K' && input_board->board[end_row][7].pieceId == 'R') {
-				input_board->board[end_row][4] = blank_piece;
-				input_board->board[end_row][5] = rook_piece;
-				input_board->board[end_row][6] = king_piece;
-				input_board->board[end_row][7] = blank_piece;
+		if (cmove->is_king_side) {
+			if (input_board->board[end_row][5].pieceId == ' ' && input_board->board[end_row][6].pieceId == ' ') { // checks that the squares between the king are empty
+				// printf("here\n");
+				if(input_board->board[end_row][4].pieceId == 'K' && input_board->board[end_row][7].pieceId == 'R') {
+					*status = 1;
+					
+					input_board->board[end_row][4] = blank_piece;
+					input_board->board[end_row][5] = rook_piece;
+					input_board->board[end_row][6] = king_piece;
+					input_board->board[end_row][7] = blank_piece;
+				}
 			}
 		}
-		*status = 1;
+		else {
+			if (input_board->board[end_row][1].pieceId == ' ' && input_board->board[end_row][2].pieceId == ' '  && input_board->board[end_row][3].pieceId == ' ') { // checks that the squares between the king are empty
+				// printf("here\n");
+				if(input_board->board[end_row][4].pieceId == 'K' && input_board->board[end_row][0].pieceId == 'R') {
+					*status = 1;
+					
+					input_board->board[end_row][0] = blank_piece;
+					input_board->board[end_row][1] = blank_piece;
+					input_board->board[end_row][2] = king_piece;
+					input_board->board[end_row][3] = rook_piece;
+					input_board->board[end_row][4] = blank_piece;
+				}
+			}
+		}
+
 		return input_board;
 	}
 	

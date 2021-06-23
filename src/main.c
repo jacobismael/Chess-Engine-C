@@ -32,19 +32,15 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    if(argc != 4) {
+    else if(argc != 4) {
         printf("Need Event Name\n");
         return 0;
     }
-
-
     struct Turn* player1move = malloc(sizeof(struct Turn));
     struct Turn* player2move = malloc(sizeof(struct Turn));
 
     struct board* mainBoard = setupBoard();
     printBoard(mainBoard);
-    // buildFromStart(mainBoard, head_move);
-    // printBoard(mainBoard);
 
     int* status = malloc(sizeof(int));
 
