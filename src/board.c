@@ -31,22 +31,6 @@ struct board* setupBoard() {
 	return newBoard;
 }
 
-int letterToCol(char letter) {
-	if ((int)letter <= 96 || (int)letter >= 105) {
-		printf("letters should be between a-h. You inputed %c", letter);
-	// 	exit(0);
-	}
-	return (int)letter - 97;
-}
-
-int ColToLetter(int col) {
-	if ((int)col < 0 || (int)col > 7) {
-		printf("letters should be between 0-7. You inputed %c", col);
-		// exit(0);
-	}
-	return (int)col + 97;
-}
-
 struct pos* findPos(struct board* inputBoard, struct piece* piece_to_find, char restrictor_row, char restrictor_col) {
 	int row_min = restrictor_row == 'z' ? 0 : restrictor_row - '0'; //z is used as a special char to indicate no restriction on search 
 	int row_max = restrictor_row == 'z' ? 8 : restrictor_row - '0'; //z is used as a special char to indicate no restriction on search 
@@ -140,7 +124,7 @@ struct pos* knightMovement(struct board* inputBoard, struct pos* validPositions,
 			if (strchr(combined, inputBoard->board[new_row + (side == 'W' ? 0 : /*-1*/ 0)][new_col].pieceId)) {
 				// printf("test\n");
 				appendPos(validPositions, new_row, new_col);
-				printf("%c: %d %d\n", side, new_row, new_col);
+				// printf("%c: %d %d\n", side, new_row, new_col);
 			}
 		}
 		knight_pos_offset_head = knight_pos_offset_head->next;
@@ -238,7 +222,7 @@ struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position) {
 struct board* buildFromStart(struct board* inputBoard, struct Move* head) {
 	while (head != NULL) {
 		inputBoard = buildFromMove(inputBoard, head);
-		// printBoard(inputBoard);
+		printBoard(inputBoard);
 		
 		
 		head = head->next;
@@ -263,56 +247,10 @@ struct board* buildFromMove(struct board* inputBoard, struct Move* move) {
 	return inputBoard;
 }
 
-struct pos* getRestrictors(char* move) {
-	if (strlen(move) <= 2) {
-		return NULL;
-	}
-	char* main_move = malloc(sizeof(move));
-
-	if (move[strlen(move) - 1] == '+' || move[strlen(move) - 1] == '#') {
-		strncpy(main_move, move, strlen(move) - 3); // makes main move a clone of move without the coords
-	}
-	else {
-		strncpy(main_move, move, strlen(move) - 2); // makes main move a clone of move without the coords
-	}
-
-	char* list_of_valid_chars = "KQBNR";
-	for (int i = 0; i < strlen(list_of_valid_chars); i++) {
-		if (strchr(main_move, list_of_valid_chars[i])) {
-			main_move = &main_move[1];
-		}
-	}
-
-	// if (main_move[strlen(main_move) - 1] == 'x') {
-	// 	main_move[strlen(main_move) - 1] = '\0';
-	// }
-
-	printf("restrictor %s\n", main_move);
-	if (strlen(main_move) == 0) {
-		return NULL;
-	}
-	struct pos* restrictor = malloc(sizeof(struct pos));
-	restrictor->next = NULL;
-	if (strlen(main_move) == 1) {
-		if (main_move[0] - '0'<= 7 && main_move[0] - '0' >= 0) {
-			restrictor->row = main_move[0] - '0';
-			restrictor->col = -1;
-		}
-		else {
-			restrictor->row = -1;
-			restrictor->col = letterToCol(main_move[0]);
-		}
-	}
-	else {
-		restrictor->col = letterToCol(main_move[0]);
-		restrictor->row = main_move[1] - '0';
-	}
-	return restrictor;
-}
-
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side) {
-	//castle handling	
-	if (strcmp(move, "O-O") == 0) {
+	struct dataTurn* cmove = toDataTurn(move);
+	//castle handling
+	if (cmove->castles ==  1) {
 		int end_row = side == 'W' ? 0 : 7;
 		struct piece blank_piece = {.pieceId = ' ', .side = ' '};
 		struct piece king_piece = {.pieceId = 'K', .side = side};
@@ -330,22 +268,14 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 		return inputBoard;
 	}
 	
-	char new_row = move[strlen(move) - 1];
-	char new_col = move[strlen(move) - 2];
-	
-	
-	if (strchr(move, 'x')) { // adds replaced peeice to list of pieces that are off the board
-		// printf("nrow: %c\nncol: %c\n", new_row, new_col);
-		inputBoard->off_the_board[0] = inputBoard->board[new_row - '0'][letterToCol(new_col)];	
+	if (cmove->takes) { // adds replaced peeice to list of pieces that are off the board
+		inputBoard->off_the_board[0] = inputBoard->board[cmove->final_position.row][cmove->final_position.col];	
 	}
-	char* list_of_valid_chars = "KQBNR";
-	char new_piece_id = strchr(list_of_valid_chars, move[0]) ? move[0]: 'P';
 	struct pos temp_position = {.row = 0, .col = 0};
 	struct pos* lolm = malloc(sizeof(struct pos));
-	struct pos expected_result = {.row = new_row - '0' -1 /*(side == 'W' ? -1 : 0)*/, .col = letterToCol(new_col), .next=NULL};
-	// printf("expected result col = %d\n", expected_result.col);
-	struct pos* restrictors = getRestrictors(move);
-
+	struct pos expected_result = {.row = cmove->final_position.row -1 , .col = cmove->final_position.col, .next=NULL};
+	struct pos* restrictors = &cmove->restrictors;
+	
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 
@@ -353,11 +283,7 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 			// this is The line to focus on
 			//also add a game.c with a game struct etc 
 
-
-			//----------------------------------------------
-
-
-				if (inputBoard->board[i][j].pieceId == new_piece_id && inputBoard->board[i][j].side == side) {
+				if (inputBoard->board[i][j].pieceId == cmove->piece && inputBoard->board[i][j].side == side) {
 					temp_position.row = i;
 					temp_position.col = j, 
 					temp_position.next = NULL;
@@ -366,28 +292,19 @@ struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side)
 
 
 					lolm = listOfLegalMoves(inputBoard, &temp_position);
-					// printPosList(lolm);
-					// printf("%d %d\n", new_row - '0' - 1, letterToCol(new_col));
-					// printf("%c %d\n", new_col, letterToCol(new_col));
-					
-					if (posLlContains(lolm, &expected_result)) {	
-						// printf("yayayay\n");
+					if (posLlContains(lolm, &expected_result)) {
 						inputBoard->board[i][j].pieceId = ' ';
 						inputBoard->board[i][j].side = ' ';
-						// printf("success at %d %d\n", i, j);
 						
 						break;
-					}
-					else {
-						// printPosList(lolm);
 					}
 				}
 			}
 		}
 	}
 	
-	struct piece temp_piece = {.pieceId=new_piece_id, .side=side};
-	inputBoard->board[new_row - '0' - 1][letterToCol(new_col)] = temp_piece; // the -1 is required because arrs start at 0
+	struct piece temp_piece = {.pieceId=cmove->piece, .side=side};
+	inputBoard->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
 	return inputBoard;
 }
 

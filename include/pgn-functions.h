@@ -1,22 +1,19 @@
 #include "move.h"
 
 struct Result {
-    
     float white_score;
     float black_score;
 
 };
 
 struct PGN {
-
     char event[256];
     char site[256];
     char date[256];
     int round;
     char white[256];
-    char black[256];    
+    char black[256];
 
-    
     struct Result* result;
     struct Move* move_head;
 
