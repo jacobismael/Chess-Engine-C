@@ -18,7 +18,7 @@ struct board* buildFromStart(struct board* inputBoard, struct Move* head);
 char oppositeSide(char side);
 char TeamOnSquare(struct board* inputBoard, int row, int col);
 struct pos* appendPos(struct pos* head, int row, int col);
-struct pos* listOfLegalMoves(struct board* inputBoard, struct pos* position);
+struct pos* listOfLegalMoves(struct board* input_board, struct pos* position, struct board* original_board);
 struct board* buildFromMove(struct board* inputBoard, struct Move* move);
 struct board* buildFromHalfMove(struct board* inputBoard, char* move, char side, int* status);
 void printBoard(struct board* inputBoard);

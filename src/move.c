@@ -41,6 +41,13 @@ int ColToLetter(int col) {
 
 
 struct dataTurn* toDataTurn(char* original_move) {
+    if (original_move[0] == 'x') {
+        printf("moves cannot start with 'x'\n");
+        return NULL; 
+    }
+    else {
+        printf("first letter = %c\n", original_move[0]);
+    }
     struct dataTurn* new_move = malloc(sizeof(struct dataTurn));
     char* list_of_pieces = "RNBQK";
     char* move_cpy = malloc(sizeof(original_move)); // i dont think this needs to be freed
@@ -74,6 +81,7 @@ struct dataTurn* toDataTurn(char* original_move) {
     new_move->final_position = final_pos;
 
     if (strchr(move_cpy, 'x') != NULL) { // specifies if the move is taking a piece
+        printf("takes");
         new_move->takes =  true;
         move_cpy[strlen(move_cpy) - 1] = '\0';
     }
