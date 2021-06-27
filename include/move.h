@@ -3,9 +3,15 @@
 #define MOVE_H
 
 struct pos { 
-	int row;
-	int col;
+	int row:4;
+	int col:4;
 	struct pos*  next; //optional
+};
+
+
+struct standard_pos { 
+	int row:4;
+	int col:4;
 };
 
 
@@ -26,14 +32,18 @@ struct Move {
 };
 
 struct dataTurn {
-    struct pos restrictors;
-    struct pos final_position;
+    struct standard_pos restrictors;
+    struct standard_pos final_position;
     char piece;
     bool takes;
     bool castles;
     bool is_king_side;
     bool is_check;
 };
+
+struct standard_pos posToStandard_pos(struct pos* input_pos);
+
+struct pos standard_posToPos(struct standard_pos* input_pos);
 
 int letterToCol(char letter);
 int ColToLetter(int col);

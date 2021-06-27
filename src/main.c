@@ -7,7 +7,7 @@
 #include "board.h"
 
 
-void getWhiteMove(struct board* mainBoard, int* status) {
+void getWhiteMove(struct dataBoard* mainBoard, int* status) {
     char* input = malloc(sizeof(char) * 6);
     printf("\nPlayer 1 Move: ");
     scanf("%s", input);
@@ -15,7 +15,7 @@ void getWhiteMove(struct board* mainBoard, int* status) {
     free(input);
 }
 
-void getBlackMove(struct board* mainBoard, int* status) {
+void getBlackMove(struct dataBoard* mainBoard, int* status) {
     char* input = malloc(sizeof(char) * 6);
     printf("\nPlayer 2 Move: ");
     scanf("%s", input);
@@ -36,11 +36,14 @@ int main(int argc, char** argv) {
         printf("Need Event Name\n");
         return 0;
     }
-    struct Turn* player1move = malloc(sizeof(struct Turn));
-    struct Turn* player2move = malloc(sizeof(struct Turn));
+    // struct Turn* player1move = malloc(sizeof(struct Turn));
+    // struct Turn* player2move = malloc(sizeof(struct Turn));
 
-    struct board* mainBoard = setupBoard();
-    printBoard(mainBoard);
+    struct dataBoard* mainBoard = setupDataBoard();
+    printf("%p \n", mainBoard);
+    printf("test\n");
+    printDataBoard(mainBoard);
+    printDataBoard(mainBoard);
 
     int* status = malloc(sizeof(int));
 
@@ -50,14 +53,14 @@ int main(int argc, char** argv) {
         while(*status == 0) { 
             getWhiteMove(mainBoard, status); 
         }
-        printBoard(mainBoard);
+        printDataBoard(mainBoard);
 
         *status = 0;
         while(*status == 0) { 
             getBlackMove(mainBoard, status); 
         }
 
-        printBoard(mainBoard);
+        printDataBoard(mainBoard);
     }
 
 

@@ -77,7 +77,7 @@ struct dataTurn* toDataTurn(char* original_move) {
         }
     }
 
-    struct pos final_pos = {.row = (move_cpy[strlen(move_cpy) - 1] - '0'), .col = letterToCol(move_cpy[strlen(move_cpy) - 2]), .next = NULL}; // adds the final position of the piece
+    struct standard_pos final_pos = {.row = (move_cpy[strlen(move_cpy) - 1] - '0'), .col = letterToCol(move_cpy[strlen(move_cpy) - 2])}; // adds the final position of the piece
     new_move->final_position = final_pos;
 
     if (strchr(move_cpy, 'x') != NULL) { // specifies if the move is taking a piece
@@ -90,8 +90,7 @@ struct dataTurn* toDataTurn(char* original_move) {
     }
 
     move_cpy[strlen(move_cpy) - 2] = '\0';
-    struct pos restrictor_pos;
-    restrictor_pos.next = NULL;
+    struct standard_pos restrictor_pos;
     if (strlen(move_cpy) == 1) {
        if (move_cpy[0] - '0' <= 7 && move_cpy[0] - '0' >= 0) {
            printf("new move cpy %c", move_cpy[0]);
@@ -137,4 +136,14 @@ void PrintMoveList(struct Move* head) {
     }
 }
 
+
+struct standard_pos posToStandard_pos(struct pos* input_pos) {
+    struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};
+    return result;
+}
+
+struct pos standard_posToPos(struct standard_pos* input_pos) {
+    struct pos result = {.row = input_pos->row, .col = input_pos->col, .next = NULL};
+    return result;
+}
 
