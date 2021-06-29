@@ -1,11 +1,161 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-
 #include "board.h"
 
-char sideOfDataPiece(struct dataPiece dp) {
+
+struct dataPiece getDataPiece(const struct dataBoard* board, signed char row, signed char col) {
+	assert(row >= 0 && row <= 7);
+	assert(col >= 0 && col <= 7);
+
+	return board->board[row][col];
+}
+
+struct dataPiece* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col) {
+	assert(row >= 0 && row <= 7);
+	assert(col >= 0 && col <= 7);
+
+	return &board->board[row][col];
+}
+
+struct pos* pawnMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	short pawnDir = side == 'W' ? 1 : -1;
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
+		if (TeamOnSquare(input_board, position->row + 2*pawnDir, position->col) == ' ') { 
+			appendPos(validPositions, position->row + 2*pawnDir, position->col);
+		}
+		else {
+			// printf("test:%c:\n", TeamOnSquare(input_board, position->row + 2*pawnDir, position->col));
+		}
+	}
+	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col) == ' ') {
+		appendPos(validPositions, position->row + 1*pawnDir, position->col);
+	}
+	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
+		appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
+		
+	}
+	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
+		appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
+		
+	}
+	return validPositions;
+}
+
+struct pos* knightMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
+	knight_pos_offset_head->row = 2;
+	knight_pos_offset_head->col = -1; 
+	knight_pos_offset_head->next = NULL;
+	appendPos(knight_pos_offset_head, 2,   1);
+	appendPos(knight_pos_offset_head, 1,   2);
+	appendPos(knight_pos_offset_head, -1,  2);
+	appendPos(knight_pos_offset_head, -2,  1);
+	appendPos(knight_pos_offset_head, -2, -1);
+	appendPos(knight_pos_offset_head, -1,  2);
+	appendPos(knight_pos_offset_head, 1,   -2);
+
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+
+	while (knight_pos_offset_head != NULL) {
+		int new_row = position->row + knight_pos_offset_head->row;
+		int new_col = position->col + knight_pos_offset_head->col;
+		if (validRange(new_row)  && validRange(new_col)) {
+			char combined[] = { ' ', oppositeSide(side)};
+
+			if (strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, new_row, new_col))) != NULL) {
+
+				appendPos(validPositions, new_row, new_col);
+			}
+		}
+		knight_pos_offset_head = knight_pos_offset_head->next;
+	}
+	freePosList(knight_pos_offset_head);
+	return validPositions;
+}
+
+struct pos* bishopMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+	char combined[] = { ' ', oppositeSide(side)};
+	for (int i = 0; i < 4; i ++) {
+		for (int j = 1; j < 8; j++) {
+			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1]) && strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL) {
+
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
+					break;
+				}
+			}
+		}
+	}
+	
+	return validPositions;
+}
+
+struct pos* rookMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+	char combined[] = { ' ', oppositeSide(side)};
+	for (int i = 0; i < 4; i ++) {
+		for (int j = 1; j < 8; j++) {
+			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1]) && strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL) {
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
+					break;
+				}
+			}
+		}
+	}
+	// printPosList(validPositions);
+	return validPositions;
+}
+
+struct pos* queenMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	
+	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+	char combined[] = {' ', oppositeSide(side)};
+	for (int i = 0; i < 8; i ++) {
+		for (int j = 1; j < 8; j++) {
+			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1]) && strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL) {
+				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
+				if (pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) != ' ') {
+					break;
+				}
+			}
+		}
+	}
+	// printPosList(validPositions);
+	return validPositions;
+}
+
+
+struct pos* kingMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
+	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+	struct standard_pos* position_cpy = malloc(sizeof(struct standard_pos));
+
+	for (int i = 0; i < 8; i++) {
+		position_cpy->row = position->row + multipliers[i][0];
+		position_cpy->col = position->col + multipliers[i][1];
+
+		if (!positionUnderAttack(input_board, oppositeSide(side), position_cpy)) {
+			appendPos(validPositions, position_cpy->row, position_cpy->col + multipliers[i][1]);
+
+		}	
+	}
+
+	
+	// printPosList(validPositions->next);
+	free(position_cpy);
+
+	return validPositions;
+}
+
+char sideOfDataPiece(const struct dataPiece dp) {
 	
 	if (dp.id >= 0) {
 		if (dp.id <= 5) {
@@ -18,7 +168,7 @@ char sideOfDataPiece(struct dataPiece dp) {
 	return ' ';
 }
 
-char pieceIdOfDataPiece(struct dataPiece dp) {
+char pieceIdOfDataPiece(const struct dataPiece dp) {
 	if (dp.id <= 11) {
 		switch (dp.id % 6) {
 			case 0:
@@ -33,6 +183,8 @@ char pieceIdOfDataPiece(struct dataPiece dp) {
 				return 'Q';
 			case 5:
 				return 'K';
+			default:
+				return ' ';
 		}
 	}
 	return ' ';
@@ -77,56 +229,45 @@ struct dataPiece makeDataPiece(char pieceId, char side) {
 	return result;
 }
 
-struct dataPiece* pieceToDataPiece(struct piece* p) {
-	struct dataPiece* result = malloc(sizeof(struct dataPiece));
+struct dataPiece pieceToDataPiece(struct piece* p) {
+	struct dataPiece result;
 	if (p->side == ' ') {
-		result->id = 15;
+		result.id = 15;
 		return result;
 	}
 	else if (p->side == 'W') {
-		result->id = 0;
+		result.id = 0;
 	}
 	else if (p->side == 'B') {
-		result->id = 6;
+		result.id = 6;
 	}
 
 	switch ( p->pieceId) {
 		case 'P':
 			break;
 		case 'R':
-			result->id += 1;
+			result.id += 1;
 			break;
 		case 'N':
-			result->id += 2;
+			result.id += 2;
 			break;
 		case 'B':
-			result->id += 3;
+			result.id += 3;
 			break;
 		case 'Q':
-			result->id += 4;
+			result.id += 4;
 			break;
 		case 'K':
-			result->id += 5;
+			result.id += 5;
 			break;
 		default:
-			result->id = 15;
+			result.id = 15;
 	}
 
 	return result;
 	
 }
 
-bool posLlContains(struct pos* head, struct pos* to_compare) {
-	while(head != NULL) {
-		if (head->row == to_compare->row && head->col == to_compare->col) {
-			return true;
-		}	
-		else {
-		}
-		head = head->next;
-	}
-	return false;
-}
 
 void printBoard(struct board* input_board) {
 	printf("\n\n\n");
@@ -156,7 +297,7 @@ void printDataBoard(struct dataBoard* input_board) {
 		printf("%d  ", i + 1);
 		for (int j = 0; j < 8; j++) {
 			
-			printf("%c%c", sideOfDataPiece(input_board->board[i][j]), pieceIdOfDataPiece(input_board->board[i][j]));
+			printf("%c%c", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
 
 			if (j != 7) { 
 				printf("|");
@@ -173,14 +314,6 @@ void printDataBoard(struct dataBoard* input_board) {
 	printf("   a  b  c  d  e  f  g  h\n");
 }
 
-
-void printPosList(struct pos* head) {
-	while (head != NULL) {
-		printf("row %d, col %d\n", head->row, head->col);
-		head = head->next;
-	}
-
-}
 
 struct board* setupBoard() {
 	char* side_template = "RNBQKBNR";
@@ -226,161 +359,31 @@ struct dataBoard* setupDataBoard() {
 	return newBoard;
 }
 
-struct pos* appendPos(struct pos* head, int row, int col){
-	struct pos* headcpy = head;
-	while(head->next != NULL) {
-		head = head->next;
+bool validRange(int input) {
+	if (input >= 0 && input <= 7) {
+		return true;
 	}
-	struct pos* newPos = malloc(sizeof(struct pos));
-	newPos->next = NULL;
-	newPos->row = row;
-	newPos->col = col;
-	head->next = newPos;
-	return headcpy;
+	return false;
 }
 
 char TeamOnSquare(struct dataBoard* input_board, int row, int col) {
-	return sideOfDataPiece(input_board->board[row][col]);
+	if (!validRange(row) || !validRange(col)) {
+		return ' ';
+	}
+	return sideOfDataPiece(getDataPiece(input_board, row, col));
 }
 
-char oppositeSide(char side) {  // maybe this should overload some operator idk
-	if (strchr("WB", side) != NULL) {
-		return side == 'W' ? 'B' : 'W';
-	}
-	return side; //for no side
-}
-
-struct pos* pawnMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	short pawnDir = side == 'W' ? 1 : -1;
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
-		if (TeamOnSquare(input_board, position->row + 2*pawnDir, position->col) == ' ') { 
-			appendPos(validPositions, position->row + 2*pawnDir, position->col);
-		}
-		else {
-			printf("test:%c:\n", TeamOnSquare(input_board, position->row + 2*pawnDir, position->col));
-		}
-		// printf("test\n");
-	}
-	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col) == ' ') {
-		appendPos(validPositions, position->row + 1*pawnDir, position->col);
-	}
-	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
-		appendPos(validPositions, position->row + 1*pawnDir, position->col - 1);
-		
-	}
-	if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
-		appendPos(validPositions, position->row + 1*pawnDir, position->col + 1);
-		
-	}
-	return validPositions;
-}
-
-struct pos* knightMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
-	knight_pos_offset_head->row = 2;
-	knight_pos_offset_head->col = -1; 
-	knight_pos_offset_head->next = NULL;
-	appendPos(knight_pos_offset_head, 2,   1);
-	appendPos(knight_pos_offset_head, 1,   2);
-	appendPos(knight_pos_offset_head, -1,  2);
-	appendPos(knight_pos_offset_head, -2,  1);
-	appendPos(knight_pos_offset_head, -2, -1);
-	appendPos(knight_pos_offset_head, -1,  2);
-	appendPos(knight_pos_offset_head, 1,   -2);
-
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-
-	while (knight_pos_offset_head != NULL) {
-		int new_row = position->row + knight_pos_offset_head->row;
-		int new_col = position->col + knight_pos_offset_head->col;
-		if (new_row >= 0 && new_row <= 8 && new_col >= 0 && new_col <= 8) {
-			char combined[] = { ' ', oppositeSide(side)};
-
-			if (strchr(combined, pieceIdOfDataPiece(input_board->board[new_row + (side == 'W' ? 0 : 0)][new_col])) != NULL) {
-
-				appendPos(validPositions, new_row, new_col);
-			}
-		}
-		knight_pos_offset_head = knight_pos_offset_head->next;
-	}
-	return validPositions;
-}
-
-struct pos* bishopMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	char combined[] = { ' ', oppositeSide(side)};
-	for (int i = 0; i < 4; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (strchr(combined, pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]])) != NULL) {
-				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
-				if (pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]]) == oppositeSide(side)) {
-					break;
-				}
-			}
-		}
-	}
-	
-	return validPositions;
-}
-
-struct pos* rookMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	int multipliers[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-
-	char combined[] = { ' ', oppositeSide(side)};
-	for (int i = 0; i < 4; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (strchr(combined, pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]])) != NULL) {
-				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
-				if (pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]]) == oppositeSide(side)) {
-					break;
-				}
-			}
-		}
-	}
-	// printPosList(validPositions);
-	return validPositions;
-}
-
-struct pos* queenMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	
-	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	char combined[] = {' ', oppositeSide(side)};
-	for (int i = 0; i < 8; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (strchr(combined, pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]])) != NULL) {
-				appendPos(validPositions, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]);
-				if (pieceIdOfDataPiece(input_board->board[position->row + j*multipliers[i][0]][position->col + j*multipliers[i][1]]) != ' ') {
-					break;
-				}
-			}
-		}
-	}
-	// printPosList(validPositions);
-	return validPositions;
-}
-
-
-struct pos* kingMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
-	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
-	// int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	return validPositions;
-}
-
-struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos* position, struct dataBoard* original_board) {
+struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos* position, struct dataBoard* original_board) { //replace original board with a struct called board diff or smth
 	struct pos* validPositions = malloc(sizeof(struct pos));
-	char side = sideOfDataPiece(input_board->board[position->row][position->col]);
-
-	switch(pieceIdOfDataPiece(input_board->board[position->row][position->col])) {
+	validPositions->next = NULL;
+	char side = sideOfDataPiece(getDataPiece(input_board, position->row, position->col));
+	// printf("side: %c\n", side);
+	// printf("piece: %c\n", pieceIdOfDataPiece(&input_board->board[position->row][position->col]));
+	// printf("position: %d %d\n", position->row, position->col);
+	switch(pieceIdOfDataPiece(getDataPiece(input_board, position->row, position->col))) {
 		case ' ':
 			return NULL;
-		case 'P': // other pieces wont have usch hardcoded values
+		case 'P':
 			validPositions = pawnMovement(original_board, validPositions, position, side);
 			break;
 		case 'N':
@@ -401,6 +404,36 @@ struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos*
 	}
 	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
 }
+
+
+bool positionUnderAttack(struct dataBoard* input_board, char attacking_side, struct standard_pos* position) {
+	struct pos* lolm;
+	
+	struct dataBoard* pawn_board = malloc(sizeof(struct dataBoard));
+	memcpy(pawn_board, input_board, sizeof(struct dataBoard));
+	printf("input board:\n");
+	printDataBoard(input_board);
+	if (validRange(position->row) && validRange(position->col)) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (sideOfDataPiece(getDataPiece(input_board, i, j)) == attacking_side) {
+					pawn_board->board[position->row][position->col] = makeDataPiece('K', oppositeSide(attacking_side));
+					lolm = listOfLegalMoves(input_board, position, pawn_board);
+					printf("r,c = [%d,%d]\n", position->row, position->col);
+					struct pos expected_pos = standard_posToPos(position);
+					if (lolm != NULL && posLlContains(lolm, &expected_pos)) {
+						free(pawn_board);
+						freePosList(lolm);
+						return true;
+					}
+				}	
+			}	
+		}
+	}
+	free(pawn_board);
+	freePosList(lolm);
+	return false;
+} 
 
 
 struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* head) {
@@ -434,12 +467,13 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	*status = 0;
 	
 	struct dataTurn* cmove = toDataTurn(move);
+	printf("here\n");
 	if (cmove == NULL) {
 		printf("Illegal move sent\n");
 		return input_board;
 	}
 	struct dataBoard* original_board = malloc(sizeof(struct dataBoard));
-	memcpy(original_board, input_board, sizeof(struct board)); //this feels inefficient instead maybe save specific positions and 
+	memcpy(original_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
 	//castle handling
 	if (cmove->castles ==  1) {
 		int end_row = side == 'W' ? 0 : 7;
@@ -447,9 +481,9 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 		struct dataPiece king_piece = makeDataPiece('K', side);
 		struct dataPiece rook_piece = makeDataPiece('R', side);
 		if (cmove->is_king_side) {
-			if (pieceIdOfDataPiece(input_board->board[end_row][5]) == ' ' && pieceIdOfDataPiece(input_board->board[end_row][6]) == ' ') { // checks that the squares between the king are empty
+			if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 5)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 6)) == ' ') { // checks that the squares between the king are empty
 				// printf("here\n");
-				if(pieceIdOfDataPiece(input_board->board[end_row][4]) == 'K' && pieceIdOfDataPiece(input_board->board[end_row][7]) == 'R') {
+				if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 7)) == 'R') {
 					*status = 1;
 					
 					input_board->board[end_row][4] = blank_piece;
@@ -460,9 +494,9 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			}
 		}
 		else {
-			if (pieceIdOfDataPiece(input_board->board[end_row][1]) == ' ' &&  pieceIdOfDataPiece(input_board->board[end_row][2]) == ' '  && pieceIdOfDataPiece(input_board->board[end_row][3]) == ' ') { // checks that the squares between the king are empty
+			if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 1)) == ' ' &&  pieceIdOfDataPiece(getDataPiece(input_board, end_row, 2)) == ' '  && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 3)) == ' ') { // checks that the squares between the king are empty
 				// printf("here\n");
-				if(pieceIdOfDataPiece(input_board->board[end_row][4]) == 'K' && pieceIdOfDataPiece(input_board->board[end_row][0]) == 'R') {
+				if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 0)) == 'R') {
 					*status = 1;
 					
 					input_board->board[end_row][0] = blank_piece;
@@ -477,8 +511,8 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 		return input_board;
 	}
 	
-	if (cmove->takes && sideOfDataPiece(input_board->board[cmove->final_position.row -1 ][cmove->final_position.col]) == oppositeSide(side)) {
-		if (strchr("K ",  pieceIdOfDataPiece(input_board->board[cmove->final_position.row -1 ][cmove->final_position.col]) == NULL )) { // adds replaced peice to list of pieces that are off the board
+	if (cmove->takes && sideOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == oppositeSide(side)) {
+		if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
 			// input_board->off_the_board[0] = input_board->board[cmove->final_position.row][cmove->final_position.col];
 			input_board->board[cmove->final_position.row -1 ][cmove->final_position.col].id = 15;
 		}
@@ -495,13 +529,13 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			if ((restrictors.row == i || restrictors.row == -1) && (restrictors.col == j || restrictors.col == -1)) { 
 			// this is The line to focus on
 			//also add a game.c with a game struct etc 
-				if (pieceIdOfDataPiece(input_board->board[i][j]) == cmove->piece && sideOfDataPiece(input_board->board[i][j]) == side) {
+				if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == cmove->piece && sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
 					temp_position.row = i;
 					temp_position.col = j, 
 
 					lolm = listOfLegalMoves(input_board, &temp_position, original_board);
-					printPosList(lolm);
-					printf("expected result: %d, %d\n", expected_result.row, expected_result.col);
+					// printPosList(lolm);
+					// printf("expected result: %d, %d\n", expected_result.row, expected_result.col);
 					if (posLlContains(lolm, &expected_result)) {
 						input_board->board[i][j].id = 15;
 						*status = 1;
@@ -515,6 +549,9 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 		struct dataPiece temp_piece = makeDataPiece(cmove->piece, side);
 		input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
 	}
+	freePosList(lolm);
+	free(cmove);
+	free(original_board);
 	return input_board;
 }
 

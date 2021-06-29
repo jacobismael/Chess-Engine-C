@@ -68,6 +68,9 @@ struct dataTurn* toDataTurn(char* original_move) {
         }
         return new_move;
     }
+    else {
+        new_move->castles = false;
+    }
 
     new_move->piece = 'P';
     for (int i = 0; (size_t)i < strlen(list_of_pieces); i++) { // checks if it has a pawn or not
@@ -111,6 +114,7 @@ struct dataTurn* toDataTurn(char* original_move) {
         restrictor_pos.col = -1;
     }
 
+    free(move_cpy);
     new_move->restrictors = restrictor_pos;
     return new_move;
 }
@@ -125,6 +129,8 @@ char* getMoveList(struct Move* head) {
         strncat(output, buff, strlen(buff));
         head = head->next;
     }
+    free(buff);
+
 
     return output;
 }
@@ -137,6 +143,7 @@ void PrintMoveList(struct Move* head) {
 }
 
 
+
 struct standard_pos posToStandard_pos(struct pos* input_pos) {
     struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};
     return result;
@@ -147,3 +154,52 @@ struct pos standard_posToPos(struct standard_pos* input_pos) {
     return result;
 }
 
+char oppositeSide(char side) {  // maybe this should overload some operator idk
+	if (strchr("WB", side) != NULL) {
+		return side == 'W' ? 'B' : 'W';
+	}
+	return side; //for no side
+}
+
+void printPosList(struct pos* head) {
+	while (head != NULL) {
+		printf("row %d, col %d\n", head->row, head->col); // 
+		head = head->next;
+	}
+}
+
+struct pos* appendPos(struct pos* head, int row, int col){
+	struct pos* headcpy = head;
+	while(head->next != NULL) {
+		head = head->next;
+	}
+	struct pos* newPos = malloc(sizeof(struct pos));
+	newPos->next = NULL;
+	newPos->row = row;
+	newPos->col = col;
+	head->next = newPos;
+	return headcpy;
+}
+
+void freePosList(struct pos* head) {
+    struct pos* temphead;
+    while(head != NULL) {
+        
+        temphead = head;
+        head = head->next;
+        free(temphead);
+    }
+    *head;
+}
+
+bool posLlContains(struct pos* head, struct pos* to_compare) {
+	while(head != NULL) {
+		if (head->row == to_compare->row && head->col == to_compare->col) {
+			return true;
+		}	
+		else {
+		}
+		head = head->next;
+	}
+	return false;
+}

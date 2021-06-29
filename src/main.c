@@ -36,13 +36,10 @@ int main(int argc, char** argv) {
         printf("Need Event Name\n");
         return 0;
     }
-    // struct Turn* player1move = malloc(sizeof(struct Turn));
-    // struct Turn* player2move = malloc(sizeof(struct Turn));
 
     struct dataBoard* mainBoard = setupDataBoard();
     printf("%p \n", mainBoard);
     printf("test\n");
-    printDataBoard(mainBoard);
     printDataBoard(mainBoard);
 
     int* status = malloc(sizeof(int));
@@ -63,48 +60,8 @@ int main(int argc, char** argv) {
         printDataBoard(mainBoard);
     }
 
-
-    // struct PGN* game = malloc(sizeof(struct PGN));
-
-    // strncpy(game->event,  argv[1], strlen(argv[1]));
-    // strncpy(game->site, argv[2], strlen(argv[2]));
-    // strcpy(game->date, "2021.06.18");
-    // game->round = 1;
-    // strcpy(game->white , "Jacob");
-    // strcpy(game->black , "Atli");g
-
-    // struct Move* head_move = malloc(sizeof(struct Move));
-    // head_move->move_number = 1;
-    // head_move->next = NULL;
- 
-    // strcpy(head_move->white_notation , "e4");
-    // strcpy(head_move->black_notation , "e5");
-    // head_move = AddMove(head_move, "Nf3", "Nc6");
-    // head_move = AddMove(head_move, "Bb5", "a6");
-    // head_move = AddMove(head_move, "Ba4", "Nf6");
-    // head_move = AddMove(head_move, "O-O", "Be7");
-    // head_move = AddMove(head_move, "Re1", "b5");
-    // head_move = AddMove(head_move, "Bb3", "d6");
-    // head_move = AddMove(head_move, "c3", "O-O");    
-    // head_move = AddMove(head_move, "h3", "Nb8");
-    // head_move = AddMove(head_move, "d4", "Nbd7");
-
-
-    // game->move_head = head_move;
-
-    // game->result = MakeResult(1, 0);
-
-    //PrintGame(game);
-    // PrintGameStrict(game);
-    // printf("===================================\n\n");
-    // SavePGNtoFile(game, argv[3]);
-
-    // struct board* mainBoard = setupBoard();
-    // printBoard(mainBoard);
-    // buildFromStart(mainBoard, head_move);
-    // printBoard(mainBoard);
-
-
+    free(status);
+    free(mainBoard);
 
     return 0;
 }

@@ -53,4 +53,10 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
 char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
 
+void printPosList(struct pos* head);
+
+struct pos* appendPos(struct pos* head, int row, int col);
+void freePosList(struct pos* head);
+bool posLlContains(struct pos* head, struct pos* to_compare);
+
 #endif
