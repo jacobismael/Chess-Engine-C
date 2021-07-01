@@ -5,7 +5,7 @@
 
 #include "pgn-functions.h"
 #include "move.h"
-#include "board.h"
+#include "game.h"
 
 int continueRunning = 1;
 
