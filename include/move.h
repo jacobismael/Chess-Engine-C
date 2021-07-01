@@ -1,6 +1,11 @@
-#include <stdbool.h>
+
 #ifndef MOVE_H
 #define MOVE_H
+#include <stdbool.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct pos { 
 	int row:4;
@@ -41,21 +46,21 @@ struct dataTurn {
     bool is_check;
 };
 
-struct standard_pos posToStandard_pos(struct pos* input_pos);
+struct standard_pos posToStandard_pos(const struct pos* input_pos);
 
-struct pos standard_posToPos(struct standard_pos* input_pos);
+struct pos standard_posToPos(const struct standard_pos* input_pos);
 
 int letterToCol(char letter);
 int ColToLetter(int col);
 struct pos* getRestrictors(char* move);
-struct dataTurn* toDataTurn(char* main);
+struct dataTurn* toDataTurn(const char* main);
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
 char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
 
 void printPosList(struct pos* head);
 
-struct pos* appendPos(struct pos* head, int row, int col);
+void appendPos(struct pos* head, int row, int col);
 void freePosList(struct pos* head);
 bool posLlContains(struct pos* head, struct pos* to_compare);
 

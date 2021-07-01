@@ -15,7 +15,7 @@ struct dataPiece* getDataPieceMutable(struct dataBoard* board, signed char row, 
 	return &board->board[row][col];
 }
 
-struct pos* pawnMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* pawnMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	short pawnDir = side == 'W' ? 1 : -1;
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
@@ -40,7 +40,7 @@ struct pos* pawnMovement(struct dataBoard* input_board, struct pos* validPositio
 	return validPositions;
 }
 
-struct pos* knightMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* knightMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
 	knight_pos_offset_head->row = 2;
 	knight_pos_offset_head->col = -1; 
@@ -72,7 +72,7 @@ struct pos* knightMovement(struct dataBoard* input_board, struct pos* validPosit
 	return validPositions;
 }
 
-struct pos* bishopMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* bishopMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
@@ -92,7 +92,7 @@ struct pos* bishopMovement(struct dataBoard* input_board, struct pos* validPosit
 	return validPositions;
 }
 
-struct pos* rookMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* rookMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	int multipliers[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
@@ -111,7 +111,7 @@ struct pos* rookMovement(struct dataBoard* input_board, struct pos* validPositio
 	return validPositions;
 }
 
-struct pos* queenMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* queenMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	
 	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -132,7 +132,7 @@ struct pos* queenMovement(struct dataBoard* input_board, struct pos* validPositi
 }
 
 
-struct pos* kingMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side) {
+struct pos* kingMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side) {
 	validPositions->next = NULL; // the first one is empty to use as a head and is not returned
 	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
@@ -189,6 +189,7 @@ char pieceIdOfDataPiece(const struct dataPiece dp) {
 	}
 	return ' ';
 }
+
 
 struct dataPiece makeDataPiece(char pieceId, char side) {
 	struct dataPiece result;
@@ -269,7 +270,7 @@ struct dataPiece pieceToDataPiece(struct piece* p) {
 }
 
 
-void printBoard(struct board* input_board) {
+void printBoard(const struct board* input_board) {
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {
 		printf("%d  ", i+ 1);
@@ -290,7 +291,7 @@ void printBoard(struct board* input_board) {
 	printf("   a  b  c  d  e  f  g  h\n");
 }
 
-void printDataBoard(struct dataBoard* input_board) {
+void printDataBoard(const struct dataBoard* input_board) {
 
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {
@@ -366,14 +367,14 @@ bool validRange(int input) {
 	return false;
 }
 
-char TeamOnSquare(struct dataBoard* input_board, int row, int col) {
+char TeamOnSquare(const struct dataBoard* input_board, int row, int col) {
 	if (!validRange(row) || !validRange(col)) {
 		return ' ';
 	}
 	return sideOfDataPiece(getDataPiece(input_board, row, col));
 }
 
-struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos* position, struct dataBoard* original_board) { //replace original board with a struct called board diff or smth
+struct pos* listOfLegalMoves(const struct dataBoard* input_board, const struct standard_pos* position, const struct dataBoard* original_board) { //replace original board with a struct called board diff or smth
 	struct pos* validPositions = malloc(sizeof(struct pos));
 	validPositions->next = NULL;
 	char side = sideOfDataPiece(getDataPiece(input_board, position->row, position->col));
@@ -402,26 +403,30 @@ struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos*
 			validPositions = kingMovement(input_board, validPositions, position, side);
 			break;
 	}
-	return validPositions->next; // we return next because the first value is just used  to set it up and has no real value
+	struct pos* temp = validPositions->next; // we return next because the first value is just used  to set it up and has no real value
+	free(validPositions);
+	return temp;
 }
 
 
-bool positionUnderAttack(struct dataBoard* input_board, char attacking_side, struct standard_pos* position) {
-	struct pos* lolm;
+bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position) { // this is probably broken
+	struct pos* lolm = NULL;
 	
 	struct dataBoard* pawn_board = malloc(sizeof(struct dataBoard));
 	memcpy(pawn_board, input_board, sizeof(struct dataBoard));
-	printf("input board:\n");
-	printDataBoard(input_board);
+	// printDataBoard(input_board);
 	if (validRange(position->row) && validRange(position->col)) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (sideOfDataPiece(getDataPiece(input_board, i, j)) == attacking_side) {
+					printf("peice, %c%c\n", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
 					pawn_board->board[position->row][position->col] = makeDataPiece('K', oppositeSide(attacking_side));
-					lolm = listOfLegalMoves(input_board, position, pawn_board);
-					printf("r,c = [%d,%d]\n", position->row, position->col);
+					struct standard_pos temp_pos = {.row = i, .col = j};
+					lolm = listOfLegalMoves(input_board, &temp_pos, pawn_board);
+				
 					struct pos expected_pos = standard_posToPos(position);
 					if (lolm != NULL && posLlContains(lolm, &expected_pos)) {
+						printf("position under attack at %d %d", position->row, position->col);
 						free(pawn_board);
 						freePosList(lolm);
 						return true;
@@ -462,18 +467,35 @@ struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move
 	return input_board;
 }
 
+bool kingInCheck(const struct dataBoard* input_board, char side) {
+	assert(side == 'W' || side == 'B');
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+				if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'K') {
+					struct standard_pos temp_pos = {.row = i, .col = j};
+					printf("king is at %d %d \n", i, j);
+					if (positionUnderAttack(input_board, oppositeSide(side), &temp_pos)) {
+						return true;
+					}
+					return false;
+				}
+			}
+		}
+	}
+	assert(0 == 1);
+
+}
+
 struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status) {
 	
 	*status = 0;
 	
 	struct dataTurn* cmove = toDataTurn(move);
-	printf("here\n");
 	if (cmove == NULL) {
 		printf("Illegal move sent\n");
 		return input_board;
 	}
-	struct dataBoard* original_board = malloc(sizeof(struct dataBoard));
-	memcpy(original_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
 	//castle handling
 	if (cmove->castles ==  1) {
 		int end_row = side == 'W' ? 0 : 7;
@@ -507,9 +529,12 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 				}
 			}
 		}
-
+		free(cmove);
 		return input_board;
 	}
+
+	struct dataBoard* original_board = malloc(sizeof(struct dataBoard));
+	memcpy(original_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
 	
 	if (cmove->takes && sideOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == oppositeSide(side)) {
 		if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
@@ -520,7 +545,7 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	}
 
 	struct standard_pos temp_position = {.row = 0, .col = 0};
-	struct pos* lolm = malloc(sizeof(struct pos));
+	struct pos* lolm = NULL;
 	struct pos expected_result = {.row = cmove->final_position.row -1, .col = cmove->final_position.col, .next=NULL};
 	struct standard_pos restrictors = cmove->restrictors;
 
@@ -531,11 +556,10 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			//also add a game.c with a game struct etc 
 				if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == cmove->piece && sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
 					temp_position.row = i;
-					temp_position.col = j, 
+					temp_position.col = j; 
 
 					lolm = listOfLegalMoves(input_board, &temp_position, original_board);
-					// printPosList(lolm);
-					// printf("expected result: %d, %d\n", expected_result.row, expected_result.col);
+
 					if (posLlContains(lolm, &expected_result)) {
 						input_board->board[i][j].id = 15;
 						*status = 1;
@@ -548,6 +572,16 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	if(*status == 1) {
 		struct dataPiece temp_piece = makeDataPiece(cmove->piece, side);
 		input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
+
+		if (kingInCheck(input_board, side)) {
+			*status = 0;
+			printf("illegal");
+		}
+		else {
+			printDataBoard(input_board);
+			printf("yeet\n");
+
+		}
 	}
 	freePosList(lolm);
 	free(cmove);

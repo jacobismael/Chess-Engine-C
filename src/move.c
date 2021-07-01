@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "move.h"
 
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
@@ -40,7 +36,7 @@ int ColToLetter(int col) {
 }
 
 
-struct dataTurn* toDataTurn(char* original_move) {
+struct dataTurn* toDataTurn(const char* original_move) {
     if (original_move[0] == 'x') {
         printf("moves cannot start with 'x'\n");
         return NULL; 
@@ -50,7 +46,7 @@ struct dataTurn* toDataTurn(char* original_move) {
     }
     struct dataTurn* new_move = malloc(sizeof(struct dataTurn));
     char* list_of_pieces = "RNBQK";
-    char* move_cpy = malloc(sizeof(original_move)); // i dont think this needs to be freed
+    char* move_cpy = malloc(sizeof(original_move));
     strcpy(move_cpy, original_move);
      // deals with cheks and checkmates
     if (move_cpy[strlen(move_cpy) - 1] == '+' || move_cpy[strlen(move_cpy) - 1] == '#') {
@@ -114,7 +110,7 @@ struct dataTurn* toDataTurn(char* original_move) {
         restrictor_pos.col = -1;
     }
 
-    free(move_cpy);
+    // free(move_cpy);
     new_move->restrictors = restrictor_pos;
     return new_move;
 }
@@ -144,12 +140,12 @@ void PrintMoveList(struct Move* head) {
 
 
 
-struct standard_pos posToStandard_pos(struct pos* input_pos) {
+struct standard_pos posToStandard_pos(const struct pos* input_pos) {
     struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};
     return result;
 }
 
-struct pos standard_posToPos(struct standard_pos* input_pos) {
+struct pos standard_posToPos(const struct standard_pos* input_pos) {
     struct pos result = {.row = input_pos->row, .col = input_pos->col, .next = NULL};
     return result;
 }
@@ -168,8 +164,7 @@ void printPosList(struct pos* head) {
 	}
 }
 
-struct pos* appendPos(struct pos* head, int row, int col){
-	struct pos* headcpy = head;
+void appendPos(struct pos* head, int row, int col){
 	while(head->next != NULL) {
 		head = head->next;
 	}
@@ -178,7 +173,6 @@ struct pos* appendPos(struct pos* head, int row, int col){
 	newPos->row = row;
 	newPos->col = col;
 	head->next = newPos;
-	return headcpy;
 }
 
 void freePosList(struct pos* head) {
@@ -189,7 +183,6 @@ void freePosList(struct pos* head) {
         head = head->next;
         free(temphead);
     }
-    *head;
 }
 
 bool posLlContains(struct pos* head, struct pos* to_compare) {

@@ -36,6 +36,12 @@ struct dataBoard {
 	struct dataPiece board[8][8];	
 };
 
+struct boardDiff {
+	struct standard_pos position1;
+	struct dataPiece piece1;
+	struct standard_pos position2;
+	struct dataPiece piece2;
+};
 
 struct piece {
 	char pieceId;
@@ -53,14 +59,15 @@ struct dataPiece* getDataPieceMutable(struct dataBoard* board, signed char row, 
 char sideOfDataPiece(const struct dataPiece dp);
 char pieceIdOfDataPiece(const struct dataPiece dp);
 
-
+struct boardDiff* boardDiffGenerator(const struct dataBoard* main_board, const struct dataBoard* different_board);
 struct dataPiece makeDataPiece(char pieceId, char side);
 
 struct dataPiece pieceToDataPiece(struct piece* p);
 
-void printBoard(struct board* input_board);
+void printBoard(const struct board* input_board);
+bool kingInCheck(const struct dataBoard* input_board, char side);
 
-void printDataBoard(struct dataBoard* input_board);
+void printDataBoard(const struct dataBoard* input_board);
 
 struct board* setupBoard();
 
@@ -68,21 +75,21 @@ struct dataBoard* setupDataBoard();
 
 bool validRange(int input);
 
-char TeamOnSquare(struct dataBoard* input_board, int row, int col);
+char TeamOnSquare(const struct dataBoard* input_board, int row, int col);
 
 char oppositeSide(char side);
 
-struct pos* listOfLegalMoves(struct dataBoard* input_board, struct standard_pos* position, struct dataBoard* original_board);
+struct pos* listOfLegalMoves(const struct dataBoard* input_board, const struct standard_pos* position, const struct dataBoard* original_board);
 
-bool positionUnderAttack(struct dataBoard* input_board, char attacking_side, struct standard_pos* position);
+bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position);
 
 struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* head);
 struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move);
 struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status);
 
-struct pos* pawnMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
-struct pos* knightMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
-struct pos* bishopMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
-struct pos* rookMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
-struct pos* queenMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
-struct pos* kingMovement(struct dataBoard* input_board, struct pos* validPositions, struct standard_pos* position, char side);
+struct pos* pawnMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
+struct pos* knightMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
+struct pos* bishopMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
+struct pos* rookMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
+struct pos* queenMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
+struct pos* kingMovement(const struct dataBoard* input_board, struct pos* validPositions, const struct standard_pos* position, char side);
