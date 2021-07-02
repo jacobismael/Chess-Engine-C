@@ -127,11 +127,12 @@ struct pos* kingMovement(const struct dataBoard* input_board, struct pos* validP
 	for (int i = 0; i < 8; i++) {
 		position_cpy->row = position->row + multipliers[i][0];
 		position_cpy->col = position->col + multipliers[i][1];
+        if (validRange(position_cpy->row) && validRange(position_cpy->col)) {
+            if (sideOfDataPiece(getDataPiece(input_board, position_cpy->row, position_cpy->col)) != side) {
+                appendPos(validPositions, position_cpy->row, position_cpy->col + multipliers[i][1]);
 
-		if (!positionUnderAttack(input_board, oppositeSide(side), position_cpy)) {
-			appendPos(validPositions, position_cpy->row, position_cpy->col + multipliers[i][1]);
-
-		}	
+            }	
+        }
 	}
 
 	
@@ -291,11 +292,7 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			*status = 0;
 			printf("illegal");
 		}
-		else {
-			printDataBoard(input_board);
-			printf("yeet\n");
 
-		}
 	}
 	freePosList(lolm);
 	free(cmove);
@@ -304,23 +301,23 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 }
 
 bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position) { // this is probably broken
-	struct pos* lolm = NULL;
+    assert(attacking_side == 'W' || attacking_side == 'B');
+
+    struct pos* lolm = NULL;
 	
 	struct dataBoard* pawn_board = malloc(sizeof(struct dataBoard));
 	memcpy(pawn_board, input_board, sizeof(struct dataBoard));
-	// printDataBoard(input_board);
 	if (validRange(position->row) && validRange(position->col)) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (sideOfDataPiece(getDataPiece(input_board, i, j)) == attacking_side) {
-					printf("peice, %c%c\n", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
 					pawn_board->board[position->row][position->col] = makeDataPiece('K', oppositeSide(attacking_side));
 					struct standard_pos temp_pos = {.row = i, .col = j};
 					lolm = listOfLegalMoves(input_board, &temp_pos, pawn_board);
 				
 					struct pos expected_pos = standard_posToPos(position);
 					if (lolm != NULL && posLlContains(lolm, &expected_pos)) {
-						printf("position under attack at %d %d", position->row, position->col);
+                        printPosList(lolm);
 						free(pawn_board);
 						freePosList(lolm);
 						return true;
@@ -338,15 +335,13 @@ bool kingInCheck(const struct dataBoard* input_board, char side) {
 	assert(side == 'W' || side == 'B');
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
-				if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'K') {
+            if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'K') {
+			    if (sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
 					struct standard_pos temp_pos = {.row = i, .col = j};
-					printf("king is at %d %d \n", i, j);
-					if (positionUnderAttack(input_board, oppositeSide(side), &temp_pos)) {
-						return true;
-					}
-					return false;
-				}
+					bool x =  positionUnderAttack(input_board, oppositeSide(side), &temp_pos);
+                    printf( "is king under attack: %d", x);
+                    return x;
+                }
 			}
 		}
 	}
