@@ -170,7 +170,7 @@ struct boardCheck* listOfLegalMoves(const struct dataBoard* input_board, const s
 			validPositions = kingMovement(input_board, validPositions, position, side, attacking_self);
 			break;
 	}
-    printf("result: %ld\n", validPositions->mask);
+    // printf("result: %ld\n", validPositions->mask);
 	return validPositions;
 }
 
@@ -201,7 +201,7 @@ struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move
 }
 
 struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status) {
-	
+    
 	*status = 0;
 	
 	struct dataTurn* cmove = toDataTurn(move);
@@ -294,6 +294,10 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 		}
 
 	}
+
+    if (*status != 1) {
+        memcpy(input_board, original_board, sizeof(struct dataBoard));
+    }
 	free(cmove);
 	free(original_board);
 	return input_board;

@@ -193,7 +193,7 @@ void printBoardCheck(struct boardCheck* input_mask) {
 	for (int i = 8; i > 0; i--) {
 		printf("%d  ", i);
 		for (int j = 0; j < 8; j++) {
-			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j) + 8));
+			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j)));
 			// printf("%d\n", positionToIndex(i, j));
 		}
 		printf("\n");
@@ -220,11 +220,6 @@ struct board* setupBoard() {
 			}
 		}
 	}
-	//sets the pieces off board to 0
-	// for (int i = 0; i < 48; i++) {
-	// 	struct piece newPiece = {.pieceId=' ', .side=' '};
-	// 	// newBoard->off_the_board[i] = newPiece;
-	// }
 	return newBoard;
 }
 
