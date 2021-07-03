@@ -211,35 +211,51 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	}
 	//castle handling
 	if (cmove->castles ==  1) {
+        if (kingInCheck(input_board, side)) {
+            return input_board;
+        }
 		int end_row = side == 'W' ? 0 : 7;
 		struct dataPiece blank_piece = makeDataPiece(' ', ' ');
 		struct dataPiece king_piece = makeDataPiece('K', side);
 		struct dataPiece rook_piece = makeDataPiece('R', side);
 		if (cmove->is_king_side) {
 			if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 5)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 6)) == ' ') { // checks that the squares between the king are empty
-				// printf("here\n");
-				if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 7)) == 'R') {
-					*status = 1;
-					
-					input_board->board[end_row][4] = blank_piece;
-					input_board->board[end_row][5] = rook_piece;
-					input_board->board[end_row][6] = king_piece;
-					input_board->board[end_row][7] = blank_piece;
-				}
+				
+                struct standard_pos positions_to_eval[2] = {
+                    {.row = end_row, .col = 5},
+                    {.row = end_row, .col = 6}    
+                };
+                // we dont need to check the king's square because then it would be in check and we have already checked for that
+                if (positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[0])) && positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[1]))) { 
+                    if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 7)) == 'R') {
+                        *status = 1;
+                        
+                        input_board->board[end_row][4] = blank_piece;
+                        input_board->board[end_row][5] = rook_piece;
+                        input_board->board[end_row][6] = king_piece;
+                        input_board->board[end_row][7] = blank_piece;
+                    }
+                }
 			}
 		}
 		else {
 			if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 1)) == ' ' &&  pieceIdOfDataPiece(getDataPiece(input_board, end_row, 2)) == ' '  && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 3)) == ' ') { // checks that the squares between the king are empty
 				// printf("here\n");
-				if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 0)) == 'R') {
-					*status = 1;
-					
-					input_board->board[end_row][0] = blank_piece;
-					input_board->board[end_row][1] = blank_piece;
-					input_board->board[end_row][2] = king_piece;
-					input_board->board[end_row][3] = rook_piece;
-					input_board->board[end_row][4] = blank_piece;
-				}
+                struct standard_pos positions_to_eval[2] = {
+                    {.row = end_row, .col = 2},
+                    {.row = end_row, .col = 3}    
+                };
+                if (positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[0])) && positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[1]))) { 
+                    if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 0)) == 'R') {
+                        *status = 1;
+                        
+                        input_board->board[end_row][0] = blank_piece;
+                        input_board->board[end_row][1] = blank_piece;
+                        input_board->board[end_row][2] = king_piece;
+                        input_board->board[end_row][3] = rook_piece;
+                        input_board->board[end_row][4] = blank_piece;
+                    }
+                }
 			}
 		}
 		free(cmove);

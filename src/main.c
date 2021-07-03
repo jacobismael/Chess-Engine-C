@@ -53,12 +53,6 @@ int main(int argc, char** argv) {
         printf("Need Event Name\n");
         return 0;
     }
-    // struct boardCheck yeet = {.mask = 15}; 
-    // setBitOfBoardCheck(&yeet, 4);
-    // printBoardCheck(&yeet);
-    // printf("%lu\n", yeet.mask);
-    // return;
-
 
     mainBoard = setupDataBoard();
 
@@ -80,7 +74,6 @@ int main(int argc, char** argv) {
         }
 
         printDataBoard(mainBoard);
-        printf("continue running %d\n", continueRunning);
     }
 
     free(status);

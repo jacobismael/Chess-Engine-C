@@ -1,9 +1,10 @@
-#include "board.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+
+#include "board.h"
 #include "move.h"
 
 struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* head);
