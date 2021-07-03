@@ -28,22 +28,21 @@ struct boardCheck* pawnMovement(const struct dataBoard* input_board, struct boar
 }
 
 struct boardCheck* knightMovement(const struct dataBoard* input_board, struct boardCheck* validPositions, const struct standard_pos* position, char side, bool attacking_if_taken) {
-	struct pos* knight_pos_offset_head = malloc(sizeof(struct pos));
-	knight_pos_offset_head->row = 2;
-	knight_pos_offset_head->col = -1; 
-	knight_pos_offset_head->next = NULL;
-	appendPos(knight_pos_offset_head, 2,   1);
-	appendPos(knight_pos_offset_head, 1,   2);
-	appendPos(knight_pos_offset_head, -1,  2);
-	appendPos(knight_pos_offset_head, -2,  1);
-	appendPos(knight_pos_offset_head, -2, -1);
-	appendPos(knight_pos_offset_head, -1,  2);
-	appendPos(knight_pos_offset_head, 1,   -2);
 
+    int multipliers[8][2] = {
+    {2,  -1}, 
+    {2,   1},
+    {1,   2},
+    {-1, -2},
+    {-2,  1},
+    {-2, -1},
+    {-1,  2},
+    {1,  -2}
+    };
 
-	while (knight_pos_offset_head != NULL) {
-		int new_row = position->row + knight_pos_offset_head->row;
-		int new_col = position->col + knight_pos_offset_head->col;
+	for (int i = 0; i < 8; i++) {
+		int new_row = position->row + multipliers[i][0];
+		int new_col = position->col + multipliers[i][1];
 		if (validRange(new_row)  && validRange(new_col)) {
 			char combined[] = { ' ', oppositeSide(side)};
 
@@ -52,9 +51,8 @@ struct boardCheck* knightMovement(const struct dataBoard* input_board, struct bo
 				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(new_row, new_col));
 			}
 		}
-		knight_pos_offset_head = knight_pos_offset_head->next;
 	}
-	freePosList(knight_pos_offset_head);
+	
 	return validPositions;
 }
 
