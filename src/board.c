@@ -1,37 +1,45 @@
 #include "board.h"
 
 
-struct dataPiece getDataPiece(const struct dataBoard* board, signed char row, signed char col) {
+unsigned char getDataPiece(const struct dataBoard* board, signed char row, signed char col) {
 	assert(row >= 0 && row <= 7);
 	assert(col >= 0 && col <= 7);
 
 	return board->board[row][col];
 }
 
-struct dataPiece* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col) {
+unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col) {
 	assert(row >= 0 && row <= 7);
 	assert(col >= 0 && col <= 7);
 
 	return &board->board[row][col];
 }
 
-
-char sideOfDataPiece(const struct dataPiece dp) {
-	
-	if (dp.id >= 0) {
-		if (dp.id <= 5) {
-			return 'W';
-		}
-		else if (dp.id <= 11) {
-			return 'B';
-		}
+bool isDataPieceSpecial(const unsigned char dp) {
+	if (dp >= 12 && dp <= 17) {
+		return true;
 	}
+	return false;
+}
+
+char sideOfDataPiece(const unsigned char dp) {
+	
+	if (dp <= 5) {
+		return 'W';
+	}
+	else if (dp <= 11) {
+		return 'B';
+	}
+	if (dp <= 17) {
+		return dp % 2 == 0 ? 'W': 'B';
+	}
+	
 	return ' ';
 }
 
-char pieceIdOfDataPiece(const struct dataPiece dp) {
-	if (dp.id <= 11) {
-		switch (dp.id % 6) {
+char pieceIdOfDataPiece(const unsigned char dp) {
+	if (dp <= 11) {
+		switch (dp % 6) {
 			case 0:
 				return 'P';
 			case 1:
@@ -48,44 +56,71 @@ char pieceIdOfDataPiece(const struct dataPiece dp) {
 				return ' ';
 		}
 	}
+	else if (dp <= 17) {
+		if (dp == 12 || dp == 13) {
+			return 'P';
+		}
+		else if(dp == 14 || dp == 15) {
+			return 'K';
+		}
+		else if(dp == 16 || dp == 17) {
+			return 'R';
+		}
+	}
 	return ' ';
 }
 
 
-struct dataPiece makeDataPiece(char pieceId, char side) {
-	struct dataPiece result;
+unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
+	unsigned char result;
+	if (!isSpecial) {
+		if (side == ' ') {
+			result = 31;
+			return result;
+		}
+		else if (side == 'W') {
+			result = 0;
+		}
+		else if (side == 'B') {
+			result = 6;
+		}
 
-	if (side == ' ') {
-		result.id = 15;
-		return result;
+		switch (pieceId) {
+			case 'P':
+				break;
+			case 'R':
+				result += 1;
+				break;
+			case 'N':
+				result += 2;
+				break;
+			case 'B':
+				result += 3;
+				break;
+			case 'Q':
+				result += 4;
+				break;
+			case 'K':
+				result += 5;
+				break;
+			default:
+				result =31;
+		}
 	}
-	else if (side == 'W') {
-		result.id = 0;
-	}
-	else if (side == 'B') {
-		result.id = 6;
-	}
+	else {
+		assert(side == 'W' || side == 'B');
+		assert(pieceId == 'P' || pieceId == 'K' || pieceId == 'R');
 
-	switch (pieceId) {
-		case 'P':
-			break;
-		case 'R':
-			result.id += 1;
-			break;
-		case 'N':
-			result.id += 2;
-			break;
-		case 'B':
-			result.id += 3;
-			break;
-		case 'Q':
-			result.id += 4;
-			break;
-		case 'K':
-			result.id += 5;
-			break;
-		default:
-			result.id = 15;
+		if (pieceId == 'P') {
+			result = side == 'W' ? 12 : 13;
+		}
+		else if (pieceId == 'K') {
+			result = side == 'W' ? 14 : 15;
+		}
+		else if (pieceId == 'R') {
+			result = side == 'W' ? 16 : 17;
+		}
+
 	}
 
 	return result;
@@ -94,7 +129,7 @@ struct dataPiece makeDataPiece(char pieceId, char side) {
 struct dataPiece pieceToDataPiece(struct piece* p) {
 	struct dataPiece result;
 	if (p->side == ' ') {
-		result.id = 15;
+		result.id = 31;
 		return result;
 	}
 	else if (p->side == 'W') {
@@ -123,7 +158,7 @@ struct dataPiece pieceToDataPiece(struct piece* p) {
 			result.id += 5;
 			break;
 		default:
-			result.id = 15;
+			result.id = 31;
 	}
 
 	return result;
@@ -155,6 +190,7 @@ void printBoard(const struct board* input_board) {
 void printDataBoard(const struct dataBoard* input_board) {
 
 	printf("\n\n\n");
+	printf("size of dataBoard is %ld\n", sizeof(struct dataBoard));
 	for (int i = 7; i >= 0; i--) {
 		printf("%d  ", i + 1);
 		for (int j = 0; j < 8; j++) {
@@ -228,12 +264,12 @@ struct dataBoard* setupDataBoard() {
 	//fills in the board with the standard configuration
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 8; col++) {
-			newBoard->board[row][col].id = row <= 1 ? 0 : (row >= 6 ? 6 : 0);
+			newBoard->board[row][col] = row <= 1 ? 0 : (row >= 6 ? 6 : 0);
 			if (row == 0 || row == 7) { 
-			    newBoard->board[row][col].id += side_template[col];
+			    newBoard->board[row][col] += side_template[col];
 			}
 			else if(row != 6 && row != 1) {
-			    newBoard->board[row][col].id = 13;
+			    newBoard->board[row][col] = 31;
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 VPATH = ../src
 
 CC = gcc
-CFLAGS = -g -Wall -W -I../include --std=c11 --pedantic
+CFLAGS = -g -Wall -W -I../include --std=c11 
 
 PROGRAM_NAME=chess
 

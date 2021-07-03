@@ -12,32 +12,43 @@
 
 
 struct dataPiece {
-	unsigned char id:4;// i know this does not save any space but it might in the future ???
+	uint8_t id;// i know this does not save any space but it might in the future ???
+
 	/* 
 	formula:
 	values:
-	WP = 0
-	WR = 1
-	WN = 2
-	WB = 3
-	WQ = 4
-	WK = 5
+	WP   = 0
+	WR   = 1
+	WN   = 2
+	WB   = 3
+	WQ   = 4
+	WK   = 5
 	
-	BP = 6
-	BR = 7
-	BN = 8
-	BB = 9
-	BQ = 10
-	BK = 11
+	BP   = 6
+	BR   = 7
+	BN   = 8
+	BB   = 9
+	BQ   = 10
+	BK   = 11
+    
+	these are unimplemented
 
-	   = else
+	EWP  = 12
+	EBP  = 13
+	UWK  = 14
+	UBK  = 15
+	UWR  = 16
+	UBR  = 17
 	
+	else = 18-31
 	
 	*/ 
 };
 
 struct dataBoard {
-	struct dataPiece board[8][8];	
+	unsigned char board[8][8];
+	//new board will be
+	//
 };
 
 struct boardDiff {
@@ -61,14 +72,15 @@ struct boardCheck {
 };
 
 
-struct dataPiece getDataPiece(const struct dataBoard* board, signed char row, signed char col);
-struct dataPiece* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col);
+unsigned char getDataPiece(const struct dataBoard* board, signed char row, signed char col);
+unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col);
 
-char sideOfDataPiece(const struct dataPiece dp);
-char pieceIdOfDataPiece(const struct dataPiece dp);
+bool isDataPieceSpecial(const unsigned char dp);
+char sideOfDataPiece(const unsigned char dp);
+char pieceIdOfDataPiece(const unsigned char dp);
 
 struct boardDiff* boardDiffGenerator(const struct dataBoard* main_board, const struct dataBoard* different_board);
-struct dataPiece makeDataPiece(char pieceId, char side);
+unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
 
 struct dataPiece pieceToDataPiece(struct piece* p);
 
