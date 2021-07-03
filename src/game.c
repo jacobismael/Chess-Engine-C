@@ -278,8 +278,10 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
                         printBoardCheck(lolm);
 						input_board->board[i][j].id = 15;
 						*status = 1;
+                        free(lolm);
 						break;
 					}
+                    free(lolm);
 				}
 			}
 		}
@@ -307,8 +309,12 @@ bool positionUnderAttack(const struct dataBoard* input_board, char attacking_sid
     assert(attacking_side == 'W' || attacking_side == 'B');
 
     struct boardCheck* lolm = malloc(sizeof(struct boardCheck));
-	
+    lolm->mask = 0;
+    
+	struct boardCheck* temp = malloc(sizeof(struct boardCheck));
+    free(temp);
 	struct dataBoard* pawn_board = malloc(sizeof(struct dataBoard));
+
 	memcpy(pawn_board, input_board, sizeof(struct dataBoard));
 	if (validRange(position->row) && validRange(position->col)) {
 		for (int i = 0; i < 8; i++) {
@@ -316,15 +322,16 @@ bool positionUnderAttack(const struct dataBoard* input_board, char attacking_sid
 				if (sideOfDataPiece(getDataPiece(input_board, i, j)) == attacking_side) {
 					pawn_board->board[position->row][position->col] = makeDataPiece('K', oppositeSide(attacking_side));
 					struct standard_pos temp_pos = {.row = i, .col = j};
-					lolm->mask |= listOfLegalMoves(input_board, &temp_pos, pawn_board, true)->mask;
-				
+					temp = listOfLegalMoves(input_board, &temp_pos, pawn_board, true);
+                    lolm->mask |= temp->mask;
+                    free(temp);
 				}	
 			}	
 		}
 	}
     printBoardCheck(lolm);
     if (getBitOfBoardCheck(lolm, positionToIndex(position->row, position->col))) {
-        
+        free(lolm);   
         free(pawn_board);
         return true;
     }

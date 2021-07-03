@@ -194,7 +194,6 @@ void printBoardCheck(struct boardCheck* input_mask) {
 		printf("%d  ", i);
 		for (int j = 0; j < 8; j++) {
 			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j)));
-			// printf("%d\n", positionToIndex(i, j));
 		}
 		printf("\n");
 	}

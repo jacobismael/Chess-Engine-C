@@ -2,44 +2,46 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <signal.h>
 
 #include "pgn-functions.h"
 #include "move.h"
 #include "game.h"
 #include "board.h"
 
-int continueRunning = 1;
+struct dataBoard* mainBoard;
+static sig_atomic_t continueRunning = 1;
+int* status;
+char* input;
 
+static void signal_handler(int _) {
+    (void)_;
+    continueRunning = 0;
+    free(mainBoard);
+    free(status);
+    free(input);
+    exit(0);
+}
 
 void getWhiteMove(struct dataBoard* mainBoard, int* status) {
-    char* input = malloc(sizeof(char) * 6);
     printf("\nPlayer 1 Move: ");
+    
     scanf("%s", input);
-    if (input[0] == 'q' && strlen(input) == 1) {
-        continueRunning = 0;
-        *status = 1;
-        free(input);
-        return;
-    }
+    
     buildFromHalfMove(mainBoard, input, 'W', status);
-    free(input);
 }
 
 void getBlackMove(struct dataBoard* mainBoard, int* status) {
-    char* input = malloc(sizeof(char) * 6);
     printf("\nPlayer 2 Move: ");
+
     scanf("%s", input);
-    if (input[0] == 'q' && strlen(input) == 1) {
-        continueRunning = 0;
-        *status = 1;
-        free(input);
-        return;
-    }
+    
     buildFromHalfMove(mainBoard, input, 'B', status);
-    free(input);
 }
 
 int main(int argc, char** argv) {
+    signal(SIGINT, signal_handler);
+    input = malloc(sizeof(char) * 6);
 
     if(argc == 1) {
         // visual mode
@@ -58,12 +60,11 @@ int main(int argc, char** argv) {
     // return;
 
 
-    struct dataBoard* mainBoard = setupDataBoard();
+    mainBoard = setupDataBoard();
 
     printDataBoard(mainBoard);
 
-    int* status = malloc(sizeof(int));
-
+    status = malloc(sizeof(int));
     *status = 0;
     while(continueRunning) {
         *status = 0;
