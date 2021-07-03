@@ -6,6 +6,7 @@
 #include "pgn-functions.h"
 #include "move.h"
 #include "game.h"
+#include "board.h"
 
 int continueRunning = 1;
 
@@ -50,6 +51,12 @@ int main(int argc, char** argv) {
         printf("Need Event Name\n");
         return 0;
     }
+    // struct boardCheck yeet = {.mask = 15}; 
+    // setBitOfBoardCheck(&yeet, 4);
+    // printBoardCheck(&yeet);
+    // printf("%lu\n", yeet.mask);
+    // return;
+
 
     struct dataBoard* mainBoard = setupDataBoard();
 

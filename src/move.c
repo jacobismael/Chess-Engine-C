@@ -47,6 +47,7 @@ struct dataTurn* toDataTurn(const char* original_move) {
     struct dataTurn* new_move = malloc(sizeof(struct dataTurn));
     char* list_of_pieces = "RNBQK";
     char* move_cpy = malloc(sizeof(original_move));
+    char* move_cpy_save = move_cpy;
     strcpy(move_cpy, original_move);
      // deals with cheks and checkmates
     if (move_cpy[strlen(move_cpy) - 1] == '+' || move_cpy[strlen(move_cpy) - 1] == '#') {
@@ -110,7 +111,7 @@ struct dataTurn* toDataTurn(const char* original_move) {
         restrictor_pos.col = -1;
     }
 
-    // free(move_cpy);
+    free(move_cpy_save);
     new_move->restrictors = restrictor_pos;
     return new_move;
 }
@@ -137,8 +138,6 @@ void PrintMoveList(struct Move* head) {
         head = head->next;
     }
 }
-
-
 
 struct standard_pos posToStandard_pos(const struct pos* input_pos) {
     struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};

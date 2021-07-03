@@ -176,6 +176,31 @@ void printDataBoard(const struct dataBoard* input_board) {
 	printf("   a  b  c  d  e  f  g  h\n");
 }
 
+bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
+	return !!(((uint64_t)1 << index) & input_mask->mask);
+}
+
+uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
+	return (((uint64_t)1 << index) | input_mask->mask);
+}
+
+unsigned char positionToIndex( char row,  char col) {
+	return ((row * 8) + col);
+}
+
+
+void printBoardCheck(struct boardCheck* input_mask) {
+	for (int i = 8; i > 0; i--) {
+		printf("%d  ", i);
+		for (int j = 0; j < 8; j++) {
+			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j) + 8));
+			// printf("%d\n", positionToIndex(i, j));
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
 
 struct board* setupBoard() {
 	char* side_template = "RNBQKBNR";
