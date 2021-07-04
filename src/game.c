@@ -293,8 +293,9 @@ struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side) {
 	return input_board;
 }
 
-struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side) {
+struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side, bool *is_special) {
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
+	*is_special = false;
 
 	final->castles = input_turn->castles;
 	final->is_king_side = input_turn->is_king_side;
@@ -313,8 +314,9 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 
 	//en passant
 	final->is_en_passant = false; 
-	if (input_turn->takes && sideOfDataPiece(getDataPiece(input_board, input_turn->final_position.row , input_turn->final_position.col)) == ' ') {
-		if (isDataPieceSpecial(getDataPiece(input_board, input_turn->final_position.row + (side == 'W' ? -1 : 1), input_turn->final_position.col))) {
+	if (final->takes && sideOfDataPiece(getDataPiece(input_board, final->final_position.row , final->final_position.col)) == ' ') {
+		if (isDataPieceSpecial(getDataPiece(input_board, final->final_position.row + (side == 'W' ? -1 : 1), final->final_position.col))) {
+			printf("\n\nheredgfsdfgd\n");
 			final->is_en_passant = true;
 		}
 	}
@@ -385,7 +387,20 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 		}
 	}
 
-	assert(status == 1);
+
+	//prep for en passant
+	if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
+		if (final->final_position.row == 3 && final->starting_position.row == 1) {
+			*is_special = true;
+		}
+	}
+	if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
+		if (final->final_position.row == 4 && final->starting_position.row == 6) {
+			*is_special = true;
+		}
+	}
+
+	// assert(status == 1);
 
 	free(copy_board);
 	return final;
@@ -398,11 +413,14 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 		printf("Illegal move sent\n");
 		return input_board;
 	}
-	printf("here\n");
-	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side);
+	bool is_special = false;
+	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side, &is_special);
+	printf("en passant: %d\n", truemove->is_en_passant );
 	*status = 1;
 
-
+	if (truemove->piece == 'K' || truemove->piece == 'R') {
+		is_special = true;
+	}
 
 	//castle handling
 	if (truemove->castles ==  1) {
@@ -412,10 +430,15 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
 	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
 	input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
-	input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
 
+	if (is_special) {
+		input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, is_special);
+	} 
+	else {
+		input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
+	}
 	if (truemove->is_en_passant) {
-		input_board->board[truemove->starting_position.row + (side == 'W' ? -1 : 1)][truemove->starting_position.col] = 31;
+		input_board->board[truemove->final_position.row + (side == 'W' ? -1 : 1)][truemove->final_position.col] = 31;
 	}
 	// if(*status == 1) {
 	// 	printf("is piece special: %d\n", is_piece_special);
