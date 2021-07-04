@@ -67,13 +67,15 @@ int main(int argc, char** argv) {
 
         }
         printDataBoard(mainBoard);
-        
+        printf("status: %d\n", *status);
+
         *status = 0;
         while(*status == 0) { 
             getBlackMove(mainBoard, status); 
         }
 
         printDataBoard(mainBoard);
+        printf("status: %d\n", *status);
     }
 
     free(status);
