@@ -54,6 +54,15 @@ struct dataTurn* toDataTurn(const char* original_move) {
         move_cpy[strlen(move_cpy) - 1] = '\0';
         new_move->is_check = true;
     }
+
+    if (strchr(move_cpy, '=') != NULL) {
+        
+        new_move->piece_promotes_to = *strchr(move_cpy, '=') + 1;
+        move_cpy[strlen(move_cpy) - 2] = '\0';
+    }
+    else {
+        new_move->piece_promotes_to = ' ';
+    }
     
     if (strchr(move_cpy, 'O') != NULL) { // handles castling
         new_move->castles = true;

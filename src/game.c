@@ -293,60 +293,75 @@ struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side) {
 	return input_board;
 }
 
-struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status) {
-    assert(side == 'W' || side == 'B');
-	*status = 0;
-	
-	
-	struct dataTurn* cmove = toDataTurn(move);
-	printf("cmove->piece = %c\n", cmove->piece);
-	bool is_piece_special = false;
-	if (cmove == NULL) {
-		printf("Illegal move sent\n");
-		return input_board;
+struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side) {
+	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
+
+	final->castles = input_turn->castles;
+	final->is_king_side = input_turn->is_king_side;
+	final->is_check = input_turn->is_check;
+	if (final->castles) {
+		
+		return final;
 	}
-	//castle handling
-	if (cmove->castles ==  1) {
-        return castleHandling(input_board, cmove, side, status);
-    }
 
-	struct dataBoard* original_board = malloc(sizeof(struct dataBoard));
-	memcpy(original_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
+	final->final_position.row = input_turn->final_position.row - 1, 
+	final->final_position.col = input_turn->final_position.col;
+	final->piece_promotes_to = input_turn->piece_promotes_to;
+	final->piece = input_turn->piece;
+	final->takes = input_turn->takes;
 
-	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
+
+	//en passant
+	final->is_en_passant = false; 
+	if (input_turn->takes && sideOfDataPiece(getDataPiece(input_board, input_turn->final_position.row , input_turn->final_position.col)) == ' ') {
+		if (isDataPieceSpecial(getDataPiece(input_board, input_turn->final_position.row + (side == 'W' ? -1 : 1), input_turn->final_position.col))) {
+			final->is_en_passant = true;
+		}
+	}
+
+
+	bool is_piece_special = false;
+	assert(side == 'W' || side == 'B');
+	int status = 0;
 	
-	if (cmove->takes && sideOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == oppositeSide(side)) {
-		if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(input_board, cmove->final_position.row -1, cmove->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
+	
+
+	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+	memcpy(copy_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
+
+	
+	if (input_turn->takes && sideOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == oppositeSide(side)) {
+		if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
 			// input_board->off_the_board[0] = input_board->board[cmove->final_position.row][cmove->final_position.col];
-			input_board->board[cmove->final_position.row -1 ][cmove->final_position.col] = 31;
+			copy_board->board[input_turn->final_position.row -1 ][input_turn->final_position.col] = 31;
 		}
 
 	}
 
 	struct standard_pos temp_position = {.row = 0, .col = 0};
 	struct boardCheck* lolm = NULL;
-	struct pos expected_result = {.row = cmove->final_position.row -1, .col = cmove->final_position.col, .next=NULL};
-	struct standard_pos restrictors = cmove->restrictors;
+	struct pos expected_result = {.row = input_turn->final_position.row -1, .col = input_turn->final_position.col, .next=NULL};
+	struct standard_pos restrictors = input_turn->restrictors;
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if ((restrictors.row == i || restrictors.row == -1) && (restrictors.col == j || restrictors.col == -1)) { 
 			// this is The line to focus on
 			//also add a game.c with a game struct etc 
-				if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == cmove->piece && sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+				if (pieceIdOfDataPiece(getDataPiece(copy_board, i, j)) == input_turn->piece && sideOfDataPiece(getDataPiece(copy_board, i, j)) == side) {
 					temp_position.row = i;
 					temp_position.col = j; 
 
-					lolm = listOfLegalMoves(input_board, &temp_position, original_board, false);
+					lolm = listOfLegalMoves(copy_board, &temp_position, input_board, false);
                     // printf("lolm: %ld\n", lolm->mask);
 
 					if (getBitOfBoardCheck(lolm, positionToIndex(expected_result.row, expected_result.col))) {
                         // printBoardCheck(lolm);
 						//checks if piece can be en passanted in the future
 						if (!is_piece_special) {
-							is_piece_special = isDataPieceSpecial(getDataPiece(input_board, i, j));
+							is_piece_special = isDataPieceSpecial(getDataPiece(copy_board, i, j));
 						}
-						if (!is_piece_special && cmove->piece == 'P' ) {
+						if (!is_piece_special && input_turn->piece == 'P' ) {
 							if(side == 'W') {
 								if (expected_result.row == 3 && i == 1) {
 									is_piece_special = true;
@@ -358,8 +373,9 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 								}
 							}
 						}
-						input_board->board[i][j] = 31;
-						*status = 1;
+						copy_board->board[i][j] = 31;
+						status = 1;
+						final->starting_position = temp_position;
                         free(lolm);
 						break;
 					}
@@ -368,26 +384,59 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			}
 		}
 	}
-	if(*status == 1) {
-		printf("is piece special: %d\n", is_piece_special);
-		unsigned char temp_piece = makeDataPiece(cmove->piece, side, is_piece_special);
-		if (cmove->takes && sideOfDataPiece(getDataPiece(input_board, expected_result.row, expected_result.col)) == ' ' && cmove->piece == 'P') {
-			input_board->board[expected_result.row -1][expected_result.col] = 31;
-		}
-		input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
 
-		if (kingInCheck(input_board, (side))) {
-			*status = 0;
-			printf("illegal\n");
-		}
+	assert(status == 1);
 
+	free(copy_board);
+	return final;
+}
+
+struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status) {
+    struct dataTurn* cmove = toDataTurn(move);
+
+	if (cmove == NULL) {
+		printf("Illegal move sent\n");
+		return input_board;
 	}
+	printf("here\n");
+	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side);
+	*status = 1;
 
-    if (*status != 1) {
-        memcpy(input_board, original_board, sizeof(struct dataBoard));
+
+
+	//castle handling
+	if (truemove->castles ==  1) {
+        return castleHandling(input_board, cmove, side, status);
     }
+
+	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
+	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
+	input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
+	input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
+
+	if (truemove->is_en_passant) {
+		input_board->board[truemove->starting_position.row + (side == 'W' ? -1 : 1)][truemove->starting_position.col] = 31;
+	}
+	// if(*status == 1) {
+	// 	printf("is piece special: %d\n", is_piece_special);
+	// 	unsigned char temp_piece = makeDataPiece(cmove->piece, side, is_piece_special);
+	// 	if (cmove->takes && sideOfDataPiece(getDataPiece(input_board, expected_result.row, expected_result.col)) == ' ' && cmove->piece == 'P') {
+	// 		input_board->board[expected_result.row -1][expected_result.col] = 31;
+	// 	}
+	// 	input_board->board[cmove->final_position.row - 1][cmove->final_position.col] = temp_piece; // the -1 is required because arrs start at 0
+
+	// 	if (kingInCheck(input_board, (side))) {
+	// 		*status = 0;
+	// 		printf("illegal\n");
+	// 	}
+
+	// }
+
+    // if (*status != 1) {
+    //     memcpy(input_board, original_board, sizeof(struct dataBoard));
+    // }
 	free(cmove);
-	free(original_board);
+	
 	return input_board;
 }
 

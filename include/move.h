@@ -44,6 +44,20 @@ struct dataTurn {
     bool castles;
     bool is_king_side;
     bool is_check;
+    char piece_promotes_to;
+};
+
+struct fullDataTurn {
+    struct standard_pos final_position;
+    struct standard_pos starting_position;
+    char piece;
+    bool is_en_passant;
+    bool takes;
+    bool castles;
+    bool is_king_side;
+    bool is_check;
+
+    char piece_promotes_to;
 };
 
 struct standard_pos posToStandard_pos(const struct pos* input_pos);
