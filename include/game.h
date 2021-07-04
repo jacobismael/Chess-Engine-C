@@ -9,7 +9,7 @@
 
 struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* head);
 struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move);
-struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status);
+struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, bool* status);
 
 struct boardCheck* pawnMovement(const struct dataBoard* input_board, struct boardCheck* validPositions, const struct standard_pos* position, char side, bool attacking_if_taken);
 struct boardCheck* knightMovement(const struct dataBoard* input_board, struct boardCheck* validPositions, const struct standard_pos* position, char side, bool attacking_if_taken);

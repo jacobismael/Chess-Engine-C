@@ -11,7 +11,7 @@
 
 struct dataBoard* mainBoard;
 static sig_atomic_t continueRunning = 1;
-int* status;
+bool* status;
 char* input;
 
 static void signal_handler(int _) {
@@ -23,7 +23,7 @@ static void signal_handler(int _) {
     exit(0);
 }
 
-void getWhiteMove(struct dataBoard* mainBoard, int* status) {
+void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     printf("\nPlayer 1 Move: ");
     
     scanf("%s", input);
@@ -31,7 +31,7 @@ void getWhiteMove(struct dataBoard* mainBoard, int* status) {
     buildFromHalfMove(mainBoard, input, 'W', status);
 }
 
-void getBlackMove(struct dataBoard* mainBoard, int* status) {
+void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     printf("\nPlayer 2 Move: ");
 
     scanf("%s", input);

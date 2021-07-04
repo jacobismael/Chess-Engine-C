@@ -224,7 +224,7 @@ struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move
 	return input_board;
 }
 
-struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn* cmove, char side, int* status) {
+struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn* cmove, char side, bool* status) {
 
     if (kingInCheck(input_board, side)) {
         return input_board;
@@ -409,7 +409,7 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	return final;
 }
 
-struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, int* status) {
+struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, bool* status) {
     struct dataTurn* cmove = toDataTurn(move);
 	*status = 0;
 
