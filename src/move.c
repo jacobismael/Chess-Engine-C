@@ -56,8 +56,8 @@ struct dataTurn* toDataTurn(const char* original_move) {
     }
 
     if (strchr(move_cpy, '=') != NULL) {
+        new_move->piece_promotes_to = *(strchr(move_cpy, '=') + 1);
         
-        new_move->piece_promotes_to = *strchr(move_cpy, '=') + 1;
         move_cpy[strlen(move_cpy) - 2] = '\0';
     }
     else {

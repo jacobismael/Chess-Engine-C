@@ -18,22 +18,22 @@ struct boardCheck* pawnMovement(const struct dataBoard* input_board, struct boar
     }
 	//en passant tstuff
 	if (side == 'W' && position->row == 4){
-		printf("piece to the right is of type: %d \n", getDataPiece(input_board, position->row, position->col + 1));
-		printf("piece to the right is of special %d \n", isDataPieceSpecial(getDataPiece(input_board, position->row, position->col + 1)));
-		if (getDataPiece(input_board, position->row, position->col + 1) == 13) {
-			printf("yeet\n");
+		// printf("piece to the right is of type: %d \n", getDataPiece(input_board, position->row, position->col + 1));
+		// printf("piece to the right is of special %d \n", isDataPieceSpecial(getDataPiece(input_board, position->row, position->col + 1)));
+		
+		if ( validRange(position->col + 1) && getDataPiece(input_board, position->row, position->col + 1) == 13) {
 			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
 		}
-		else if(getDataPiece(input_board, position->row, position->col - 1) == 13) { // this is else ifbecause there is never more than one en passant possibility at a time
+		else if(validRange(position->col - 1) && getDataPiece(input_board, position->row, position->col - 1) == 13 ) { // this is else ifbecause there is never more than one en passant possibility at a time
 			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
 		}
 	}
 
 	if (side == 'B' && position->row == 3){
-		if (getDataPiece(input_board, position->row, position->col + 1) == 12) {
+		if (validRange(position->col + 1) && getDataPiece(input_board, position->row, position->col + 1) == 12) {
 			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
 		}
-		else if(getDataPiece(input_board, position->row, position->col - 1) == 12) { // this is else ifbecause there is never more than one en passant possibility at a time
+		else if(validRange(position->col - 1) && getDataPiece(input_board, position->row, position->col - 1) == 12) { // this is else ifbecause there is never more than one en passant possibility at a time
 			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
 		}
 	}
@@ -41,12 +41,14 @@ struct boardCheck* pawnMovement(const struct dataBoard* input_board, struct boar
 
 	// normal taking
 	if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
-		validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
-		
+		if (validRange(position->row + 1*pawnDir) && validRange(position->col - 1)) {
+			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
+		}
 	}
 	if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
-		validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
-		
+		if (validRange(position->row + 1*pawnDir) && validRange(position->col + 1)) {
+			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
+		}
 	}
 	return validPositions;
 }
@@ -311,7 +313,15 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 
 	final->final_position.row = input_turn->final_position.row - 1, 
 	final->final_position.col = input_turn->final_position.col;
+	assert(validRange(final->final_position.row));
+	assert(validRange(final->final_position.col));
 	final->piece_promotes_to = input_turn->piece_promotes_to;
+	if(final->piece_promotes_to == 'K') {// you cannot promote to a king
+		*status = 0;
+		printf("you cannot promot to a king");
+		return final;
+
+	}
 	final->piece = input_turn->piece;
 	final->takes = input_turn->takes;
 
@@ -335,12 +345,13 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	memcpy(copy_board, input_board, sizeof(struct dataBoard)); //this feels inefficient instead maybe save specific positions and 
 
 	
-	if (input_turn->takes && sideOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == oppositeSide(side)) {
-		if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
-			// input_board->off_the_board[0] = input_board->board[cmove->final_position.row][cmove->final_position.col];
-			copy_board->board[input_turn->final_position.row -1 ][input_turn->final_position.col] = 31;
+	if (input_turn->takes && validRange(input_turn->final_position.row - 1)) {
+		if (sideOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == oppositeSide(side)) {
+			if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
+				// input_board->off_the_board[0] = input_board->board[cmove->final_position.row][cmove->final_position.col];
+				copy_board->board[input_turn->final_position.row -1 ][input_turn->final_position.col] = 31;
+			}
 		}
-
 	}
 
 	struct standard_pos temp_position = {.row = 0, .col = 0};
@@ -390,7 +401,6 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 		}
 	}
 
-
 	//prep for en passant
 	if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
 		if (final->final_position.row == 3 && final->starting_position.row == 1) {
@@ -419,9 +429,8 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	}
 	bool is_special = false;
 	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side, &is_special, status);
-	printf("en passant: %d\n", truemove->is_en_passant );
-	// *status = 1;
-
+	printf(": %d\n", truemove->piece_promotes_to );
+	
 	if (truemove->piece == 'K' || truemove->piece == 'R') {
 		is_special = true;
 	}
@@ -433,18 +442,37 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
 	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
-	input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
+	if (*status == 1) {
+		input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
+	}
+	
 	//assigns special pieces
-	if (is_special) {
-		input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, is_special);
-	} 
-	else {
-		input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
+	if (*status == 1) {
+		if (is_special) {
+			input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, is_special);
+		} 
+		else {
+			input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
+		}
 	}
 	//en passant remove piece that was taken
 	if (truemove->is_en_passant) {
 		input_board->board[truemove->final_position.row + (side == 'W' ? -1 : 1)][truemove->final_position.col] = 31;
 	}
+	//promotion
+	if (truemove->piece =='P') {
+		printf("promotion1: %c\n", truemove->piece_promotes_to);
+		if (truemove->final_position.row == 7 && side == 'W') {
+			// it defaults to queen if nothing is specified
+			input_board->board[truemove->final_position.row][truemove->final_position.col] = (truemove->piece_promotes_to != ' ' ? makeDataPiece(truemove->piece_promotes_to, side, false) : makeDataPiece('Q', side, false));
+		}
+		if (truemove->final_position.row == 0 && side == 'B') {
+			// it defaults to queen if nothing is specified
+			input_board->board[truemove->final_position.row][truemove->final_position.col] = (truemove->piece_promotes_to != ' ' ? makeDataPiece(truemove->piece_promotes_to, side, false) : makeDataPiece('Q', side, false));
+		}
+
+	}
+
 	
 	free(cmove);
 	
