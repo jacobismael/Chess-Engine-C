@@ -14,13 +14,18 @@ static sig_atomic_t continueRunning = 1;
 bool* status;
 char* input;
 
-static void signal_handler(int _) {
-    (void)_;
+static void exit_function() {
     continueRunning = 0;
     free(mainBoard);
     free(status);
     free(input);
     exit(0);
+
+}
+
+static void signal_handler(int _) {
+    (void)_;
+    exit_function();
 }
 
 void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
@@ -29,6 +34,12 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     scanf("%s", input);
     
     buildFromHalfMove(mainBoard, input, 'W', status);
+    printDataBoard(mainBoard);
+    if (isMate(mainBoard, 'B')) {
+        printf("Mate!\n");
+        exit_function();
+    }
+    printf("status: %d\n", *status);
 }
 
 void getBlackMove(struct dataBoard* mainBoard, bool* status) {
@@ -37,6 +48,12 @@ void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     scanf("%s", input);
     
     buildFromHalfMove(mainBoard, input, 'B', status);
+    printDataBoard(mainBoard);
+    if (isMate(mainBoard, 'W')) {
+        printf("Mate!\n");
+        exit_function();
+    }
+    printf("status: %d\n", *status);
 }
 
 int main(int argc, char** argv) {
@@ -66,16 +83,12 @@ int main(int argc, char** argv) {
             getWhiteMove(mainBoard, status); 
 
         }
-        printDataBoard(mainBoard);
-        printf("status: %d\n", *status);
+        
 
         *status = 0;
         while(*status == 0) { 
             getBlackMove(mainBoard, status); 
         }
-
-        printDataBoard(mainBoard);
-        printf("status: %d\n", *status);
     }
 
     free(status);

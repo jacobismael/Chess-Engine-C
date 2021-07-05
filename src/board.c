@@ -213,6 +213,7 @@ void printDataBoard(const struct dataBoard* input_board) {
 }
 
 bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
+	// assert(index <= 63);
 	return !!(((uint64_t)1 << index) & input_mask->mask);
 }
 
@@ -221,12 +222,13 @@ uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) 
 }
 
 unsigned char positionToIndex( char row,  char col) {
+	assert(row <= 8 && row >= 0);
+	assert(col <= 8 && col >= 0);
 	return ((row * 8) + col);
 }
 
-
 void printBoardCheck(struct boardCheck* input_mask) {
-	for (int i = 8; i > 0; i--) {
+	for (int i = 7; i > 0; i--) {
 		printf("%d  ", i);
 		for (int j = 0; j < 8; j++) {
 			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j)));

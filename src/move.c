@@ -90,7 +90,6 @@ struct dataTurn* toDataTurn(const char* original_move) {
     new_move->final_position = final_pos;
 
     if (strchr(move_cpy, 'x') != NULL) { // specifies if the move is taking a piece
-        printf("takes");
         new_move->takes =  true;
         move_cpy[strlen(move_cpy) - 1] = '\0';
     }

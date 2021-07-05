@@ -89,13 +89,17 @@ struct boardCheck* bishopMovement(const struct dataBoard* input_board, struct bo
 	for (int i = 0; i < 4; i ++) {
 		for (int j = 1; j < 8; j++) {
 			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-                if(attacking_if_taken || strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL) {
+               if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
+					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
+					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
 
-                    validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-                    if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) != ' ') {
-                        break;
-                    }
+						break;	
+					}
                 }
+				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
+
+					break;
+				}
 			}
 		}
 	}
@@ -110,12 +114,17 @@ struct boardCheck* rookMovement(const struct dataBoard* input_board, struct boar
 	for (int i = 0; i < 4; i ++) {
 		for (int j = 1; j < 8; j++) {
 			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-                if (strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
-                    validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-                    if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) != ' ') {
-                        break;
-                    }
+                if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
+					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
+					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
+
+						break;	
+					}
                 }
+				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
+
+					break;
+				}
             }
 		}
 	}
@@ -131,12 +140,16 @@ struct boardCheck* queenMovement(const struct dataBoard* input_board, struct boa
 	for (int i = 0; i < 8; i ++) {
 		for (int j = 1; j < 8; j++) {
 			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-                if (strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
-                    validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-                    if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) != ' ') {
-                        break;
-                    }
+                if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
+					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
+					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
+
+						break;	
+					}
                 }
+				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
+					break;
+				}
 			}
 		}
 	}
@@ -419,7 +432,52 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	return final;
 }
 
+bool isMate(struct dataBoard* input_board, char side) {
+	//this doesnt support en passant yet
+	if (!kingInCheck(input_board, side)) {
+		return false;
+	}
+
+	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+
+	unsigned char temp_piece = ' ';
+	struct standard_pos temp_pos; 
+	struct boardCheck* lolm = NULL;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (validRange(i - 1) &&  sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+				temp_pos.row = i;
+				temp_pos.col = j;
+				
+				lolm = listOfLegalMoves(input_board, &temp_pos, copy_board, false);
+				// printf("piece: %c\n", pieceIdOfDataPiece(getDataPiece(input_board, temp_pos.row, temp_pos.col)));
+				// printBoardCheck(lolm);
+				for (int k = 0; k < 8; k++) {
+					for (int l = 0; l < 8; l++) {
+						memcpy(copy_board, input_board, sizeof(struct dataBoard));
+						if(getBitOfBoardCheck(lolm, positionToIndex(k, l))) {
+							temp_piece = copy_board->board[temp_pos.row][temp_pos.col];
+							copy_board->board[temp_pos.row][temp_pos.col] = 31;
+							copy_board->board[k][l] = temp_piece;
+							// printDataBoard(copy_board);
+
+							if (!kingInCheck(copy_board, side)) {
+								return false;
+							}
+						}
+					}
+				}
+				free(lolm);
+			}
+		}
+	}
+	return true;
+
+}
+
 struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, bool* status) {
+	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+	memcpy(copy_board, input_board, sizeof(struct dataBoard));
     struct dataTurn* cmove = toDataTurn(move);
 	*status = 0;
 
@@ -429,23 +487,21 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	}
 	bool is_special = false;
 	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side, &is_special, status);
-	printf(": %d\n", truemove->piece_promotes_to );
-	
+	free(cmove);
+	//makes sure that moved peices cannot be used to castle
 	if (truemove->piece == 'K' || truemove->piece == 'R') {
 		is_special = true;
 	}
-
 	//castle handling
 	if (truemove->castles ==  1) {
         return castleHandling(input_board, cmove, side, status);
     }
-
+	//remove peices marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
 	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
 	if (*status == 1) {
 		input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
 	}
-	
 	//assigns special pieces
 	if (*status == 1) {
 		if (is_special) {
@@ -473,8 +529,12 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 
 	}
 
-	
-	free(cmove);
+	if (kingInCheck(input_board, side)) {
+		*status = 0;
+	}
+	if (*status == 0) {
+		memcpy(input_board, copy_board, sizeof(struct dataBoard));
+	}
 	
 	return input_board;
 }
