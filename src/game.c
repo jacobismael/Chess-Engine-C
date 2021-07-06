@@ -225,6 +225,7 @@ struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* hea
 
 
 struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move) {
+	/*
 	//white's move
 	char white_move[6];
 	strncpy(white_move, move->white_notation, 6);
@@ -235,11 +236,11 @@ struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move
 	strncpy(black_move, move->black_notation, 6);
 	input_board = buildFromHalfMove(input_board, black_move, 'B', NULL);
 
-
+	*/
 	return input_board;
 }
 
-struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn* cmove, char side, bool* status) {
+struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataTurn* truemove, char side, bool* status) {
 
     if (kingInCheck(input_board, side)) {
         return input_board;
@@ -248,7 +249,7 @@ struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn*
     unsigned char blank_piece = makeDataPiece(' ', ' ', false);
     unsigned char king_piece = makeDataPiece('K', side, true);
     unsigned char rook_piece = makeDataPiece('R', side, true);
-    if (cmove->is_king_side) {
+    if (truemove->is_king_side) {
         if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 5)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 6)) == ' ') { // checks that the squares between the king are empty
             
             struct standard_pos positions_to_eval[2] = {
@@ -292,7 +293,7 @@ struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn*
             }
         }
     }
-    free(cmove);
+    free(truemove);
     return input_board;
 }
 
@@ -312,11 +313,10 @@ struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side) {
 	return input_board;
 }
 
-struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side, bool *is_special, bool *status) {
+struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side, bool *status) {
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
-	*is_special = false;
+	final->is_special = false;
 	*status = 0;
-
 	final->castles = input_turn->castles;
 	final->is_king_side = input_turn->is_king_side;
 	final->is_check = input_turn->is_check;
@@ -343,7 +343,6 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	final->is_en_passant = false; 
 	if (final->takes && sideOfDataPiece(getDataPiece(input_board, final->final_position.row , final->final_position.col)) == ' ') {
 		if (isDataPieceSpecial(getDataPiece(input_board, final->final_position.row + (side == 'W' ? -1 : 1), final->final_position.col))) {
-			printf("\n\nheredgfsdfgd\n");
 			final->is_en_passant = true;
 		}
 	}
@@ -417,13 +416,17 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	//prep for en passant
 	if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
 		if (final->final_position.row == 3 && final->starting_position.row == 1) {
-			*is_special = true;
+			final->is_special = true;
 		}
 	}
 	if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
 		if (final->final_position.row == 4 && final->starting_position.row == 6) {
-			*is_special = true;
+			final->is_special = true;
 		}
+	}
+
+	if (final->piece == 'K' || final->piece == 'R') {
+		final->is_special = true;
 	}
 
 	// assert(status == 1);
@@ -433,7 +436,7 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 }
 
 bool isMate(struct dataBoard* input_board, char side) {
-	//this doesnt support en passant yet
+	//this d esnt support en passant yet
 	if (!kingInCheck(input_board, side)) {
 		return false;
 	}
@@ -445,7 +448,7 @@ bool isMate(struct dataBoard* input_board, char side) {
 	struct boardCheck* lolm = NULL;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (validRange(i - 1) &&  sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+			if (validRange(i - 1/* is this right? */) &&  sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
 				temp_pos.row = i;
 				temp_pos.col = j;
 				
@@ -462,6 +465,7 @@ bool isMate(struct dataBoard* input_board, char side) {
 							// printDataBoard(copy_board);
 
 							if (!kingInCheck(copy_board, side)) {
+								free(copy_board);
 								return false;
 							}
 						}
@@ -471,31 +475,36 @@ bool isMate(struct dataBoard* input_board, char side) {
 			}
 		}
 	}
+	free(copy_board);
 	return true;
 
 }
 
-struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, bool* status) {
-	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
-	memcpy(copy_board, input_board, sizeof(struct dataBoard));
-    struct dataTurn* cmove = toDataTurn(move);
-	*status = 0;
+struct fullDataTurn* stringToFullDataTurn(struct dataBoard* input_board, char* turn, char side, bool* status) {
+    	struct dataTurn* cmove = toDataTurn(turn);
 
 	if (cmove == NULL) {
 		printf("Illegal move sent\n");
+		*status = 0;
+		return NULL;
+	}
+
+	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side, status);
+	free(cmove);
+	return truemove;
+}
+
+struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDataTurn* truemove, char side, bool* status) {
+	if (!*status) {
 		return input_board;
 	}
-	bool is_special = false;
-	struct fullDataTurn* truemove = toFullDataTurn(cmove, input_board, side, &is_special, status);
-	free(cmove);
-	//makes sure that moved peices cannot be used to castle
-	if (truemove->piece == 'K' || truemove->piece == 'R') {
-		is_special = true;
-	}
+	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+	memcpy(copy_board, input_board, sizeof(struct dataBoard));
 	//castle handling
 	if (truemove->castles ==  1) {
-        return castleHandling(input_board, cmove, side, status);
-    }
+		free(copy_board);
+        	return castleHandling(input_board, truemove, side, status);
+    	}
 	//remove peices marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
 	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
@@ -504,8 +513,8 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	}
 	//assigns special pieces
 	if (*status == 1) {
-		if (is_special) {
-			input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, is_special);
+		if (truemove->is_special) {
+			input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, truemove->is_special);
 		} 
 		else {
 			input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
@@ -526,7 +535,6 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 			// it defaults to queen if nothing is specified
 			input_board->board[truemove->final_position.row][truemove->final_position.col] = (truemove->piece_promotes_to != ' ' ? makeDataPiece(truemove->piece_promotes_to, side, false) : makeDataPiece('Q', side, false));
 		}
-
 	}
 
 	if (kingInCheck(input_board, side)) {
@@ -535,7 +543,8 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, c
 	if (*status == 0) {
 		memcpy(input_board, copy_board, sizeof(struct dataBoard));
 	}
-	
+	free(truemove);
+	free(copy_board);
 	return input_board;
 }
 

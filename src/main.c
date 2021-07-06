@@ -8,6 +8,7 @@
 #include "move.h"
 #include "game.h"
 #include "board.h"
+#include "random-bot.h"
 
 struct dataBoard* mainBoard;
 static sig_atomic_t continueRunning = 1;
@@ -25,15 +26,17 @@ static void exit_function() {
 
 static void signal_handler(int _) {
     (void)_;
+    printf("\n");
     exit_function();
 }
 
 void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
+
     printf("\nPlayer 1 Move: ");
     
     scanf("%s", input);
     
-    buildFromHalfMove(mainBoard, input, 'W', status);
+    buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
     printDataBoard(mainBoard);
     if (isMate(mainBoard, 'B')) {
         printf("Mate!\n");
@@ -45,9 +48,11 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
 void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     printf("\nPlayer 2 Move: ");
 
-    scanf("%s", input);
+    //scanf("%s", input);
     
-    buildFromHalfMove(mainBoard, input, 'B', status);
+     
+    
+    buildFromHalfMove(mainBoard, randomChoice(mainBoard, 'B', status), 'B', status);
     printDataBoard(mainBoard);
     if (isMate(mainBoard, 'W')) {
         printf("Mate!\n");
@@ -58,7 +63,8 @@ void getBlackMove(struct dataBoard* mainBoard, bool* status) {
 
 int main(int argc, char** argv) {
     signal(SIGINT, signal_handler);
-    input = malloc(sizeof(char) * 6);
+    srand(time(NULL));
+    input = malloc(6);
 
     if(argc == 1) {
         // visual mode

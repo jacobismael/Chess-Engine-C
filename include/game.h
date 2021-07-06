@@ -1,3 +1,5 @@
+#ifndef GAME_H
+#define GAME_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,14 +20,16 @@ struct boardCheck* listOfLegalMoves(const struct dataBoard* input_board, const s
 
 struct dataBoard* buildFromStart(struct dataBoard* input_board, struct Move* head);
 struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move);
-struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, char* move, char side, bool* status);
+struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDataTurn* truemove, char side, bool* status);
 
-struct dataBoard* castleHandling(struct dataBoard* input_board, struct dataTurn* cmove, char side, bool* status);
+struct fullDataTurn* stringToFullDataTurn(struct dataBoard* input_board, char* turn, char side, bool* status);
+struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataTurn* cmove, char side, bool* status);
 struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side);
-struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoard* input_board, char side, bool *is_special, bool *status);
 bool isMate(struct dataBoard* input_board, char side);
 
 
 
 bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position);
 bool kingInCheck(const struct dataBoard* input_board, char side);
+
+#endif 

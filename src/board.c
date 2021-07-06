@@ -213,7 +213,6 @@ void printDataBoard(const struct dataBoard* input_board) {
 }
 
 bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
-	// assert(index <= 63);
 	return !!(((uint64_t)1 << index) & input_mask->mask);
 }
 

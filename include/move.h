@@ -1,4 +1,3 @@
-
 #ifndef MOVE_H
 #define MOVE_H
 #include <stdbool.h>
@@ -20,7 +19,6 @@ struct standard_pos {
 	int col:4;
 };
 
-
 struct Turn {
 
     char side;
@@ -29,12 +27,17 @@ struct Turn {
 };
 
 struct Move {
-
     int move_number;
     char white_notation[6];
     char black_notation[6];
 
     struct Move* next;
+};
+
+struct basicDataTurnNode {
+	struct standard_pos starting_pos;
+	struct standard_pos ending_pos;
+	struct basicDataTurnNode* next;
 };
 
 struct dataTurn {
@@ -53,6 +56,7 @@ struct fullDataTurn {
     struct standard_pos starting_position;
     char piece;
     bool is_en_passant;
+    bool is_special;
     bool takes;
     bool castles;
     bool is_king_side;
@@ -70,6 +74,12 @@ int ColToLetter(int col);
 struct pos* getRestrictors(char* move);
 struct dataTurn* toDataTurn(const char* main);
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
+struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos);
+int lengthOfBasicDataTurn(struct basicDataTurnNode* head);
+struct basicDataTurnNode* getElementOfBasicDataTurn(struct basicDataTurnNode* head, int position);
+
+
+
 char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
 

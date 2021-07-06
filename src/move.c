@@ -18,6 +18,46 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
     return head_cpy;
 }
 
+struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos) {
+	struct basicDataTurnNode* head_cpy = head;
+	while(head->next != NULL) {
+		head = head->next;
+	}
+	struct basicDataTurnNode* new_node = malloc(sizeof(struct basicDataTurnNode));
+	new_node->starting_pos = *starting_pos; 
+	new_node->ending_pos = *ending_pos; 
+	new_node->next = NULL;	
+    head->next = new_node;
+	return head_cpy;
+}
+
+int lengthOfBasicDataTurn(struct basicDataTurnNode* head) {
+	int length = 1;	
+	
+	while(head != NULL) {
+		length++;
+		head = head->next;
+	}
+
+	return length;
+}
+
+struct basicDataTurnNode* getElementOfBasicDataTurn(struct basicDataTurnNode* head, int position) {
+    if (position > lengthOfBasicDataTurn(head) - 1) {
+        return NULL;
+    }
+    int length = 0;	
+	
+	while(head != NULL) {
+		length++;
+		head = head->next;
+        if (length == position) {
+            return head;
+        }
+	}
+    return NULL;
+}
+
 
 int letterToCol(char letter) {
 	if ((int)letter <= 96 || (int)letter >= 105) {

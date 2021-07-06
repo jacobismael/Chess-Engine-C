@@ -87,7 +87,6 @@ struct dataPiece pieceToDataPiece(struct piece* p);
 void printBoard(const struct board* input_board);
 
 void printDataBoard(const struct dataBoard* input_board);
-
 bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
 uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
 unsigned char positionToIndex( char row,  char col);
