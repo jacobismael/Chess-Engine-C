@@ -31,6 +31,16 @@ struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, st
 	return head_cpy;
 }
 
+void freeBasicDataTurn(struct basicDataTurnNode* head) {
+    struct basicDataTurnNode* temp = head;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+    
+}
+
 int lengthOfBasicDataTurn(struct basicDataTurnNode* head) {
 	int length = 1;	
 	

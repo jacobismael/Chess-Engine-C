@@ -31,25 +31,29 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 							}
 						}
 					}
+					free(lolm);
 				}
 			}
 		}
 	}
-	return head->next;
+	struct basicDataTurnNode* result = head->next;
+	free(head);
+	return result;
 }
 
 struct fullDataTurn* randomChoice(const struct dataBoard* input_board, char side, bool* status) {
 	struct basicDataTurnNode* head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
 	printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
-	head = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
+	struct basicDataTurnNode* random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
 	*status = 1;
 	if (head == NULL) {
 		*status = 0;
 		return NULL;
 	}
-	struct standard_pos start = head->starting_pos;
-	struct standard_pos end =  head->ending_pos;
+	struct standard_pos start =  random_move->starting_pos;
+	struct standard_pos end =  random_move->ending_pos;
+	freeBasicDataTurn(head);
 	
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
 
@@ -57,7 +61,17 @@ struct fullDataTurn* randomChoice(const struct dataBoard* input_board, char side
 	final->starting_position = start;
 	final->piece = pieceIdOfDataPiece(getDataPiece(input_board, start.row, start.col));
 	final->is_en_passant = false; 
+
 	final->piece_promotes_to = 'Q';
+	final->takes = (sideOfDataPiece(getDataPiece(input_board, end.row, end.col)) == oppositeSide(side));
+	//includes en passant in taking
+	if (!final->takes) {
+		if(final->piece == 'P') {
+			if (final->starting_position.col != final->final_position.col) {
+				final->takes = true;
+			}
+		}
+	}
 	if (final->takes && sideOfDataPiece(getDataPiece(input_board, final->final_position.row , final->final_position.col)) == ' ') {
 		if (isDataPieceSpecial(getDataPiece(input_board, final->final_position.row + (side == 'W' ? -1 : 1), final->final_position.col))) {
 			final->is_en_passant = true;
@@ -71,10 +85,10 @@ struct fullDataTurn* randomChoice(const struct dataBoard* input_board, char side
 	final->is_check = kingInCheck(copy_board, oppositeSide(side));
 	free(copy_board);
 
-	final->takes = (sideOfDataPiece(getDataPiece(input_board, end.row, end.col)) == oppositeSide(side));
 	//these are just assumptions for now
 	final->castles = false;
 	final->is_king_side = false;
+	final->is_special = false;
 	//prevents illegal castling
 	if (final->piece == 'K' || final->piece == 'R') {
 		final->is_special = true;

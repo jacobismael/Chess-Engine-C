@@ -74,11 +74,11 @@ int ColToLetter(int col);
 struct pos* getRestrictors(char* move);
 struct dataTurn* toDataTurn(const char* main);
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
+
 struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos);
 int lengthOfBasicDataTurn(struct basicDataTurnNode* head);
 struct basicDataTurnNode* getElementOfBasicDataTurn(struct basicDataTurnNode* head, int position);
-
-
+void freeBasicDataTurn(struct basicDataTurnNode* head);
 
 char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
