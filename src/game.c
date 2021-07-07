@@ -241,7 +241,7 @@ struct dataBoard* buildFromMove(struct dataBoard* input_board, struct Move* move
 }
 
 struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataTurn* truemove, char side, bool* status) {
-
+	*status = false;
     if (kingInCheck(input_board, side)) {
         return input_board;
     }
@@ -260,7 +260,7 @@ struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataT
             if (!positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[0])) && !positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[1]))) { 
                 if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 7)) == 'R') {
 					if (!isDataPieceSpecial(getDataPiece(input_board, end_row, 4)) && !isDataPieceSpecial(getDataPiece(input_board, end_row, 7))) {
-						*status = 1;
+						*status = true;
 						
 						input_board->board[end_row][4] = blank_piece;
 						input_board->board[end_row][5] = rook_piece;
@@ -281,7 +281,7 @@ struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataT
             if (!positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[0])) && !positionUnderAttack(input_board, oppositeSide(side), &(positions_to_eval[1]))) { 
                 if(pieceIdOfDataPiece(getDataPiece(input_board, end_row, 4)) == 'K' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 0)) == 'R') {
 					if (!isDataPieceSpecial(getDataPiece(input_board, end_row, 4)) && !isDataPieceSpecial(getDataPiece(input_board, end_row, 0))) {
-						*status = 1;
+						*status = true;
 						
 						input_board->board[end_row][0] = blank_piece;
 						input_board->board[end_row][1] = blank_piece;
@@ -321,6 +321,7 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 	final->is_king_side = input_turn->is_king_side;
 	final->is_check = input_turn->is_check;
 	if (final->castles) {
+		*status = 1;
 		return final;
 	}
 
@@ -503,7 +504,8 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDa
 	//castle handling
 	if (truemove->castles ==  1) {
 		free(copy_board);
-        	return castleHandling(input_board, truemove, side, status);
+		printf("in castles\n");
+		return castleHandling(input_board, truemove, side, status);
     	}
 	//remove peices marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
