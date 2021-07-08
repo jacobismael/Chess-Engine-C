@@ -5,8 +5,8 @@ CFLAGS = -g -Wall -W -I../include --std=c11
 
 PROGRAM_NAME=chess
 
-HEADERS = pgn-functions.h move.h board.h game.h random-bot.h
-OBJS = main.o pgn-functions.o move.o board.o game.o random-bot.o
+HEADERS = pgn-functions.h move.h board.h game.h bot1.h bot2.h
+OBJS = main.o pgn-functions.o move.o board.o game.o bot1.o bot2.o
 
 $(PROGRAM_NAME): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)

@@ -481,6 +481,107 @@ bool isMate(struct dataBoard* input_board, char side) {
 
 }
 
+int random_int(int min, int max) { // stolen from stack overflow user= sleutheye
+   return min + rand() % (max+1 - min);
+}
+
+struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side)  {
+	struct basicDataTurnNode* head = malloc(sizeof(struct basicDataTurnNode));
+	head->next = NULL;
+	struct standard_pos temp_start_pos = {.row = 0, .col = 0};
+	struct standard_pos temp_end_pos = {.row = 0, .col = 0};
+	struct boardCheck* lolm;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (sideOfDataPiece(getDataPiece(input_board, i , j)) == side) {
+				temp_start_pos.row = i;
+				temp_start_pos.col = j;
+
+
+				lolm = listOfLegalMoves(input_board, &temp_start_pos, input_board, false);
+				if (lolm != NULL) {
+					// printBoardCheck(lolm);
+					for (int k = 0; k < 8; k++) {
+						for (int l = 0; l < 8; l++) {
+							if (getBitOfBoardCheck(lolm, positionToIndex(k, l))) {
+								temp_end_pos.row = k;
+								temp_end_pos.col = l;
+
+								head = appendBasicDataTurn(head, &temp_start_pos, &temp_end_pos);
+							}
+						}
+					}
+					free(lolm);
+				}
+			}
+		}
+	}
+	struct basicDataTurnNode* result = head->next;
+	free(head);
+	return result;
+}
+
+
+bool isDraw(struct dataBoard* input_board, char side) { // very simple and incomplete still
+	//this d esnt support en passant yet
+	if (kingInCheck(input_board, side)) {
+		return false;
+	}
+
+	// 0 1 2 3 4 5
+	// K Q B N R P
+	int num_each_piece_w[6] = {0};
+	int num_each_piece_b[6] = {0};
+	int position = 0;
+
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			switch (pieceIdOfDataPiece(getDataPiece(input_board, i, j))) {
+				case 'K':
+					position = 0;
+					break;
+				case 'Q':
+					position = 1;
+					break;
+				case 'B':
+					position = 2;
+					break;
+				case 'N':
+					position = 3;
+					break;
+				case 'R':
+					position = 4;
+					break;
+				case 'P':
+					position = 5;
+					break;					
+			}
+			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'W') {
+				num_each_piece_w[position]++;
+			}
+			else if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'B') {
+				num_each_piece_b[position]++;
+			}
+		}	
+	}
+	//cases where it isnt a draw
+	if (num_each_piece_b[5] + num_each_piece_w[5] >= 1) { //any pawns left
+		return false;
+	}
+	if (num_each_piece_b[1] + num_each_piece_w[1] >= 1) { //any pawns left
+		return false;
+	}
+	if ((num_each_piece_b[2] >= 1 && num_each_piece_b[3] >= 1) && (num_each_piece_w[2] >= 1 && num_each_piece_w[3] >= 1)) {
+		return false;
+	}
+	if (num_each_piece_b[4] + num_each_piece_w[4] >= 1) {
+		return false;
+	}
+	return true;
+
+}
+
+
 struct fullDataTurn* stringToFullDataTurn(struct dataBoard* input_board, char* turn, char side, bool* status) {
     	struct dataTurn* cmove = toDataTurn(turn);
 

@@ -1,53 +1,15 @@
-#include "random-bot.h"
+//random-bot
+#include "bot1.h"
 
 
-int random_int(int min, int max) { // stolen from stack overflow user= sleutheye
-   return min + rand() % (max+1 - min);
-}
 
-struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side)  {
-	struct basicDataTurnNode* head = malloc(sizeof(struct basicDataTurnNode));
-	head->next = NULL;
-	struct standard_pos temp_start_pos = {.row = 0, .col = 0};
-	struct standard_pos temp_end_pos = {.row = 0, .col = 0};
-	struct boardCheck* lolm;
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			if (sideOfDataPiece(getDataPiece(input_board, i , j)) == side) {
-				temp_start_pos.row = i;
-				temp_start_pos.col = j;
-
-
-				lolm = listOfLegalMoves(input_board, &temp_start_pos, input_board, false);
-				if (lolm != NULL) {
-					// printBoardCheck(lolm);
-					for (int k = 0; k < 8; k++) {
-						for (int l = 0; l < 8; l++) {
-							if (getBitOfBoardCheck(lolm, positionToIndex(k, l))) {
-								temp_end_pos.row = k;
-								temp_end_pos.col = l;
-
-								head = appendBasicDataTurn(head, &temp_start_pos, &temp_end_pos);
-							}
-						}
-					}
-					free(lolm);
-				}
-			}
-		}
-	}
-	struct basicDataTurnNode* result = head->next;
-	free(head);
-	return result;
-}
-
-struct fullDataTurn* randomChoice(const struct dataBoard* input_board, char side, bool* status) {
+struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, bool* status) {
 	struct basicDataTurnNode* head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
 	printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
 	struct basicDataTurnNode* random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
 	*status = 1;
-	if (head == NULL) {
+	if (random_move == NULL) {
 		*status = 0;
 		return NULL;
 	}
@@ -94,14 +56,16 @@ struct fullDataTurn* randomChoice(const struct dataBoard* input_board, char side
 		final->is_special = true;
 	}
 	//prep for en passant
-	if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
-		if (final->final_position.row == 3 && final->starting_position.row == 1) {
-			final->is_special = true;
+	if (final->piece == 'P') {
+		if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
+			if (final->final_position.row == 3 && final->starting_position.row == 1) {
+				final->is_special = true;
+			}
 		}
-	}
-	if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
-		if (final->final_position.row == 4 && final->starting_position.row == 6) {
-			final->is_special = true;
+		if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, final->final_position.row, final->final_position.col) == 'P')) {
+			if (final->final_position.row == 4 && final->starting_position.row == 6) {
+				final->is_special = true;
+			}
 		}
 	}
 	return final;

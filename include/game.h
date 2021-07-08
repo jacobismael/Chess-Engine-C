@@ -26,7 +26,10 @@ struct fullDataTurn* stringToFullDataTurn(struct dataBoard* input_board, char* t
 struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataTurn* cmove, char side, bool* status);
 struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side);
 bool isMate(struct dataBoard* input_board, char side);
+bool isDraw(struct dataBoard* input_board, char side);
 
+struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side);
+int random_int(int min, int max);
 
 
 bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position);

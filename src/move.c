@@ -18,6 +18,8 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
     return head_cpy;
 }
 
+
+
 struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos) {
 	struct basicDataTurnNode* head_cpy = head;
 	while(head->next != NULL) {
