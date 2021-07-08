@@ -10,6 +10,7 @@
 #include "board.h"
 #include "bot1.h"
 #include "bot2.h"
+#include "bot3.h"
 
 struct dataBoard* mainBoard;
 static sig_atomic_t continueRunning = 1;
@@ -36,7 +37,7 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     // scanf("%s", input);
     
     // buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    struct fullDataTurn* choice = bot1Choice(mainBoard, 'W', status);
+    struct fullDataTurn* choice = bot3Choice(mainBoard, 'W', status);
    
     printf("W is playing:\n");
     buildFromHalfMove(mainBoard, choice, 'W', status);

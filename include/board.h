@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdint.h>
+#include <math.h>
+
 #include "move.h"
 
 
@@ -78,9 +80,12 @@ unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, sig
 bool isDataPieceSpecial(const unsigned char dp);
 char sideOfDataPiece(const unsigned char dp);
 char pieceIdOfDataPiece(const unsigned char dp);
+float valueOfDataPiece(const unsigned char dp);
 
 struct boardDiff* boardDiffGenerator(const struct dataBoard* main_board, const struct dataBoard* different_board);
 unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
+
+bool doesTake(const struct dataBoard* input_board, struct standard_pos* starting_position, struct standard_pos* final_position);
 
 struct dataPiece pieceToDataPiece(struct piece* p);
 

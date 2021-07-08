@@ -69,6 +69,36 @@ char pieceIdOfDataPiece(const unsigned char dp) {
 	return ' ';
 }
 
+float valueOfDataPiece(const unsigned char dp) { // float ofr infinity and for future changes to weights of peices?
+	if (dp <= 11) {
+		switch (dp % 6) {
+			case 0:
+				return 1;
+			case 1:
+				return 5;
+			case 2:
+				return 3;
+			case 3:
+				return 3;
+			case 4:
+				return 9;
+			case 5:
+				return INFINITY;
+		}
+	}
+	else if (dp <= 17) {
+		if (dp == 12 || dp == 13) {
+			return 1;
+		}
+		else if(dp == 14 || dp == 15) {
+			return INFINITY;
+		}
+		else if(dp == 16 || dp == 17) {
+			return 5;
+		}
+	}
+	return 0;
+}
 
 unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
 	unsigned char result;
@@ -124,6 +154,21 @@ unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
 
 	return result;
 }
+
+bool doesTake(const struct dataBoard* input_board, struct standard_pos* starting_position, struct standard_pos* final_position) {
+	char side = sideOfDataPiece(getDataPiece(input_board, starting_position->row, starting_position->col));
+	if (sideOfDataPiece(getDataPiece(input_board, final_position->row, final_position->col)) == oppositeSide(side)) {
+		return true; 
+	}
+	//includes en passant in taking
+	if(pieceIdOfDataPiece(getDataPiece(input_board, starting_position->row, starting_position->col)) == 'P') {
+		if (starting_position->col != final_position->col) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 struct dataPiece pieceToDataPiece(struct piece* p) {
 	struct dataPiece result;
