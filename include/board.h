@@ -91,6 +91,7 @@ bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
 uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
 unsigned char positionToIndex( char row,  char col);
 
+void printDataBoardDebug(const struct dataBoard* input_board);
 void printBoardCheck(struct boardCheck* input_mask);
 
 
