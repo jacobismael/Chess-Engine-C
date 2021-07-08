@@ -1,6 +1,6 @@
 # Chess Engine in C
 
-Chess Engine written in C and CMake.
+Chess Engine written in C.
 
 ## Setup
 
@@ -20,7 +20,7 @@ make
 
 ## Execution:
 
-Visual Mode:
+Visual Mode (unfinished):
 ```bash
 ./chess
 ```
