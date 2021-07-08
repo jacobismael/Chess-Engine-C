@@ -36,24 +36,28 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     // scanf("%s", input);
     
     // buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    buildFromHalfMove(mainBoard, bot1Choice(mainBoard, 'W', status), 'W', status);
+    struct fullDataTurn* choice = bot1Choice(mainBoard, 'W', status);
+   
+    printf("W is playing:\n");
+    buildFromHalfMove(mainBoard, choice, 'W', status);
     printDataBoard(mainBoard);
     if (isMate(mainBoard, 'B')) {
         printf("Player 1 wins\nMate!\n");
         exit_function();
     }
+    printf("makes it here");
     if (isDraw(mainBoard, 'B')) {
         printf("Draw!\n");
         exit_function();
     }
-    // printf("status: %d\n", *status);
 }
 
 void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     // printf("\nPlayer 2 Move: ");
     //scanf("%s", input);
-    
-    buildFromHalfMove(mainBoard, bot2Choice(mainBoard, 'B', status), 'B', status);
+    struct fullDataTurn* choice = bot2Choice(mainBoard, 'B', status);
+    printf("B is playing:\n");
+    buildFromHalfMove(mainBoard, choice, 'B', status);
     printDataBoard(mainBoard);
     if (isMate(mainBoard, 'W')) {
         printf("Player 2 wins\nMate!\n");
@@ -63,7 +67,6 @@ void getBlackMove(struct dataBoard* mainBoard, bool* status) {
         printf("Draw!\n");
         exit_function();
     }
-    // printf("status: %d\n", *status);
 }
 
 int main(int argc, char** argv) {

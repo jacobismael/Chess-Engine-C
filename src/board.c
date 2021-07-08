@@ -257,10 +257,10 @@ unsigned char positionToIndex( char row,  char col) {
 }
 
 void printBoardCheck(struct boardCheck* input_mask) {
-	for (int i = 7; i > 0; i--) {
-		printf("%d  ", i);
+	for (int i = 0; i < 8; i++) {
+		printf("%d ", i);
 		for (int j = 0; j < 8; j++) {
-			printf("%d ",  getBitOfBoardCheck(input_mask, positionToIndex(i, j)));
+			printf("%d ", getBitOfBoardCheck(input_mask, positionToIndex(i, j)));
 		}
 		printf("\n");
 	}

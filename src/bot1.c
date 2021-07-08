@@ -6,9 +6,12 @@
 struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, bool* status) {
 	struct basicDataTurnNode* head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
-	printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
+	// printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
 	struct basicDataTurnNode* random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
 	*status = 1;
+	if (random_move == NULL) {
+		random_move = head;
+	}
 	if (random_move == NULL) {
 		*status = 0;
 		return NULL;

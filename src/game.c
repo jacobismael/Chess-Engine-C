@@ -172,6 +172,8 @@ struct boardCheck* kingMovement(const struct dataBoard* input_board, struct boar
             }	
         }
 	}
+	// printf("king\n");
+	// printBoardCheck(validPositions);
 
 	
 	// printPosList(validPositions->next);
@@ -437,7 +439,7 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 }
 
 bool isMate(struct dataBoard* input_board, char side) {
-	//this d esnt support en passant yet
+	//this doesnt support en passant yet
 	if (!kingInCheck(input_board, side)) {
 		return false;
 	}
@@ -449,7 +451,7 @@ bool isMate(struct dataBoard* input_board, char side) {
 	struct boardCheck* lolm = NULL;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (validRange(i - 1/* is this right? */) &&  sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+			if (validRange(i/* is this right? */) &&  sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
 				temp_pos.row = i;
 				temp_pos.col = j;
 				
@@ -491,6 +493,7 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 	struct standard_pos temp_start_pos = {.row = 0, .col = 0};
 	struct standard_pos temp_end_pos = {.row = 0, .col = 0};
 	struct boardCheck* lolm;
+	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (sideOfDataPiece(getDataPiece(input_board, i , j)) == side) {
@@ -504,10 +507,16 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 					for (int k = 0; k < 8; k++) {
 						for (int l = 0; l < 8; l++) {
 							if (getBitOfBoardCheck(lolm, positionToIndex(k, l))) {
+								memcpy(copy_board, input_board, sizeof(struct dataBoard));
 								temp_end_pos.row = k;
 								temp_end_pos.col = l;
+								
+								copy_board->board[i][j] = 31;
+								copy_board->board[k][l] = input_board->board[i][j];
 
-								head = appendBasicDataTurn(head, &temp_start_pos, &temp_end_pos);
+								if (!kingInCheck(copy_board, side)) {
+									head = appendBasicDataTurn(head, &temp_start_pos, &temp_end_pos);
+								}
 							}
 						}
 					}
@@ -516,18 +525,25 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 			}
 		}
 	}
+	free(copy_board);
 	struct basicDataTurnNode* result = head->next;
 	free(head);
+	
 	return result;
 }
 
 
 bool isDraw(struct dataBoard* input_board, char side) { // very simple and incomplete still
-	//this d esnt support en passant yet
+	//this whole function doesnt support en passant yet
 	if (kingInCheck(input_board, side)) {
 		return false;
 	}
-
+	struct basicDataTurnNode* head;
+	head = allBasicLegalMoves(input_board, side);
+	if (head == NULL) {
+		return true;
+	}
+	
 	// 0 1 2 3 4 5
 	// K Q B N R P
 	int num_each_piece_w[6] = {0};

@@ -40,15 +40,19 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 	if (head_attacking != NULL) {
 		random_move = getElementOfBasicDataTurn(head_attacking, random_int(0, lengthOfBasicDataTurn(head_attacking)));
 	}
-	if (random_move == NULL) {
-		printf("went to head");
+	else {
 		random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
+	}
+	if (random_move == NULL) {
+		random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)) - 1);
+	}
+	if (random_move == NULL) {
+		random_move = head; // this feels wrong but idk why it fails otherwise
 	}
 	*status = 1;
 	if (random_move == NULL) {
 		*status = 0;
-		printf("len of head: %d\n", lengthOfBasicDataTurn(head));
-		printf("len of head_attacking: %d\n", lengthOfBasicDataTurn(head_attacking));
+		printf("error\nquiting\n");
 		exit(1);
 		return NULL;
 	}
@@ -58,7 +62,10 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 	freeBasicDataTurn(head_attacking);
 	
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
-
+	final->final_position.row = -1;
+	final->final_position.col = -1;
+	final->starting_position.row = -1;
+	final->starting_position.col = -1;
 	final->final_position = end;
 	final->starting_position = start;
 	final->piece = pieceIdOfDataPiece(getDataPiece(input_board, start.row, start.col));
@@ -96,6 +103,6 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 			}
 		}
 	}
-	printf("here\n");
+	
 	return final;
 }
