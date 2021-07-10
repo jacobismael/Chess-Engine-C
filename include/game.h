@@ -29,7 +29,9 @@ bool isMate(struct dataBoard* input_board, char side);
 bool isDraw(struct dataBoard* input_board, char side);
 
 struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side);
+struct fullDataTurnNode* allLegalMoves(const struct dataBoard* input_board, char side);
 int random_int(int min, int max);
+struct fullDataTurn* fullDataTurnNodeTofullDataTurn(const struct fullDataTurnNode* input);
 
 
 bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position);

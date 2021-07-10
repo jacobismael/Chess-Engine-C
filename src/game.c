@@ -532,6 +532,126 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 	return result;
 }
 
+//this function sucks i should rewrite it later
+struct fullDataTurnNode* appendFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurn* additional) {
+	struct fullDataTurnNode* head_cpy = head;
+	while(head->next != NULL) {
+		head = head->next;
+	}
+	struct fullDataTurnNode* new_node = malloc(sizeof(struct fullDataTurnNode));
+	new_node->final_position = additional->final_position;
+	new_node->starting_position = additional->starting_position;
+	new_node->piece = additional->piece;
+	new_node->is_en_passant =additional-> is_en_passant;
+	new_node->is_special = additional->is_special;
+	new_node->takes = additional->takes;
+	new_node->castles = additional->castles;
+	new_node->is_king_side = additional->is_king_side;
+	new_node->is_check = additional->is_check;
+
+	new_node->piece_promotes_to = additional->piece_promotes_to;
+	new_node->next = NULL;
+
+	head->next = new_node;
+	return head_cpy;
+}
+
+struct fullDataTurnNode* allLegalMoves(const struct dataBoard* input_board, char side) {
+	struct fullDataTurnNode* head = malloc(sizeof(struct fullDataTurnNode));
+	head->next = NULL;
+
+	if (canCastle(input_board, side, true)) {
+		struct fullDataTurn new = {
+			.final_position = {.row = 0, .col = 0},
+			.starting_position = {.row = 0, .col = 0},
+			.piece = ' ',
+			.is_en_passant = false,
+			.is_special = false,
+			.takes = false,
+			.castles = true, 
+			.is_king_side = true,
+			.piece_promotes_to = ' '			
+		};
+		head = appendFullDataTurnNode(head, &new);
+	}
+	if (canCastle(input_board, side, false)) { // it can be both king and queen side
+		struct fullDataTurn new = {
+			.final_position = {.row = 0, .col = 0},
+			.starting_position = {.row = 0, .col = 0},
+			.piece = ' ',
+			.is_en_passant = false,
+			.is_special = false,
+			.takes = false,
+			.castles = true, 
+			.is_king_side = true,
+			.piece_promotes_to = ' '			
+		};
+		head = appendFullDataTurnNode(head, &new);
+	}
+	
+	struct basicDataTurnNode* basic_move_head = allBasicLegalMoves(input_board, side);
+	struct fullDataTurn new;
+	while (basic_move_head != NULL) {
+		new.final_position = basic_move_head->ending_pos;
+		new.starting_position = basic_move_head->starting_pos;
+		new.piece = pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col));
+		new.is_en_passant = false; 
+		if (validRange(new.final_position.row + (side == 'W' ? -1 : 1))) {
+			if (sideOfDataPiece(getDataPiece(input_board, new.final_position.row , new.final_position.col)) == ' ') {
+				if (isDataPieceSpecial(getDataPiece(input_board, new.final_position.row + (side == 'W' ? -1 : 1), new.final_position.col))) {
+					new.is_en_passant = true;
+				}
+			}
+		}
+		//prep for en passant
+		new.is_special = false;
+		if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col) == 'P')) {
+			if (new.final_position.row == 3 && new.starting_position.row == 1) {
+				new.is_special = true;
+			}
+		}
+		if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col) == 'P')) {
+			if (new.final_position.row == 4 && new.starting_position.row == 6) {
+				new.is_special = true;
+			}
+		}
+		if (new.piece == 'K' || new.piece == 'R') {
+			new.is_special = true;
+		}
+		if (new.piece != 'K' && new.piece != 'R' && new.piece != 'P') {
+			new.is_special = false;
+		}
+		new.takes = sideOfDataPiece(getDataPiece(input_board, new.final_position.row, new.final_position.col)) == oppositeSide(side);
+		new.castles = false;
+		new.is_king_side = false;
+
+		new.piece_promotes_to = 'Q';
+		head = appendFullDataTurnNode(head, &new);
+		basic_move_head = basic_move_head->next;
+	}
+	struct fullDataTurnNode* result = (head->next);
+	free(head);
+	return result;
+}
+
+struct fullDataTurn* fullDataTurnNodeTofullDataTurn(const struct fullDataTurnNode* input) {
+	struct fullDataTurn* result = malloc(sizeof(struct fullDataTurn));
+	
+	result->final_position = input->final_position;
+	result->starting_position = input->starting_position;
+	result->piece = input->piece;
+	result->is_en_passant = input->is_en_passant;
+	result->is_special = input->is_special;
+	result->takes = input->takes;
+	result->castles = input->castles;
+	result->is_king_side = input->is_king_side;
+	result->is_check = input->is_check;
+	result->piece_promotes_to = input->piece_promotes_to;
+	
+
+	return result;
+}
+
 
 bool isDraw(struct dataBoard* input_board, char side) { // very simple and incomplete still
 	//this whole function doesnt support en passant yet
@@ -717,7 +837,8 @@ bool kingInCheck(const struct dataBoard* input_board, char side) {
 			}
 		}
 	}
-	assert(0 == 1);
+	return true;
+	// assert(0 == 1);
  
 }
 

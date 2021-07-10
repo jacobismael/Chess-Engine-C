@@ -65,6 +65,21 @@ struct fullDataTurn {
     char piece_promotes_to;
 };
 
+struct fullDataTurnNode {
+    struct standard_pos final_position;
+    struct standard_pos starting_position;
+    char piece;
+    bool is_en_passant;
+    bool is_special;
+    bool takes;
+    bool castles;
+    bool is_king_side;
+    bool is_check;
+
+    char piece_promotes_to;
+    struct fullDataTurnNode* next;
+};
+
 struct standard_pos posToStandard_pos(const struct pos* input_pos);
 
 struct pos standard_posToPos(const struct standard_pos* input_pos);

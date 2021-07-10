@@ -33,20 +33,20 @@ static void signal_handler(int _) {
 }
 
 void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
-    // printf("\nPlayer 1 Move: ");
-    // scanf("%s", input);
-    
-    // buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    struct fullDataTurn* choice = bot3Choice(mainBoard, 'W', status);
+    printf("\nPlayer 1 Move: ");
+    scanf("%s", input);
+    struct fullDataTurn* choice;
+    choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
+    // choice = bot3Choice(mainBoard, 'W', status);
    
     printf("W is playing:\n");
+    // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
     buildFromHalfMove(mainBoard, choice, 'W', status);
     printDataBoard(mainBoard);
     if (isMate(mainBoard, 'B')) {
         printf("Player 1 wins\nMate!\n");
         exit_function();
     }
-    printf("makes it here");
     if (isDraw(mainBoard, 'B')) {
         printf("Draw!\n");
         exit_function();

@@ -79,6 +79,7 @@ unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, sig
 
 bool isDataPieceSpecial(const unsigned char dp);
 char sideOfDataPiece(const unsigned char dp);
+float getBasicBoardScore(const struct dataBoard* input_board);
 char pieceIdOfDataPiece(const unsigned char dp);
 float valueOfDataPiece(const unsigned char dp);
 
@@ -88,6 +89,8 @@ unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
 bool doesTake(const struct dataBoard* input_board, struct standard_pos* starting_position, struct standard_pos* final_position);
 
 struct dataPiece pieceToDataPiece(struct piece* p);
+bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side);
+
 
 void printBoard(const struct board* input_board);
 
