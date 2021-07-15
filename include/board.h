@@ -53,9 +53,9 @@ struct dataBoard {
 };
 
 struct boardDiff {
-	struct standard_pos position1;
+	struct standardPos position1;
 	struct dataPiece piece1;
-	struct standard_pos position2;
+	struct standardPos position2;
 	struct dataPiece piece2;
 };
 
@@ -87,7 +87,7 @@ float valueOfDataPiece(const unsigned char dp);
 struct boardDiff* boardDiffGenerator(const struct dataBoard* main_board, const struct dataBoard* different_board);
 unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
 
-bool doesTake(const struct dataBoard* input_board, struct standard_pos* starting_position, struct standard_pos* final_position);
+bool doesTake(const struct dataBoard* input_board, struct standardPos* starting_position, struct standardPos* final_position);
 
 struct dataPiece pieceToDataPiece(struct piece* p);
 bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side);

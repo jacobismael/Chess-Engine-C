@@ -100,7 +100,7 @@ struct dataTurn* toDataTurn(const char* original_move) {
         }
     }
 
-    struct standard_pos final_pos = {.row = (move_cpy[strlen(move_cpy) - 1] - '0'), .col = letterToCol(move_cpy[strlen(move_cpy) - 2])}; // adds the final position of the piece
+    struct standardPos final_pos = {.row = (move_cpy[strlen(move_cpy) - 1] - '0'), .col = letterToCol(move_cpy[strlen(move_cpy) - 2])}; // adds the final position of the piece
     new_move->final_position = final_pos;
 
     if (strchr(move_cpy, 'x') != NULL) { // specifies if the move is taking a piece
@@ -112,7 +112,7 @@ struct dataTurn* toDataTurn(const char* original_move) {
     }
 
     move_cpy[strlen(move_cpy) - 2] = '\0';
-    struct standard_pos restrictor_pos;
+    struct standardPos restrictor_pos;
     if (strlen(move_cpy) == 1) {
        if (move_cpy[0] - '0' <= 7 && move_cpy[0] - '0' >= 0) {
            printf("new move cpy %c", move_cpy[0]);
@@ -162,13 +162,13 @@ void PrintMoveList(struct Move* head) {
 }
 
 
-struct standard_pos posToStandard_pos(const struct pos* input_pos) {
-    struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};
+struct standardPos posToStandard_pos(const struct Pos* input_pos) {
+    struct standardPos result = {.row = input_pos->row, .col = input_pos->col};
     return result;
 }
 
-struct pos standard_posToPos(const struct standard_pos* input_pos) {
-    struct pos result = {.row = input_pos->row, .col = input_pos->col, .next = NULL};
+struct Pos standard_posToPos(const struct standardPos* input_pos) {
+    struct Pos result = {.row = input_pos->row, .col = input_pos->col, .next = NULL};
     return result;
 }
 
@@ -179,26 +179,26 @@ char oppositeSide(char side) {  // maybe this should overload some operator idk
 	return side; //for no side
 }
 
-void printPosList(struct pos* head) {
+void printPosList(struct Pos* head) {
 	while (head != NULL) {
 		printf("row %d, col %d\n", head->row, head->col); // 
 		head = head->next;
 	}
 }
 
-void appendPos(struct pos* head, int row, int col){
+void appendPos(struct Pos* head, int row, int col){
 	while(head->next != NULL) {
 		head = head->next;
 	}
-	struct pos* newPos = malloc(sizeof(struct pos));
+	struct Pos* newPos = malloc(sizeof(struct Pos));
 	newPos->next = NULL;
 	newPos->row = row;
 	newPos->col = col;
 	head->next = newPos;
 }
 
-void freePosList(struct pos* head) {
-    struct pos* temphead;
+void freePosList(struct Pos* head) {
+    struct Pos* temphead;
     while(head != NULL) {
         
         temphead = head;
@@ -207,7 +207,7 @@ void freePosList(struct pos* head) {
     }
 }
 
-bool posLlContains(struct pos* head, struct pos* to_compare) {
+bool posLlContains(struct Pos* head, struct Pos* to_compare) {
 	while(head != NULL) {
 		if (head->row == to_compare->row && head->col == to_compare->col) {
 			return true;

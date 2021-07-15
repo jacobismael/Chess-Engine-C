@@ -45,8 +45,8 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 		printf("error\nquiting\n");
 		return NULL;
 	}
-	struct standard_pos start = ((struct basicDataTurn*)random_move->data)->starting_pos;
-	struct standard_pos end = ((struct basicDataTurn*)random_move->data)->ending_pos;
+	struct standardPos start = ((struct basicDataTurn*)random_move->data)->starting_pos;
+	struct standardPos end = ((struct basicDataTurn*)random_move->data)->ending_pos;
 	freeLinkedList(head);
 	freeLinkedList(head_attacking);
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));

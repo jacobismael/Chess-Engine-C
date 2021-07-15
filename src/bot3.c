@@ -14,7 +14,7 @@ struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, const char 
 	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
 
 	struct standardList const* current_move = all_moves_list;
-	while (current_move->next != NULL && current_move != NULL) {
+	while (current_move != NULL && current_move->next != NULL) {
 		struct fullDataTurn* temp = (struct fullDataTurn*)current_move->data;
 
 		memcpy(copy_board, input_board, sizeof(struct dataBoard));

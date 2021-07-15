@@ -16,8 +16,8 @@ struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, 
 		*status = 0;
 		return NULL;
 	}
-	struct standard_pos start =  ((struct basicDataTurn*)random_move->data)->starting_pos;
-	struct standard_pos end =  ((struct basicDataTurn*)random_move->data)->ending_pos;
+	struct standardPos start =  ((struct basicDataTurn*)random_move->data)->starting_pos;
+	struct standardPos end =  ((struct basicDataTurn*)random_move->data)->ending_pos;
 	freeLinkedList(head);
 	
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));

@@ -33,11 +33,11 @@ static void signal_handler(int _) {
 }
 
 void checkForGameEnd(const struct dataBoard* input_board, char side) {
-    if (isMate(mainBoard, 'B')) {
+    if (isMate(input_board, 'B')) {
         printf("Player 1 wins\nMate!\n");
         exit_function();
     }
-    if (isDraw(mainBoard, 'B')) {
+    if (isDraw(input_board, 'B')) {
         printf("Draw!\n");
         exit_function();
     }

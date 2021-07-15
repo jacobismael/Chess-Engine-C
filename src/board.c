@@ -175,7 +175,7 @@ unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
 	return result;
 }
 
-bool doesTake(const struct dataBoard* input_board, struct standard_pos* starting_position, struct standard_pos* final_position) {
+bool doesTake(const struct dataBoard* input_board, struct standardPos* starting_position, struct standardPos* final_position) {
 	char side = sideOfDataPiece(getDataPiece(input_board, starting_position->row, starting_position->col));
 	if (sideOfDataPiece(getDataPiece(input_board, final_position->row, final_position->col)) == oppositeSide(side)) {
 		return true; 
