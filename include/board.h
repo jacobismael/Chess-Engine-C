@@ -15,7 +15,7 @@
 struct dataPiece {
 	uint8_t id;// i know this does not save any space but it might in the future ???
 
-	/* 
+	/*
 	formula:
 	values:
 	WP   = 0
@@ -75,50 +75,50 @@ struct boardCheck {
 
 
 
-unsigned char getDataPiece(const struct dataBoard* board, signed char row, signed char col);
-unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col);
+unsigned char getDataPiece(const struct dataBoard *board, signed char row, signed char col);
+unsigned char *getDataPieceMutable(struct dataBoard *board, signed char row, signed char col);
 
 bool isDataPieceSpecial(const unsigned char dp);
 char sideOfDataPiece(const unsigned char dp);
-float getBasicBoardScore(const struct dataBoard* input_board);
+float getBasicBoardScore(const struct dataBoard *input_board);
 char pieceIdOfDataPiece(const unsigned char dp);
 float valueOfDataPiece(const unsigned char dp);
 
-struct boardDiff* boardDiffGenerator(const struct dataBoard* main_board, const struct dataBoard* different_board);
+struct boardDiff *boardDiffGenerator(const struct dataBoard *main_board, const struct dataBoard *different_board);
 unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
 
-bool doesTake(const struct dataBoard* input_board, struct standardPos* starting_position, struct standardPos* final_position);
+bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_position, struct standardPos *final_position);
 
-struct dataPiece pieceToDataPiece(struct piece* p);
-bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side);
+struct dataPiece pieceToDataPiece(struct piece *p);
+bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side);
 
 
-void printBoard(const struct board* input_board);
+void printBoard(const struct board *input_board);
 
-void printDataBoard(const struct dataBoard* input_board);
-bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
-uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index);
+void printDataBoard(const struct dataBoard *input_board);
+bool getBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
+uint64_t setBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
 unsigned char positionToIndex( char row,  char col);
 
-void printDataBoardDebug(const struct dataBoard* input_board);
-void printBoardCheck(struct boardCheck* input_mask);
+void printDataBoardDebug(const struct dataBoard *input_board);
+void printBoardCheck(struct boardCheck *input_mask);
 
 
-struct board* setupBoard();
+struct board *setupBoard();
 
-struct dataBoard* setupDataBoard();
+struct dataBoard *setupDataBoard();
 
 bool validRange(int input);
 
-char TeamOnSquare(const struct dataBoard* input_board, int row, int col);
+char TeamOnSquare(const struct dataBoard *input_board, int row, int col);
 
 char oppositeSide(char side);
 
-void freeLinkedList(struct standardList* head);
-int lengthOfLinkedList(struct standardList* head);
-struct standardList* getElementOfLinkedList(struct standardList* head, int position);
+void freeLinkedList(struct standardList *head);
+int lengthOfLinkedList(struct standardList *head);
+struct standardList *getElementOfLinkedList(struct standardList *head, int position);
 
-bool kingExists(const struct dataBoard* input_board, char side);
+bool kingExists(const struct dataBoard *input_board, char side);
 
 
 #endif

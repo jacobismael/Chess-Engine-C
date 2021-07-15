@@ -6,5 +6,5 @@
 #include "game.h"
 #include "move.h"
 
-struct basicDataTurnNode* getOnlyGoodAttackingMoves(struct basicDataTurnNode* head, const struct dataBoard* input_board);
-struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, char side, bool* status);
+struct basicDataTurnNode *getOnlyGoodAttackingMoves(struct basicDataTurnNode *head, const struct dataBoard *input_board);
+struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, char side, bool *status);

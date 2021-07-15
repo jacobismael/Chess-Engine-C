@@ -1,13 +1,13 @@
 #include "move.h"
 
-struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
-    struct Move* head_cpy = head;
+struct Move *AddMove(struct Move *head, char *w_notation, char *b_notation) {
+    struct Move *head_cpy = head;
     int position = 2;
     while(head->next != NULL) {
         head = head->next;
         position++;
     }
-    struct Move* new_move = malloc(sizeof(struct Move));
+    struct Move *new_move = malloc(sizeof(struct Move));
     new_move->next = NULL;
     strncpy(new_move->white_notation , w_notation, strlen(w_notation));
     strncpy(new_move->black_notation , b_notation, strlen(b_notation));
@@ -19,15 +19,15 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
 }
 
 
-void printMove(const struct fullDataTurn* node) {
+void printMove(const struct fullDataTurn *node) {
 	printf("best:\n");
 	printf("castles %d\n", node->castles);
 	printf("final position %d, %d\n", node->final_position.row, node->final_position.col);
 	printf("starting position %d, %d\n", node->starting_position.row, node->starting_position.col);
 }
 
-struct standardList* prependToStandardList(struct standardList* list_head,  void const* data) {
-    struct standardList* new_head = malloc(sizeof(struct standardList));
+struct standardList *prependToStandardList(struct standardList *list_head,  void const *data) {
+    struct standardList *new_head = malloc(sizeof(struct standardList));
     new_head->data = data;
     new_head->next = list_head;
 	return new_head;
@@ -50,7 +50,7 @@ int ColToLetter(int col) {
 }
 
 
-struct dataTurn* toDataTurn(const char* original_move) {
+struct dataTurn *toDataTurn(const char *original_move) {
     if (original_move[0] == 'x') {
         printf("moves cannot start with 'x'\n");
         return NULL; 
@@ -58,10 +58,10 @@ struct dataTurn* toDataTurn(const char* original_move) {
     else {
         printf("first letter = %c\n", original_move[0]);
     }
-    struct dataTurn* new_move = malloc(sizeof(struct dataTurn));
-    char* list_of_pieces = "RNBQK";
-    char* move_cpy = malloc(sizeof(original_move));
-    char* move_cpy_save = move_cpy;
+    struct dataTurn *new_move = malloc(sizeof(struct dataTurn));
+    char *list_of_pieces = "RNBQK";
+    char *move_cpy = malloc(sizeof(original_move));
+    char *move_cpy_save = move_cpy;
     strcpy(move_cpy, original_move);
      // deals with cheks and checkmates
     if (move_cpy[strlen(move_cpy) - 1] == '+' || move_cpy[strlen(move_cpy) - 1] == '#') {
@@ -138,10 +138,10 @@ struct dataTurn* toDataTurn(const char* original_move) {
     return new_move;
 }
 
-char* getMoveList(struct Move* head) {
+char *getMoveList(struct Move *head) {
 
-    char* output = malloc(1000);
-    char* buff = malloc(200);
+    char *output = malloc(1000);
+    char *buff = malloc(200);
 
     while(head != NULL) {
         sprintf(buff, "%d. %s %s ", head->move_number, head->white_notation, head->black_notation);
@@ -154,7 +154,7 @@ char* getMoveList(struct Move* head) {
     return output;
 }
 
-void PrintMoveList(struct Move* head) {
+void PrintMoveList(struct Move *head) {
     while(head != NULL) {
         printf("%d. %s %s ", head->move_number, head->white_notation, head->black_notation);
         head = head->next;
@@ -162,12 +162,12 @@ void PrintMoveList(struct Move* head) {
 }
 
 
-struct standardPos posToStandard_pos(const struct Pos* input_pos) {
+struct standardPos posToStandard_pos(const struct Pos *input_pos) {
     struct standardPos result = {.row = input_pos->row, .col = input_pos->col};
     return result;
 }
 
-struct Pos standard_posToPos(const struct standardPos* input_pos) {
+struct Pos standard_posToPos(const struct standardPos *input_pos) {
     struct Pos result = {.row = input_pos->row, .col = input_pos->col, .next = NULL};
     return result;
 }
@@ -179,26 +179,26 @@ char oppositeSide(char side) {  // maybe this should overload some operator idk
 	return side; //for no side
 }
 
-void printPosList(struct Pos* head) {
+void printPosList(struct Pos *head) {
 	while (head != NULL) {
 		printf("row %d, col %d\n", head->row, head->col); // 
 		head = head->next;
 	}
 }
 
-void appendPos(struct Pos* head, int row, int col){
+void appendPos(struct Pos *head, int row, int col){
 	while(head->next != NULL) {
 		head = head->next;
 	}
-	struct Pos* newPos = malloc(sizeof(struct Pos));
+	struct Pos *newPos = malloc(sizeof(struct Pos));
 	newPos->next = NULL;
 	newPos->row = row;
 	newPos->col = col;
 	head->next = newPos;
 }
 
-void freePosList(struct Pos* head) {
-    struct Pos* temphead;
+void freePosList(struct Pos *head) {
+    struct Pos *temphead;
     while(head != NULL) {
         
         temphead = head;
@@ -207,7 +207,7 @@ void freePosList(struct Pos* head) {
     }
 }
 
-bool posLlContains(struct Pos* head, struct Pos* to_compare) {
+bool posLlContains(struct Pos *head, struct Pos *to_compare) {
 	while(head != NULL) {
 		if (head->row == to_compare->row && head->col == to_compare->col) {
 			return true;

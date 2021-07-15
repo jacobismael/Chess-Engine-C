@@ -2,31 +2,31 @@
 #include "bot2.h"
 
 
-struct standardList* getOnlyAttackingMoves(struct standardList* head, const struct dataBoard* input_board) {
-	struct standardList* new_list_head = malloc(sizeof(struct standardList));
+struct standardList *getOnlyAttackingMoves(struct standardList *head, const struct dataBoard *input_board) {
+	struct standardList *new_list_head = malloc(sizeof(struct standardList));
 	new_list_head->next = NULL;
 
 	while (head != NULL) {
 		if (doesTake(input_board, &((struct basicDataTurn*)head->data)->starting_pos, &((struct basicDataTurn*)head->data)->ending_pos)) {
-			struct basicDataTurn* new_move = malloc(sizeof(struct basicDataTurn));
+			struct basicDataTurn *new_move = malloc(sizeof(struct basicDataTurn));
 			new_move->starting_pos = ((struct basicDataTurn*)head->data)->starting_pos;
 			new_move->ending_pos = ((struct basicDataTurn*)head->data)->ending_pos;
 			new_list_head = prependToStandardList(new_list_head, new_move);
 		}
 		head = head->next;
 	}
-	struct standardList* result = new_list_head->next;
+	struct standardList *result = new_list_head->next;
 	free(new_list_head);
 	return result;
 }
 
 
-struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, bool* status) {
-	struct standardList* head; // en passant might not work
-	struct standardList* head_attacking;
+struct fullDataTurn *bot2Choice(const struct dataBoard *input_board, char side, bool *status) {
+	struct standardList *head; // en passant might not work
+	struct standardList *head_attacking;
 	head = allBasicLegalMoves(input_board, side);
 	head_attacking = getOnlyAttackingMoves(head, input_board);
-	struct standardList* random_move;
+	struct standardList *random_move;
 	if (head_attacking != NULL) {
 		random_move = getElementOfLinkedList(head_attacking, randomInt(0, lengthOfLinkedList(head_attacking)) - 1);
 	}
@@ -49,7 +49,7 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 	struct standardPos end = ((struct basicDataTurn*)random_move->data)->ending_pos;
 	freeLinkedList(head);
 	freeLinkedList(head_attacking);
-	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
+	struct fullDataTurn *final = malloc(sizeof(struct fullDataTurn));
 	final->final_position.row = -1;
 	final->final_position.col = -1;
 	final->starting_position.row = -1;
@@ -63,7 +63,7 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 	// final->takes = doesTake(input_board, &final->starting_position, &final->final_position);
 	final->takes = true;
 	//check checking (pun intended)
-	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+	struct dataBoard *copy_board = malloc(sizeof(struct dataBoard));
 	memcpy(copy_board, input_board, sizeof(struct dataBoard));
 	copy_board->board[final->starting_position.row][final->starting_position.col] = 31;
 	copy_board->board[final->final_position.row][final->final_position.col] = input_board->board[final->starting_position.row][final->starting_position.col];

@@ -27,10 +27,10 @@ void PrintResult(struct Result *result) {
     free(black_str);
 }
 
-char* getResult(struct Result *result) {
+char *getResult(struct Result *result) {
 
-    char* output = malloc(1000);
-    char* buff = malloc(200);
+    char *output = malloc(1000);
+    char *buff = malloc(200);
 
     char *white_str = malloc(2);
     char *black_str = malloc(2);
@@ -82,12 +82,12 @@ void PrintGameStrict(struct PGN *game) {
     printf("\n");
 }
 
-void SavePGNtoFile(struct PGN *game, char* filepath) {
+void SavePGNtoFile(struct PGN *game, char *filepath) {
     FILE *fp;
 
-    char* output = malloc(1000);
-    char* buff = malloc(200);
-    char* path = malloc(200);
+    char *output = malloc(1000);
+    char *buff = malloc(200);
+    char *path = malloc(200);
 
     sprintf(buff, "[Event \"%s\"]\n", game->event);
     strncat(output, buff, strlen(buff));

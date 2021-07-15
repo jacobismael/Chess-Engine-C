@@ -3,11 +3,11 @@
 
 
 
-struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, bool* status) {
-	struct standardList* head; // en passant might not work
+struct fullDataTurn *bot1Choice(const struct dataBoard *input_board, char side, bool *status) {
+	struct standardList *head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
 	// printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
-	struct standardList* random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)));
+	struct standardList *random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)));
 	*status = 1;
 	if (random_move == NULL) {
 		random_move = head;
@@ -20,7 +20,7 @@ struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, 
 	struct standardPos end =  ((struct basicDataTurn*)random_move->data)->ending_pos;
 	freeLinkedList(head);
 	
-	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
+	struct fullDataTurn *final = malloc(sizeof(struct fullDataTurn));
 
 	final->final_position = end;
 	final->starting_position = start;
@@ -43,7 +43,7 @@ struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, 
 		}
 	}
 	//check checking (pun intended)
-	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
+	struct dataBoard *copy_board = malloc(sizeof(struct dataBoard));
 	memcpy(copy_board, input_board, sizeof(struct dataBoard));
 	copy_board->board[final->starting_position.row][final->starting_position.col] = 31;
 	copy_board->board[final->final_position.row][final->final_position.col] = input_board->board[final->starting_position.row][final->starting_position.col];

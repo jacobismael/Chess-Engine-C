@@ -20,7 +20,6 @@ struct standardPos {
 };
 
 struct Turn {
-
     char side;
     char move[6];
 

@@ -12,10 +12,10 @@
 #include "bot2.h"
 #include "bot3.h"
 
-struct dataBoard* mainBoard;
+struct dataBoard *mainBoard;
 static sig_atomic_t continueRunning = 1;
-bool* status;
-char* input;
+bool *status;
+char *input;
 
 static void exit_function() {
     continueRunning = 0;
@@ -32,7 +32,7 @@ static void signal_handler(int _) {
     exit_function();
 }
 
-void checkForGameEnd(const struct dataBoard* input_board, char side) {
+void checkForGameEnd(const struct dataBoard *input_board, char side) {
     if (isMate(input_board, 'B')) {
         printf("Player 1 wins\nMate!\n");
         exit_function();
@@ -43,8 +43,8 @@ void checkForGameEnd(const struct dataBoard* input_board, char side) {
     }
 }
 
-void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
-    struct fullDataTurn* choice;
+void getWhiteMove(struct dataBoard *mainBoard, bool *status) {
+    struct fullDataTurn *choice;
     printf("\nPlayer 1 Move: ");
     // scanf("%s", input);
     // choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
@@ -58,17 +58,17 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     
 }
 
-void getBlackMove(struct dataBoard* mainBoard, bool* status) {
+void getBlackMove(struct dataBoard *mainBoard, bool *status) {
     // printf("\nPlayer 2 Move: ");
     //scanf("%s", input);
-    struct fullDataTurn* choice = bot1Choice(mainBoard, 'B', status);
+    struct fullDataTurn *choice = bot1Choice(mainBoard, 'B', status);
     printf("B is playing:\n");
     buildFromHalfMove(mainBoard, choice, 'B', status);
     printDataBoard(mainBoard);
    
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     signal(SIGINT, signal_handler);
     srand(time(NULL));
     input = malloc(6);
