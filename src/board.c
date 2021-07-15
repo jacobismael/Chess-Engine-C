@@ -427,3 +427,14 @@ char TeamOnSquare(const struct dataBoard* input_board, int row, int col) {
 	}
 	return sideOfDataPiece(getDataPiece(input_board, row, col));
 }
+
+bool kingExists(const struct dataBoard* input_board, char side) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'K' && sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

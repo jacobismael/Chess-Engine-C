@@ -24,7 +24,7 @@ struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, const char 
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
 			// printf("Prepending to best_nodes:\n");
 		}
-		else if (board_score > highest_score || (board_score == highest_score && kingInCheck(copy_board, oppositeSide(side)))) {
+		else if (board_score > highest_score || (board_score == highest_score && kingExists(copy_board, oppositeSide(side)) && kingInCheck(copy_board, oppositeSide(side)))) {
 			highest_score = board_score;
 			freeLinkedList(best_nodes);
 			best_nodes = NULL;
@@ -32,7 +32,7 @@ struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, const char 
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
 			// printf("Prepending to best_nodes:\n");
 		}
-		else if(kingInCheck(copy_board, oppositeSide(side))) {
+		else if(kingExists(copy_board, oppositeSide(side)) && kingInCheck(copy_board, oppositeSide(side))) {
 			highest_score++;
 			freeLinkedList(best_nodes);
 			best_nodes = NULL;

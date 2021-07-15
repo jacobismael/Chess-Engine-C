@@ -439,7 +439,8 @@ struct fullDataTurn* toFullDataTurn(struct dataTurn* input_turn, struct dataBoar
 
 bool isMate(struct dataBoard* input_board, char side) {
 	//this doesnt support en passant yet
-	if (!kingInCheck(input_board, side)) {
+
+	if (!kingExists(input_board, side) || !kingInCheck(input_board, side)) {
 		return false;
 	}
 
@@ -624,7 +625,12 @@ struct standardList* allLegalMoves(const struct dataBoard* input_board, char sid
 		new->is_king_side = false;
 
 		new->piece_promotes_to = ' ';
-		head = prependToStandardList(head, new);
+		if (pieceIdOfDataPiece(getDataPiece(input_board, new->final_position.row, new->final_position.col)) != 'K') {
+			head = prependToStandardList(head, new);
+		}
+		else {
+			printf("oh no\n");
+		}
 		// printf("ending_pos2 %d\n", ((struct fullDataTurn*)head->data)->final_position.row);
 		// printf("ending_pos again = %d, %d\n"q, );
 		// printf("ending_pos again = %d, %d\n", new->final_position.row, new->final_position.col);
@@ -637,7 +643,7 @@ struct standardList* allLegalMoves(const struct dataBoard* input_board, char sid
 
 bool isDraw(struct dataBoard* input_board, char side) { // very simple and incomplete still
 	//this whole function doesnt support en passant yet
-	if (kingInCheck(input_board, side)) {
+	if (kingExists(input_board, side) && kingInCheck(input_board, side)) {
 		return false;
 	}
 	struct standardList* head;
@@ -747,7 +753,6 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDa
 	}
 	//promotion
 	if (truemove->piece =='P') {
-		printf("promotion1: %c\n", truemove->piece_promotes_to);
 		if (truemove->final_position.row == 7 && side == 'W') {
 			// it defaults to queen if nothing is specified
 			input_board->board[truemove->final_position.row][truemove->final_position.col] = (truemove->piece_promotes_to != ' ' ? makeDataPiece(truemove->piece_promotes_to, side, false) : makeDataPiece('Q', side, false));
@@ -758,7 +763,7 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDa
 		}
 	}
 
-	if (kingInCheck(input_board, side)) {
+	if (!kingExists(input_board, side) || kingInCheck(input_board, side)) {
 		*status = 0;
 	}
 	if (*status == 0) {
@@ -819,9 +824,7 @@ bool kingInCheck(const struct dataBoard* input_board, char side) {
 			}
 		}
 	}
-	return true;
-	// assert(0 == 1);
- 
+	assert(false); //this means there is no king on the board which shouldnt happen
 
 }
 

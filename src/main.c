@@ -32,17 +32,7 @@ static void signal_handler(int _) {
     exit_function();
 }
 
-void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
-    struct fullDataTurn* choice;
-    printf("\nPlayer 1 Move: ");
-    // scanf("%s", input);
-    // choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    choice = bot3Choice(mainBoard, 'W', status);
-   
-    printf("W is playing:\n");
-    // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
-    buildFromHalfMove(mainBoard, choice, 'W', status);
-    printDataBoard(mainBoard);
+void checkForGameEnd(const struct dataBoard* input_board, char side) {
     if (isMate(mainBoard, 'B')) {
         printf("Player 1 wins\nMate!\n");
         exit_function();
@@ -53,6 +43,21 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
     }
 }
 
+void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
+    struct fullDataTurn* choice;
+    printf("\nPlayer 1 Move: ");
+    // scanf("%s", input);
+    // choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
+    choice = bot3Choice(mainBoard, 'W', status);
+   
+    printf("W is playing:\n");
+    // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
+    buildFromHalfMove(mainBoard, choice, 'W', status);
+    printMove(choice);
+    printDataBoard(mainBoard);
+    
+}
+
 void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     // printf("\nPlayer 2 Move: ");
     //scanf("%s", input);
@@ -60,14 +65,7 @@ void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     printf("B is playing:\n");
     buildFromHalfMove(mainBoard, choice, 'B', status);
     printDataBoard(mainBoard);
-    if (isMate(mainBoard, 'W')) {
-        printf("Player 2 wins\nMate!\n");
-        exit_function();
-    }
-    if (isDraw(mainBoard, 'W')) {
-        printf("Draw!\n");
-        exit_function();
-    }
+   
 }
 
 int main(int argc, char** argv) {
@@ -100,12 +98,14 @@ int main(int argc, char** argv) {
             getWhiteMove(mainBoard, status); 
 
         }
+        checkForGameEnd(mainBoard, 'W');
         
 
         *status = 0;
         while(*status == 0) { 
             getBlackMove(mainBoard, status); 
         }
+        checkForGameEnd(mainBoard, 'B');
         printf("move_number: %d\n", move_number);
     }
 
