@@ -33,11 +33,11 @@ static void signal_handler(int _) {
 }
 
 void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
-    printf("\nPlayer 1 Move: ");
-    scanf("%s", input);
     struct fullDataTurn* choice;
-    choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    // choice = bot3Choice(mainBoard, 'W', status);
+    printf("\nPlayer 1 Move: ");
+    // scanf("%s", input);
+    // choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
+    choice = bot3Choice(mainBoard, 'W', status);
    
     printf("W is playing:\n");
     // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 
     status = malloc(sizeof(int));
     *status = 0;
-    while(continueRunning) {
+    while(move_number != -10) {
         move_number++;
         *status = 0;
         while(*status == 0) { 

@@ -7,4 +7,4 @@
 #include "move.h"
 
 struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, bool* status);
-struct basicDataTurnNode* getOnlyAttackingMoves(struct basicDataTurnNode* head, const struct dataBoard* input_board);
+struct standardList* getOnlyAttackingMoves(struct standardList* head, const struct dataBoard* input_board);

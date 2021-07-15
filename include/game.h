@@ -28,13 +28,16 @@ struct dataBoard* removeEnPassants(struct dataBoard* input_board, char side);
 bool isMate(struct dataBoard* input_board, char side);
 bool isDraw(struct dataBoard* input_board, char side);
 
-struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side);
-struct fullDataTurnNode* allLegalMoves(const struct dataBoard* input_board, char side);
-int random_int(int min, int max);
+struct standardList* allBasicLegalMoves(const struct dataBoard* input_board, char side);
+struct standardList* allLegalMoves(const struct dataBoard* input_board, char side);
+int randomInt(int min, int max);
 struct fullDataTurn* fullDataTurnNodeTofullDataTurn(const struct fullDataTurnNode* input);
 
+struct fullDataTurnNode* prependFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurnNode* additional);
+struct fullDataTurnNode* prependFullDataTurnToFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurn* additional);
 
 bool positionUnderAttack(const struct dataBoard* input_board, char attacking_side, const struct standard_pos* position);
 bool kingInCheck(const struct dataBoard* input_board, char side);
+bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side);
 
 #endif 

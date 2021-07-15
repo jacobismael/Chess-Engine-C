@@ -4,10 +4,10 @@
 
 
 struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, bool* status) {
-	struct basicDataTurnNode* head; // en passant might not work
+	struct standardList* head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
 	// printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
-	struct basicDataTurnNode* random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
+	struct standardList* random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)));
 	*status = 1;
 	if (random_move == NULL) {
 		random_move = head;
@@ -16,9 +16,9 @@ struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, 
 		*status = 0;
 		return NULL;
 	}
-	struct standard_pos start =  random_move->starting_pos;
-	struct standard_pos end =  random_move->ending_pos;
-	freeBasicDataTurn(head);
+	struct standard_pos start =  ((struct basicDataTurn*)random_move->data)->starting_pos;
+	struct standard_pos end =  ((struct basicDataTurn*)random_move->data)->ending_pos;
+	freeLinkedList(head);
 	
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
 

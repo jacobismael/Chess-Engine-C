@@ -2,36 +2,39 @@
 #include "bot2.h"
 
 
-struct basicDataTurnNode* getOnlyAttackingMoves(struct basicDataTurnNode* head, const struct dataBoard* input_board) {
-	struct basicDataTurnNode* new_list_head = malloc(sizeof(struct basicDataTurnNode));
+struct standardList* getOnlyAttackingMoves(struct standardList* head, const struct dataBoard* input_board) {
+	struct standardList* new_list_head = malloc(sizeof(struct standardList));
 	new_list_head->next = NULL;
 
 	while (head != NULL) {
-		if (doesTake(input_board, &head->starting_pos, &head->ending_pos)) {
-			new_list_head = appendBasicDataTurn(new_list_head, &head->starting_pos, &head->ending_pos);
+		if (doesTake(input_board, &((struct basicDataTurn*)head->data)->starting_pos, &((struct basicDataTurn*)head->data)->ending_pos)) {
+			struct basicDataTurn* new_move = malloc(sizeof(struct basicDataTurn));
+			new_move->starting_pos = ((struct basicDataTurn*)head->data)->starting_pos;
+			new_move->ending_pos = ((struct basicDataTurn*)head->data)->ending_pos;
+			new_list_head = prependToStandardList(new_list_head, new_move);
 		}
 		head = head->next;
 	}
-	struct basicDataTurnNode* result = new_list_head->next;
+	struct standardList* result = new_list_head->next;
 	free(new_list_head);
 	return result;
 }
 
 
 struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, bool* status) {
-	struct basicDataTurnNode* head; // en passant might not work
-	struct basicDataTurnNode* head_attacking;
+	struct standardList* head; // en passant might not work
+	struct standardList* head_attacking;
 	head = allBasicLegalMoves(input_board, side);
 	head_attacking = getOnlyAttackingMoves(head, input_board);
-	struct basicDataTurnNode* random_move;
+	struct standardList* random_move;
 	if (head_attacking != NULL) {
-		random_move = getElementOfBasicDataTurn(head_attacking, random_int(0, lengthOfBasicDataTurn(head_attacking)));
+		random_move = getElementOfLinkedList(head_attacking, randomInt(0, lengthOfLinkedList(head_attacking)) - 1);
 	}
 	else {
-		random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)));
+		random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)) - 1);
 	}
 	if (random_move == NULL) {
-		random_move = getElementOfBasicDataTurn(head, random_int(0, lengthOfBasicDataTurn(head)) - 1);
+		random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)) - 1);
 	}
 	if (random_move == NULL) {
 		random_move = head; // this feels wrong but idk why it fails otherwise
@@ -40,14 +43,12 @@ struct fullDataTurn* bot2Choice(const struct dataBoard* input_board, char side, 
 	if (random_move == NULL) {
 		*status = 0;
 		printf("error\nquiting\n");
-		exit(1);
 		return NULL;
 	}
-	struct standard_pos start =  random_move->starting_pos;
-	struct standard_pos end =  random_move->ending_pos;
-	freeBasicDataTurn(head);
-	freeBasicDataTurn(head_attacking);
-	
+	struct standard_pos start = ((struct basicDataTurn*)random_move->data)->starting_pos;
+	struct standard_pos end = ((struct basicDataTurn*)random_move->data)->ending_pos;
+	freeLinkedList(head);
+	freeLinkedList(head_attacking);
 	struct fullDataTurn* final = malloc(sizeof(struct fullDataTurn));
 	final->final_position.row = -1;
 	final->final_position.col = -1;

@@ -295,7 +295,6 @@ struct dataBoard* castleHandling(struct dataBoard* input_board, struct fullDataT
             }
         }
     }
-    free(truemove);
     return input_board;
 }
 
@@ -483,13 +482,13 @@ bool isMate(struct dataBoard* input_board, char side) {
 
 }
 
-int random_int(int min, int max) { // stolen from stack overflow user= sleutheye
-   return min + rand() % (max+1 - min);
+inline int randomInt(int min, int max) { // stolen from stack overflow user= sleutheye
+   return min + rand() % ((max - min) > 0 ? (max - min) : 1);
 }
 
-struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board, char side)  {
-	struct basicDataTurnNode* head = malloc(sizeof(struct basicDataTurnNode));
-	head->next = NULL;
+
+struct standardList* allBasicLegalMoves(const struct dataBoard* input_board, char side)  {
+	struct standardList* head = NULL;
 	struct standard_pos temp_start_pos = {.row = 0, .col = 0};
 	struct standard_pos temp_end_pos = {.row = 0, .col = 0};
 	struct boardCheck* lolm;
@@ -513,9 +512,12 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 								
 								copy_board->board[i][j] = 31;
 								copy_board->board[k][l] = input_board->board[i][j];
-
 								if (!kingInCheck(copy_board, side)) {
-									head = appendBasicDataTurn(head, &temp_start_pos, &temp_end_pos);
+
+									struct basicDataTurn* basic = malloc(sizeof(struct basicDataTurn));
+									basic->starting_pos = temp_start_pos;
+									basic->ending_pos = temp_end_pos;
+									head = prependToStandardList(head, basic);
 								}
 							}
 						}
@@ -526,139 +528,119 @@ struct basicDataTurnNode* allBasicLegalMoves(const struct dataBoard* input_board
 		}
 	}
 	free(copy_board);
-	struct basicDataTurnNode* result = head->next;
-	free(head);
-	
-	return result;
+	return head;
 }
 
 //this function sucks i should rewrite it later
-struct fullDataTurnNode* appendFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurn* additional) {
-	struct fullDataTurnNode* head_cpy = head;
-	while(head->next != NULL) {
-		head = head->next;
-	}
+struct fullDataTurnNode* prependFullDataTurnToFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurn* additional) {
+    assert(additional != NULL);
+    assert(head != NULL);
 	struct fullDataTurnNode* new_node = malloc(sizeof(struct fullDataTurnNode));
-	new_node->final_position = additional->final_position;
-	new_node->starting_position = additional->starting_position;
-	new_node->piece = additional->piece;
-	new_node->is_en_passant =additional-> is_en_passant;
-	new_node->is_special = additional->is_special;
-	new_node->takes = additional->takes;
-	new_node->castles = additional->castles;
-	new_node->is_king_side = additional->is_king_side;
-	new_node->is_check = additional->is_check;
+	new_node->data = additional;
 
-	new_node->piece_promotes_to = additional->piece_promotes_to;
-	new_node->next = NULL;
+	new_node->next = head;
 
-	head->next = new_node;
-	return head_cpy;
+	return new_node;
 }
 
-struct fullDataTurnNode* allLegalMoves(const struct dataBoard* input_board, char side) {
-	struct fullDataTurnNode* head = malloc(sizeof(struct fullDataTurnNode));
-	head->next = NULL;
+struct fullDataTurnNode* prependFullDataTurnNode(struct fullDataTurnNode* head, struct fullDataTurnNode* additional) {
+    assert(additional != NULL);
+    assert(head != NULL);
+	additional->next = head;
+
+	return additional;
+}
+
+
+struct standardList* allLegalMoves(const struct dataBoard* input_board, char side) {
+	struct standardList* head = NULL;
 
 	if (canCastle(input_board, side, true)) {
-		struct fullDataTurn new = {
-			.final_position = {.row = 0, .col = 0},
-			.starting_position = {.row = 0, .col = 0},
-			.piece = ' ',
-			.is_en_passant = false,
-			.is_special = false,
-			.takes = false,
-			.castles = true, 
-			.is_king_side = true,
-			.piece_promotes_to = ' '			
-		};
-		head = appendFullDataTurnNode(head, &new);
+		struct fullDataTurn* new = malloc(sizeof(struct fullDataTurn)); 
+		new->final_position.row = 0;
+		new->final_position.col = 0;
+		new->starting_position.row = 0;
+        new->starting_position.col = 0;
+		new->piece = ' ';
+		new->is_en_passant = false;
+		new->is_special = false;
+		new->takes = false;
+		new->castles = true;
+		new->is_king_side = true;
+		new->piece_promotes_to = ' ';
+		head = prependToStandardList(head, new);
 	}
 	if (canCastle(input_board, side, false)) { // it can be both king and queen side
-		struct fullDataTurn new = {
-			.final_position = {.row = 0, .col = 0},
-			.starting_position = {.row = 0, .col = 0},
-			.piece = ' ',
-			.is_en_passant = false,
-			.is_special = false,
-			.takes = false,
-			.castles = true, 
-			.is_king_side = true,
-			.piece_promotes_to = ' '			
-		};
-		head = appendFullDataTurnNode(head, &new);
+		struct fullDataTurn* new = malloc(sizeof(struct fullDataTurn)); 
+		new->final_position.row = 0;
+		new->final_position.col = 0;
+		new->starting_position.row = 0;
+        new->starting_position.col = 0;
+		new->piece = ' ';   
+		new->is_en_passant = false;
+		new->is_special = false;
+		new->takes = false;
+		new->castles = true;
+		new->is_king_side = true;
+		new->piece_promotes_to = ' ';
+		head = prependToStandardList(head, new);
 	}
 	
-	struct basicDataTurnNode* basic_move_head = allBasicLegalMoves(input_board, side);
-	struct fullDataTurn new;
-	while (basic_move_head != NULL) {
-		new.final_position = basic_move_head->ending_pos;
-		new.starting_position = basic_move_head->starting_pos;
-		new.piece = pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col));
-		new.is_en_passant = false; 
-		if (validRange(new.final_position.row + (side == 'W' ? -1 : 1))) {
-			if (sideOfDataPiece(getDataPiece(input_board, new.final_position.row , new.final_position.col)) == ' ') {
-				if (isDataPieceSpecial(getDataPiece(input_board, new.final_position.row + (side == 'W' ? -1 : 1), new.final_position.col))) {
-					new.is_en_passant = true;
+	struct standardList* basic_move_head = allBasicLegalMoves(input_board, side);
+	while (basic_move_head->next != NULL) {
+		struct fullDataTurn* new = malloc(sizeof(struct fullDataTurn));
+		new->final_position = ((struct basicDataTurn*)(basic_move_head->data))->ending_pos;
+		// printf("ending_pos = %d, %d\n", new->final_position.row, new->final_position.col);
+		new->starting_position = ((struct basicDataTurn*)(basic_move_head->data))->starting_pos;
+		new->piece = pieceIdOfDataPiece(getDataPiece(input_board, new->starting_position.row, new->starting_position.col));
+		new->is_en_passant = false; 
+		if (validRange(new->final_position.row + (side == 'W' ? -1 : 1))) {
+			if (sideOfDataPiece(getDataPiece(input_board, new->final_position.row , new->final_position.col)) == ' ') {
+				if (isDataPieceSpecial(getDataPiece(input_board, new->final_position.row + (side == 'W' ? -1 : 1), new->final_position.col))) {
+					new->is_en_passant = true;
 				}
 			}
 		}
 		//prep for en passant
-		new.is_special = false;
-		if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col) == 'P')) {
-			if (new.final_position.row == 3 && new.starting_position.row == 1) {
-				new.is_special = true;
+		new->is_special = false;
+		if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, new->starting_position.row, new->starting_position.col) == 'P')) {
+			if (new->final_position.row == 3 && new->starting_position.row == 1) {
+				new->is_special = true;
 			}
 		}
-		if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, new.starting_position.row, new.starting_position.col) == 'P')) {
-			if (new.final_position.row == 4 && new.starting_position.row == 6) {
-				new.is_special = true;
+		if (side == 'B' && pieceIdOfDataPiece(getDataPiece(input_board, new->starting_position.row, new->starting_position.col) == 'P')) {
+			if (new->final_position.row == 4 && new->starting_position.row == 6) {
+				new->is_special = true;
 			}
 		}
-		if (new.piece == 'K' || new.piece == 'R') {
-			new.is_special = true;
+		if (new->piece == 'K' || new->piece == 'R') {
+			new->is_special = true;
 		}
-		if (new.piece != 'K' && new.piece != 'R' && new.piece != 'P') {
-			new.is_special = false;
+		if (new->piece != 'K' && new->piece != 'R' && new->piece != 'P') {
+			new->is_special = false;
 		}
-		new.takes = sideOfDataPiece(getDataPiece(input_board, new.final_position.row, new.final_position.col)) == oppositeSide(side);
-		new.castles = false;
-		new.is_king_side = false;
+		new->takes = sideOfDataPiece(getDataPiece(input_board, new->final_position.row, new->final_position.col)) == oppositeSide(side);
+		new->castles = 0;
+		new->is_king_side = false;
 
-		new.piece_promotes_to = 'Q';
-		head = appendFullDataTurnNode(head, &new);
+		new->piece_promotes_to = ' ';
+		head = prependToStandardList(head, new);
+		// printf("ending_pos2 %d\n", ((struct fullDataTurn*)head->data)->final_position.row);
+		// printf("ending_pos again = %d, %d\n"q, );
+		// printf("ending_pos again = %d, %d\n", new->final_position.row, new->final_position.col);
 		basic_move_head = basic_move_head->next;
+		// printf("here %p", head);
 	}
-	struct fullDataTurnNode* result = (head->next);
-	free(head);
-	return result;
-}
-
-struct fullDataTurn* fullDataTurnNodeTofullDataTurn(const struct fullDataTurnNode* input) {
-	struct fullDataTurn* result = malloc(sizeof(struct fullDataTurn));
 	
-	result->final_position = input->final_position;
-	result->starting_position = input->starting_position;
-	result->piece = input->piece;
-	result->is_en_passant = input->is_en_passant;
-	result->is_special = input->is_special;
-	result->takes = input->takes;
-	result->castles = input->castles;
-	result->is_king_side = input->is_king_side;
-	result->is_check = input->is_check;
-	result->piece_promotes_to = input->piece_promotes_to;
-	
-
-	return result;
+	return head;
 }
-
 
 bool isDraw(struct dataBoard* input_board, char side) { // very simple and incomplete still
 	//this whole function doesnt support en passant yet
 	if (kingInCheck(input_board, side)) {
 		return false;
 	}
-	struct basicDataTurnNode* head;
+	struct standardList* head;
 	head = allBasicLegalMoves(input_board, side);
 	if (head == NULL) {
 		return true;
@@ -719,7 +701,7 @@ bool isDraw(struct dataBoard* input_board, char side) { // very simple and incom
 
 
 struct fullDataTurn* stringToFullDataTurn(struct dataBoard* input_board, char* turn, char side, bool* status) {
-    	struct dataTurn* cmove = toDataTurn(turn);
+	struct dataTurn* cmove = toDataTurn(turn);
 
 	if (cmove == NULL) {
 		printf("Illegal move sent\n");
@@ -739,7 +721,7 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDa
 	struct dataBoard* copy_board = malloc(sizeof(struct dataBoard));
 	memcpy(copy_board, input_board, sizeof(struct dataBoard));
 	//castle handling
-	if (truemove->castles ==  1) {
+	if (truemove->castles) {
 		free(copy_board);
 		printf("in castles\n");
 		return castleHandling(input_board, truemove, side, status);
@@ -782,7 +764,7 @@ struct dataBoard* buildFromHalfMove(struct dataBoard* input_board, struct fullDa
 	if (*status == 0) {
 		memcpy(input_board, copy_board, sizeof(struct dataBoard));
 	}
-	free(truemove);
+	// free(truemove);
 	free(copy_board);
 	return input_board;
 }
@@ -840,5 +822,38 @@ bool kingInCheck(const struct dataBoard* input_board, char side) {
 	return true;
 	// assert(0 == 1);
  
+
+}
+
+
+bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side) {
+	//it prefers to castle king side
+	unsigned char end_row = side == 'W' ? 0 : 7;
+	//i thcecks for king side first
+	if (kingInCheck(input_board, side)) {
+		return false; // you cant castle when in check
+	}
+	if (is_king_side) {
+		if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 5)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 6)) == ' ') { // checks squares are empty
+			if (getDataPiece(input_board, end_row, 4) == makeDataPiece('K', side, false) && getDataPiece(input_board, end_row, 7) == makeDataPiece('R', side, false)) {
+					struct standard_pos temp_positions[2] = {{.row = end_row, .col = 5}, {.row = end_row, .col = 6}};
+					if (!positionUnderAttack(input_board, oppositeSide(side), &temp_positions[0]) && positionUnderAttack(input_board, oppositeSide(side), &temp_positions[1])) {
+						return true;
+					}
+			}
+		}
+		return false;
+	}
+	else {
+		if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 1)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 2)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 3)) == ' ') { // checks squares are empty
+			if (getDataPiece(input_board, end_row, 0) == makeDataPiece('R', side, false) && getDataPiece(input_board, end_row, 4) == makeDataPiece('K', side, false)) {
+					struct standard_pos temp_positions[2] = {{.row = end_row, .col = 2}, {.row = end_row, .col = 3}};
+					if (!positionUnderAttack(input_board, oppositeSide(side), &temp_positions[0]) && positionUnderAttack(input_board, oppositeSide(side), &temp_positions[1])) {
+						return true;
+					}
+			}
+		}
+		return false;
+	}
 }
 

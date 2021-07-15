@@ -41,7 +41,12 @@ float getBasicBoardScore(const struct dataBoard* input_board) {
 	float temp = 0;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			temp = pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'W' ? valueOfDataPiece(getDataPiece(input_board, i, j)) : -1 * valueOfDataPiece(getDataPiece(input_board, i, j));
+			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'W') {
+				temp = valueOfDataPiece(getDataPiece(input_board, i, j));
+			}
+			else {
+				temp = -valueOfDataPiece(getDataPiece(input_board, i, j));
+			}
 			if (temp != INFINITY && temp != -INFINITY) {
 				score += temp;
 			}
@@ -224,36 +229,6 @@ struct dataPiece pieceToDataPiece(struct piece* p) {
 	
 }
 
-bool canCastle(const struct dataBoard* input_board, char side, bool is_king_side) {
-	//it prefers to castle king side
-	unsigned char end_row = side == 'W' ? 0 : 7;
-	//i thcecks for king side first
-	if (kingInCheck(input_board, side)) {
-		return false; // you cant castle when in check
-	}
-	if (is_king_side) {
-		if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 5)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 6)) == ' ') { // checks squares are empty
-			if (getDataPiece(input_board, end_row, 4) == makeDataPiece('K', side, false) && getDataPiece(input_board, end_row, 7) == makeDataPiece('R', side, false)) {
-					struct standard_pos temp_positions[2] = {{.row = end_row, .col = 5}, {.row = end_row, .col = 6}};
-					if (!positionUnderAttack(input_board, oppositeSide(side), &temp_positions[0]) && positionUnderAttack(input_board, oppositeSide(side), &temp_positions[1])) {
-						return true;
-					}
-			}
-		}
-		return false;
-	}
-	else {
-		if (pieceIdOfDataPiece(getDataPiece(input_board, end_row, 1)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 2)) == ' ' && pieceIdOfDataPiece(getDataPiece(input_board, end_row, 3)) == ' ') { // checks squares are empty
-			if (getDataPiece(input_board, end_row, 0) == makeDataPiece('R', side, false) && getDataPiece(input_board, end_row, 4) == makeDataPiece('K', side, false)) {
-					struct standard_pos temp_positions[2] = {{.row = end_row, .col = 2}, {.row = end_row, .col = 3}};
-					if (!positionUnderAttack(input_board, oppositeSide(side), &temp_positions[0]) && positionUnderAttack(input_board, oppositeSide(side), &temp_positions[1])) {
-						return true;
-					}
-			}
-		}
-		return false;
-	}
-}
 
 
 void printBoard(const struct board* input_board) {
@@ -358,6 +333,46 @@ void printBoardCheck(struct boardCheck* input_mask) {
 	}
 	printf("\n");
 }
+
+int lengthOfLinkedList(struct standardList* head) {
+	int length = 0;	
+	
+	while(head != NULL) {
+		length++;
+		head = head->next;
+	}
+
+	return length;
+}
+
+void freeLinkedList(struct standardList* head) {
+		
+	struct standardList* temp_head;
+	while(head != NULL) {
+		temp_head = head;
+        head = head->next;
+        free(temp_head);
+	}
+}
+
+
+
+struct standardList* getElementOfLinkedList(struct standardList* head, int position) {	
+    if (position > lengthOfLinkedList(head) - 1) {
+        return NULL;
+    }
+    int length = 0;
+	
+	while(head != NULL) {
+        if (length == position) {
+            return head;
+        }
+		length++;
+		head = head->next;
+	}
+    return NULL;
+}
+
 
 
 struct board* setupBoard() {

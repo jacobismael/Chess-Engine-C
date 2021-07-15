@@ -12,7 +12,6 @@
 #include "move.h"
 
 
-
 struct dataPiece {
 	uint8_t id;// i know this does not save any space but it might in the future ???
 
@@ -74,6 +73,8 @@ struct boardCheck {
 };
 
 
+
+
 unsigned char getDataPiece(const struct dataBoard* board, signed char row, signed char col);
 unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col);
 
@@ -113,6 +114,8 @@ char TeamOnSquare(const struct dataBoard* input_board, int row, int col);
 
 char oppositeSide(char side);
 
-
+void freeLinkedList(struct standardList* head);
+int lengthOfLinkedList(struct standardList* head);
+struct standardList* getElementOfLinkedList(struct standardList* head, int position);
 
 #endif

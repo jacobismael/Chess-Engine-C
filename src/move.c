@@ -19,57 +19,19 @@ struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation) {
 }
 
 
-
-struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos) {
-	struct basicDataTurnNode* head_cpy = head;
-	while(head->next != NULL) {
-		head = head->next;
-	}
-	struct basicDataTurnNode* new_node = malloc(sizeof(struct basicDataTurnNode));
-	new_node->starting_pos = *starting_pos; 
-	new_node->ending_pos = *ending_pos; 
-	new_node->next = NULL;	
-    head->next = new_node;
-	return head_cpy;
+void printMove(const struct fullDataTurn* node) {
+	printf("best:\n");
+	printf("castles %d\n", node->castles);
+	printf("final position %d, %d\n", node->final_position.row, node->final_position.col);
+	printf("starting position %d, %d\n", node->starting_position.row, node->starting_position.col);
 }
 
-void freeBasicDataTurn(struct basicDataTurnNode* head) {
-    struct basicDataTurnNode* temp = head;
-    while (head != NULL) {
-        temp = head;
-        head = head->next;
-        free(temp);
-    }
-    
+struct standardList* prependToStandardList(struct standardList* list_head,  void const* data) {
+    struct standardList* new_head = malloc(sizeof(struct standardList));
+    new_head->data = data;
+    new_head->next = list_head;
+	return new_head;
 }
-
-int lengthOfBasicDataTurn(struct basicDataTurnNode* head) {
-	int length = 1;	
-	
-	while(head != NULL) {
-		length++;
-		head = head->next;
-	}
-
-	return length;
-}
-
-struct basicDataTurnNode* getElementOfBasicDataTurn(struct basicDataTurnNode* head, int position) {
-    if (position > lengthOfBasicDataTurn(head) - 1) {
-        return NULL;
-    }
-    int length = 0;	
-	
-	while(head != NULL) {
-		length++;
-		head = head->next;
-        if (length == position) {
-            return head;
-        }
-	}
-    return NULL;
-}
-
 
 int letterToCol(char letter) {
 	if ((int)letter <= 96 || (int)letter >= 105) {
@@ -198,6 +160,7 @@ void PrintMoveList(struct Move* head) {
         head = head->next;
     }
 }
+
 
 struct standard_pos posToStandard_pos(const struct pos* input_pos) {
     struct standard_pos result = {.row = input_pos->row, .col = input_pos->col};
