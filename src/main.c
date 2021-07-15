@@ -56,7 +56,7 @@ void getWhiteMove(struct dataBoard* mainBoard, bool* status) {
 void getBlackMove(struct dataBoard* mainBoard, bool* status) {
     // printf("\nPlayer 2 Move: ");
     //scanf("%s", input);
-    struct fullDataTurn* choice = bot2Choice(mainBoard, 'B', status);
+    struct fullDataTurn* choice = bot1Choice(mainBoard, 'B', status);
     printf("B is playing:\n");
     buildFromHalfMove(mainBoard, choice, 'B', status);
     printDataBoard(mainBoard);

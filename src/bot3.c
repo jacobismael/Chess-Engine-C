@@ -22,26 +22,26 @@ struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, const char 
 		float board_score = getBasicBoardScore(copy_board);
 		if (board_score == highest_score) {
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
-			printf("Prepending to best_nodes:\n");
+			// printf("Prepending to best_nodes:\n");
 		}
-		else if (board_score > highest_score) {
+		else if (board_score > highest_score || (board_score == highest_score && kingInCheck(copy_board, oppositeSide(side)))) {
 			highest_score = board_score;
-			// printDataBoard(copy_board);
-		// 	//uncomment this later
 			freeLinkedList(best_nodes);
 			best_nodes = NULL;
 
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
-			printf("Prepending to best_nodes:\n");
+			// printf("Prepending to best_nodes:\n");
 		}
-		// printMove(current_move->data);
+		else if(kingInCheck(copy_board, oppositeSide(side))) {
+			highest_score++;
+			freeLinkedList(best_nodes);
+			best_nodes = NULL;
 
-	// 	// printf("score %f\n", highest_score);
+			best_nodes = prependToStandardList(best_nodes, current_move->data);
+		}
 		
 		current_move = current_move->next;
     }
-	// //choose random item in the list
-	// printf("length %d\n", lengthOfLinkedList(best_nodes));
 	int random_choice = randomInt(0, lengthOfLinkedList(best_nodes) - 1) ;
 	struct standardList* temp = NULL;
 	if (best_nodes != NULL) {
@@ -49,7 +49,6 @@ struct fullDataTurn* bot3Choice(const struct dataBoard* input_board, const char 
 	}
 	best = (struct fullDataTurn*)temp->data;
 
-	
 	*status = true;
 	return best;
 }
