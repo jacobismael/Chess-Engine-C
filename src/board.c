@@ -190,47 +190,6 @@ bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_
 }
 
 
-struct dataPiece pieceToDataPiece(struct piece *p) {
-	struct dataPiece result;
-	if (p->side == ' ') {
-		result.id = 31;
-		return result;
-	}
-	else if (p->side == 'W') {
-		result.id = 0;
-	}
-	else if (p->side == 'B') {
-		result.id = 6;
-	}
-
-	switch ( p->pieceId) {
-		case 'P':
-			break;
-		case 'R':
-			result.id += 1;
-			break;
-		case 'N':
-			result.id += 2;
-			break;
-		case 'B':
-			result.id += 3;
-			break;
-		case 'Q':
-			result.id += 4;
-			break;
-		case 'K':
-			result.id += 5;
-			break;
-		default:
-			result.id = 31;
-	}
-
-	return result;
-	
-}
-
-
-
 void printBoard(const struct board *input_board) {
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {

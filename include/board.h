@@ -11,10 +11,9 @@
 
 #include "move.h"
 
-
-struct dataPiece {
-	uint8_t id;// i know this does not save any space but it might in the future ???
-
+struct dataBoard {
+	unsigned char board[8][8];
+	//new board will be
 	/*
 	formula:
 	values:
@@ -44,19 +43,6 @@ struct dataPiece {
 	else = 18-31
 	
 	*/ 
-};
-
-struct dataBoard {
-	unsigned char board[8][8];
-	//new board will be
-	//
-};
-
-struct boardDiff {
-	struct standardPos position1;
-	struct dataPiece piece1;
-	struct standardPos position2;
-	struct dataPiece piece2;
 };
 
 struct piece {
@@ -89,9 +75,7 @@ unsigned char makeDataPiece(char pieceId, char side, bool isSpecial);
 
 bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_position, struct standardPos *final_position);
 
-struct dataPiece pieceToDataPiece(struct piece *p);
 bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side);
-
 
 void printBoard(const struct board *input_board);
 
