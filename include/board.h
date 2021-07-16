@@ -99,7 +99,7 @@ char TeamOnSquare(const struct dataBoard *input_board, int row, int col);
 char oppositeSide(char side);
 
 void freeLinkedList(struct standardList *head);
-int lengthOfLinkedList(struct standardList *head);
+int lengthOfLinkedList(const struct standardList *head);
 struct standardList *getElementOfLinkedList(struct standardList *head, int position);
 
 bool kingExists(const struct dataBoard *input_board, char side);

@@ -293,7 +293,7 @@ void printBoardCheck(struct boardCheck *input_mask) {
 	printf("\n");
 }
 
-int lengthOfLinkedList(struct standardList *head) {
+int lengthOfLinkedList(const struct standardList *head) {
 	int length = 0;	
 	
 	while(head != NULL) {
