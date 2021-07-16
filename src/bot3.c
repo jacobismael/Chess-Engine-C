@@ -42,13 +42,20 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 		
 		current_move = current_move->next;
     }
+	
+	
+	*status = true;
 	int random_choice = randomInt(0, lengthOfLinkedList(best_nodes) - 1) ;
 	struct standardList *temp = NULL;
 	if (best_nodes != NULL) {
 		temp = getElementOfLinkedList(best_nodes, random_choice);
 	}
+	else {
+		*status  = false;
+		return NULL;
+	}
+
 	best = (struct fullDataTurn*)temp->data;
 
-	*status = true;
 	return best;
 }
