@@ -213,7 +213,7 @@ void printDataBoardDebug(const struct dataBoard *input_board) {
 	printf("   a  b  c  d  e  f  g  h\n");
 }
 
-void printDataBoard(const struct dataBoard *input_board) {
+void printDataBoard(const struct dataBoard *input_board, const bool borderless) {
 
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {
@@ -222,26 +222,40 @@ void printDataBoard(const struct dataBoard *input_board) {
 			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'W') {
 				printf("\033[30;47m%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
 			}
-			else if (sideOfDataPiece(sideOfDataPiece(getDataPiece(input_board, i, j)) == 'B')){
-				printf("\033[37;40m%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
-			}
-			else { // this doesnt just printf "  " for debugging reasons
-				printf("%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+			else { 
+				if ((i + j + 1) % 2 == 0) {
+					printf("\033[37;40m");
+				}
+				else {
+					printf("\033[0m");
+				}
+				if (sideOfDataPiece(sideOfDataPiece(getDataPiece(input_board, i, j)) == 'B')){
+					printf("%c%c", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+				}
+				else { // this doesnt just printf "  " for debugging reasons
+					printf("%c%c", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+				}
+				printf("\033[0m");
 			}
 
-			if (j != 7) { 
+			if (j != 7 && !borderless) { 
 				printf("|");
 			}
 		}
-		if (i != 0) {
-			printf("\n  --+--+--+--+--+--+--+--\n");
+		if (i != 0 && !borderless) {
+			printf("\n  --+--+--+--+--+--+--+--\033[0m\n");
 		}
 		else {
 			printf("\n");
 		}
 		
 	}
-	printf("   a  b  c  d  e  f  g  h\n");
+	if (!borderless) {
+		printf("   a  b  c  d  e  f  g  h\n");
+	}
+	else {
+		printf("  a b c d e f g h\n");
+	}
 }
 
 bool getBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index) {

@@ -55,7 +55,7 @@ void getWhiteMove(struct dataBoard *mainBoard, bool *status) {
     // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
     buildFromHalfMove(mainBoard, choice, 'W', status);
     printMove(choice);
-    printDataBoard(mainBoard);
+    printDataBoard(mainBoard, true);
     
 }
 
@@ -69,7 +69,7 @@ void getBlackMove(struct dataBoard *mainBoard, bool *status) {
     }
     printf("B is playing:\n");
     buildFromHalfMove(mainBoard, choice, 'B', status);
-    printDataBoard(mainBoard);
+    printDataBoard(mainBoard, true);
    
 }
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 
     mainBoard = setupDataBoard();
 
-    printDataBoard(mainBoard);
+    printDataBoard(mainBoard, true);
 
     status = malloc(sizeof(int));
     *status = 0;
