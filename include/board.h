@@ -45,15 +45,6 @@ struct dataBoard {
 	*/ 
 };
 
-struct piece {
-	char pieceId;
-	char side; //can be 'W' 'B' ' '
-};
-
-struct board {
-    struct piece board[8][8]; 
-};
-
 struct boardCheck {
 	uint64_t mask;
 };
@@ -77,8 +68,6 @@ bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_
 
 bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side);
 
-void printBoard(const struct board *input_board);
-
 void printDataBoard(const struct dataBoard *input_board);
 bool getBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
 uint64_t setBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
@@ -86,9 +75,6 @@ unsigned char positionToIndex( char row,  char col);
 
 void printDataBoardDebug(const struct dataBoard *input_board);
 void printBoardCheck(struct boardCheck *input_mask);
-
-
-struct board *setupBoard();
 
 struct dataBoard *setupDataBoard();
 

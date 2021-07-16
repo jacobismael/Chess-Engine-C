@@ -189,28 +189,6 @@ bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_
 	return false;
 }
 
-
-void printBoard(const struct board *input_board) {
-	printf("\n\n\n");
-	for (int i = 7; i >= 0; i--) {
-		printf("%d  ", i+ 1);
-		for (int j = 0; j < 8; j++) {
-			printf("%c%c", input_board->board[i][j].side, input_board->board[i][j].pieceId);
-			if (j != 7) { 
-				printf("|");
-			}
-		}
-		if (i != 0) {
-			printf("\n   --+--+--+--+--+--+--+--\n");
-		}
-		else {
-			printf("\n");
-		}
-		
-	}
-	printf("   a  b  c  d  e  f  g  h\n");
-}
-
 void printDataBoardDebug(const struct dataBoard *input_board) {
 
 	printf("\n\n\n");
@@ -234,8 +212,6 @@ void printDataBoardDebug(const struct dataBoard *input_board) {
 	}
 	printf("   a  b  c  d  e  f  g  h\n");
 }
-
-
 
 void printDataBoard(const struct dataBoard *input_board) {
 
@@ -330,29 +306,6 @@ struct standardList *getElementOfLinkedList(struct standardList *head, int posit
 		head = head->next;
 	}
     return NULL;
-}
-
-
-
-struct board *setupBoard() {
-	char *side_template = "RNBQKBNR";
-	struct board *newBoard = malloc(sizeof(struct board));
-	//fills in the board with the standard configuration
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
-			newBoard->board[row][col].side = row <= 1 ? 'W' : (row >= 6 ? 'B' : ' ');
-			if (row == 0 || row == 7) { 
-			        newBoard->board[row][col].pieceId = side_template[col];
-			}
-			else if (row == 1 || row == 6) {
-				newBoard->board[row][col].pieceId = 'P';
-			}
-			else {
-			    newBoard->board[row][col].pieceId = ' ';
-			}
-		}
-	}
-	return newBoard;
 }
 
 struct dataBoard *setupDataBoard() {
