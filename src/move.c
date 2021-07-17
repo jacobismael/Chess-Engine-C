@@ -26,13 +26,6 @@ void printMove(const struct fullDataTurn *node) {
 	printf("starting position %d, %d\n", node->starting_position.row, node->starting_position.col);
 }
 
-struct standardList *prependToStandardList(struct standardList *list_head,  void const *data) {
-    struct standardList *new_head = malloc(sizeof(struct standardList));
-    new_head->data = data;
-    new_head->next = list_head;
-	return new_head;
-}
-
 int letterToCol(char letter) {
 	if ((int)letter <= 96 || (int)letter >= 105) {
 		printf("letters should be between a-h. You inputed %c\n", letter);

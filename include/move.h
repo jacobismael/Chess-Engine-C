@@ -63,10 +63,7 @@ struct fullDataTurn {
     char piece_promotes_to;
 };
 
-struct standardList {
-    struct standardList* next;
-    void* data;
-};
+
 
 struct standardPos posToStandard_pos(const struct Pos* input_pos);
 
@@ -88,7 +85,6 @@ char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
 
 void printPosList(struct Pos* head);
-struct standardList* prependToStandardList(struct standardList* list_head,  void const* data);
 void appendPos(struct Pos* head, int row, int col);
 void freePosList(struct Pos* head);
 bool posLlContains(struct Pos* head, struct Pos* to_compare);

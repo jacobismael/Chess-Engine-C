@@ -40,16 +40,21 @@ struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boar
 
 
 	// normal taking
-	if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
-		if (validRange(position->row + 1*pawnDir) && validRange(position->col - 1)) {
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
+	if (validRange(position->row + 1*pawnDir)) {
+		if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
+			if (validRange(position->row + 1*pawnDir) && validRange(position->col - 1)) {
+				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
+			}
 		}
 	}
-	if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
-		if (validRange(position->row + 1*pawnDir) && validRange(position->col + 1)) {
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
+	if (validRange(position->row + 1*pawnDir)) {
+		if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
+			if (validRange(position->row + 1*pawnDir) && validRange(position->col + 1)) {
+				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
+			}
 		}
 	}
+	
 	return validPositions;
 }
 
@@ -218,7 +223,7 @@ struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const s
 struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head) {
 	while (head != NULL) {
 		input_board = buildFromMove(input_board, head);
-		printDataBoard(input_board);
+		printDataBoard(input_board, true);
 		
 		head = head->next;
 	}
@@ -445,6 +450,7 @@ bool isMate(const struct dataBoard *input_board, char side) {
 	}
 
 	struct dataBoard *copy_board = malloc(sizeof(struct dataBoard));
+	memcpy(copy_board, input_board, sizeof(struct dataBoard));
 
 	unsigned char temp_piece = ' ';
 	struct standardPos temp_pos; 
@@ -468,6 +474,7 @@ bool isMate(const struct dataBoard *input_board, char side) {
 							// printDataBoard(copy_board);
 
 							if (!kingInCheck(copy_board, side)) {
+								free(lolm);
 								free(copy_board);
 								return false;
 							}
@@ -506,7 +513,7 @@ struct standardList *allBasicLegalMoves(const struct dataBoard *input_board, cha
 					// printBoardCheck(lolm);
 					for (int k = 0; k < 8; k++) {
 						for (int l = 0; l < 8; l++) {
-							if (getBitOfBoardCheck(lolm, positionToIndex(k, l))) {
+							if (getBitOfBoardCheck(lolm, positionToIndex(k, l)) && pieceIdOfDataPiece(getDataPiece(input_board, k, l)) != 'K') {
 								memcpy(copy_board, input_board, sizeof(struct dataBoard));
 								temp_end_pos.row = k;
 								temp_end_pos.col = l;
@@ -567,6 +574,7 @@ struct standardList *allLegalMoves(const struct dataBoard *input_board, char sid
 	}
 	
 	struct standardList *basic_move_head = allBasicLegalMoves(input_board, side);
+	struct standardList *basic_move_head_cpy = basic_move_head;
 	while (basic_move_head->next != NULL) {
 		struct fullDataTurn *new = malloc(sizeof(struct fullDataTurn));
 		new->final_position = ((struct basicDataTurn*)(basic_move_head->data))->ending_pos;
@@ -610,12 +618,13 @@ struct standardList *allLegalMoves(const struct dataBoard *input_board, char sid
 		else {
 			printf("oh no\n");
 		}
-		// printf("ending_pos2 %d\n", ((struct fullDataTurn*)head->data)->final_position.row);
+		// printf("ending_pos2 %d\n", ((struct fullDataTurn*)he;d->data)->final_position.row);
 		// printf("ending_pos again = %d, %d\n"q, );
 		// printf("ending_pos again = %d, %d\n", new->final_position.row, new->final_position.col);
 		basic_move_head = basic_move_head->next;
 		// printf("here %p", head);
 	}
+	freeStandardList(basic_move_head_cpy);
 	
 	return head;
 }
@@ -628,6 +637,7 @@ bool isDraw(const struct dataBoard *input_board, char side) { // very simple and
 	struct standardList *head;
 	head = allBasicLegalMoves(input_board, side);
 	if (head == NULL) {
+		freeStandardList(head);
 		return true;
 	}
 	
@@ -667,6 +677,7 @@ bool isDraw(const struct dataBoard *input_board, char side) { // very simple and
 			}
 		}	
 	}
+	freeStandardList(head);
 	//cases where it isnt a draw
 	if (num_each_piece_b[5] + num_each_piece_w[5] >= 1) { //any pawns left
 		return false;

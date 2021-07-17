@@ -28,13 +28,13 @@ struct fullDataTurn *bot2Choice(const struct dataBoard *input_board, char side, 
 	head_attacking = getOnlyAttackingMoves(head, input_board);
 	struct standardList *random_move;
 	if (head_attacking != NULL) {
-		random_move = getElementOfLinkedList(head_attacking, randomInt(0, lengthOfLinkedList(head_attacking)) - 1);
+		random_move = getElementOfStandardList(head_attacking, randomInt(0, lengthOfStandardList(head_attacking)) - 1);
 	}
 	else {
-		random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)) - 1);
+		random_move = getElementOfStandardList(head, randomInt(0, lengthOfStandardList(head)) - 1);
 	}
 	if (random_move == NULL) {
-		random_move = getElementOfLinkedList(head, randomInt(0, lengthOfLinkedList(head)) - 1);
+		random_move = getElementOfStandardList(head, randomInt(0, lengthOfStandardList(head)) - 1);
 	}
 	if (random_move == NULL) {
 		random_move = head; // this feels wrong but idk why it fails otherwise
@@ -47,8 +47,6 @@ struct fullDataTurn *bot2Choice(const struct dataBoard *input_board, char side, 
 	}
 	struct standardPos start = ((struct basicDataTurn*)random_move->data)->starting_pos;
 	struct standardPos end = ((struct basicDataTurn*)random_move->data)->ending_pos;
-	freeLinkedList(head);
-	freeLinkedList(head_attacking);
 	struct fullDataTurn *final = malloc(sizeof(struct fullDataTurn));
 	final->final_position.row = -1;
 	final->final_position.col = -1;

@@ -4,6 +4,7 @@
 
 #include "board.h"
 #include "game.h"
+#include "standardlist.h"
 #include "move.h"
 
 struct basicDataTurnNode *getOnlyGoodAttackingMoves(struct basicDataTurnNode *head, const struct dataBoard *input_board);

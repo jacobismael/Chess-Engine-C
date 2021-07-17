@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "standardlist.h"
 #include "board.h"
 #include "move.h"
 

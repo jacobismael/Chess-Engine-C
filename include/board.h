@@ -68,7 +68,7 @@ bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_
 
 bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side);
 
-void printDataBoard(const struct dataBoard *input_board);
+void printDataBoard(const struct dataBoard *input_board, const bool borderless);
 bool getBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
 uint64_t setBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index);
 unsigned char positionToIndex( char row,  char col);
@@ -83,10 +83,6 @@ bool validRange(int input);
 char TeamOnSquare(const struct dataBoard *input_board, int row, int col);
 
 char oppositeSide(char side);
-
-void freeLinkedList(struct standardList *head);
-int lengthOfLinkedList(const struct standardList *head);
-struct standardList *getElementOfLinkedList(struct standardList *head, int position);
 
 bool kingExists(const struct dataBoard *input_board, char side);
 
