@@ -37,6 +37,7 @@ struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boar
 			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
 		}
 	}
+	//en passant stuff ends here
 
 
 	// normal taking
@@ -46,8 +47,7 @@ struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boar
 				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
 			}
 		}
-	}
-	if (validRange(position->row + 1*pawnDir)) {
+
 		if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
 			if (validRange(position->row + 1*pawnDir) && validRange(position->col + 1)) {
 				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
@@ -445,7 +445,7 @@ struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, struct dataBoar
 bool isMate(const struct dataBoard *input_board, char side) {
 	//this doesnt support en passant yet
 
-	if (!kingExists(input_board, side) || !kingInCheck(input_board, side)) {
+	if (!kingInCheck(input_board, side)) {
 		return false;
 	}
 
@@ -461,8 +461,8 @@ bool isMate(const struct dataBoard *input_board, char side) {
 				temp_pos.row = i;
 				temp_pos.col = j;
 				
-				lolm = listOfLegalMoves(input_board, &temp_pos, copy_board, false);
 				// printf("piece: %c\n", pieceIdOfDataPiece(getDataPiece(input_board, temp_pos.row, temp_pos.col)));
+				lolm = listOfLegalMoves(input_board, &temp_pos, copy_board, false);
 				// printBoardCheck(lolm);
 				for (int k = 0; k < 8; k++) {
 					for (int l = 0; l < 8; l++) {
@@ -513,7 +513,7 @@ struct standardList *allBasicLegalMoves(const struct dataBoard *input_board, cha
 					// printBoardCheck(lolm);
 					for (int k = 0; k < 8; k++) {
 						for (int l = 0; l < 8; l++) {
-							if (getBitOfBoardCheck(lolm, positionToIndex(k, l)) && pieceIdOfDataPiece(getDataPiece(input_board, k, l)) != 'K') {
+							if (getBitOfBoardCheck(lolm, positionToIndex(k, l)) && pieceIdOfDataPiece(getDataPiece(input_board, l, k)) != 'K') {
 								memcpy(copy_board, input_board, sizeof(struct dataBoard));
 								temp_end_pos.row = k;
 								temp_end_pos.col = l;
@@ -581,15 +581,17 @@ struct standardList *allLegalMoves(const struct dataBoard *input_board, char sid
 		// printf("ending_pos = %d, %d\n", new->final_position.row, new->final_position.col);
 		new->starting_position = ((struct basicDataTurn*)(basic_move_head->data))->starting_pos;
 		new->piece = pieceIdOfDataPiece(getDataPiece(input_board, new->starting_position.row, new->starting_position.col));
+		//en passant
 		new->is_en_passant = false; 
-		if (validRange(new->final_position.row + (side == 'W' ? -1 : 1))) {
+		if (new->piece == 'P' && (new->final_position.row + (side == 'W' ? -1 : 1))) {
 			if (sideOfDataPiece(getDataPiece(input_board, new->final_position.row , new->final_position.col)) == ' ') {
 				if (isDataPieceSpecial(getDataPiece(input_board, new->final_position.row + (side == 'W' ? -1 : 1), new->final_position.col))) {
 					new->is_en_passant = true;
 				}
 			}
 		}
-		//prep for en passant
+		//prep for en passant next move
+
 		new->is_special = false;
 		if (side == 'W' && pieceIdOfDataPiece(getDataPiece(input_board, new->starting_position.row, new->starting_position.col) == 'P')) {
 			if (new->final_position.row == 3 && new->starting_position.row == 1) {
@@ -710,36 +712,42 @@ struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *t
 	return truemove;
 }
 
+inline unsigned char makeEmptyPiece() {
+	return makeDataPiece(' ', ' ', false);
+}
+
+bool moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) {
+	if (truemove->takes) {
+		assert(pieceIdOfDataPiece(getDataPiece(input_board, truemove->final_position.row, truemove->final_position.col)) != ' ');
+	}
+	else {
+		assert(pieceIdOfDataPiece(getDataPiece(input_board, truemove->final_position.row, truemove->final_position.col)) == ' ');
+	}
+}
+
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status) {
 	if (!*status) {
 		return input_board;
 	}
-	struct dataBoard *copy_board = malloc(sizeof(struct dataBoard));
-	memcpy(copy_board, input_board, sizeof(struct dataBoard));
+	//moveIsValid(input_board, truemove);
+	struct dataBoard copy_board = *input_board;
 	//castle handling
 	if (truemove->castles) {
-		free(copy_board);
 		printf("in castles\n");
 		return castleHandling(input_board, truemove, side, status);
     	}
-	//remove peices marked as being able to be enpassanted with
+	//remove pieces marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
-	unsigned char piece_cpy = input_board->board[truemove->starting_position.row][truemove->starting_position.col];
-	if (*status == 1) {
-		input_board->board[truemove->starting_position.row][truemove->starting_position.col] = 31;
-	}
+	input_board->board[truemove->starting_position.row][truemove->starting_position.col] = makeDataPiece(' ', ' ', false);
+
 	//assigns special pieces
-	if (*status == 1) {
-		if (truemove->is_special) {
-			input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, truemove->is_special);
-		} 
-		else {
-			input_board->board[truemove->final_position.row][truemove->final_position.col] = piece_cpy;
-		}
+	if (*status) {
+		input_board->board[truemove->final_position.row][truemove->final_position.col] = makeDataPiece(truemove->piece, side, truemove->is_special);
 	}
 	//en passant remove piece that was taken
 	if (truemove->is_en_passant) {
-		input_board->board[truemove->final_position.row + (side == 'W' ? -1 : 1)][truemove->final_position.col] = 31;
+		assert(truemove->piece == 'P');
+		input_board->board[truemove->final_position.row + (side == 'W' ? -1 : 1)][truemove->final_position.col] = makeDataPiece(' ', ' ', false);
 	}
 	//promotion
 	if (truemove->piece =='P') {
@@ -753,14 +761,10 @@ struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDa
 		}
 	}
 
-	if (!kingExists(input_board, side) || kingInCheck(input_board, side)) {
-		*status = 0;
-	}
-	if (*status == 0) {
-		memcpy(input_board, copy_board, sizeof(struct dataBoard));
+	if (!*status) {
+		*input_board = copy_board;
 	}
 	// free(truemove);
-	free(copy_board);
 	return input_board;
 }
 
@@ -807,7 +811,7 @@ bool kingInCheck(const struct dataBoard *input_board, char side) {
 			    if (sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
                     // printf("king is at %d %d\n", i, j);
 					struct standardPos temp_pos = {.row = i, .col = j};
-					bool x =  positionUnderAttack(input_board, oppositeSide(side), &temp_pos);
+					bool x = positionUnderAttack(input_board, oppositeSide(side), &temp_pos);
                     // printf( "is king under attack: %d", x);
                     return x;
                 }

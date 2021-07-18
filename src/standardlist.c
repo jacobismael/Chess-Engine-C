@@ -33,7 +33,7 @@ void freeStandardListWithoutData(struct standardList *head) {
 }
 
 struct standardList *getElementOfStandardList(const struct standardList *head, int position) {	
-    if (position > lengthOfStandardList(head) - 1) {
+    if (position > lengthOfStandardList(head)) {
         return NULL;
     }
     int length = 0;

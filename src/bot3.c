@@ -58,6 +58,7 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 	if (temp == NULL) {
 		*status  = false;
 		printf("length of all moves list is: %d\n", lengthOfStandardList(all_moves_list));
+		exit(1);
 		return NULL;
 	}
 	memcpy(best, (struct fullDataTurn*)temp->data, sizeof(struct fullDataTurn));

@@ -34,7 +34,7 @@ static void signal_handler(int _) {
 
 void checkForGameEnd(const struct dataBoard *input_board, char side) {
     if (isMate(input_board, 'B')) {
-        printf("Player 1 wins\nMate!\n");
+        printf("Mate!\n");
         exit_function();
     }
     if (isDraw(input_board, 'B')) {
@@ -53,13 +53,10 @@ void getWhiteMove(struct dataBoard *mainBoard, bool *status) {
     }
     printf("W is playing:\n");
     // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
-    buildFromHalfMove(mainBoard, choice, 'W', status);
     printMove(choice);
+    buildFromHalfMove(mainBoard, choice, 'W', status);
     printDataBoard(mainBoard, true);
-<<<<<<< HEAD
     free(choice);
-=======
->>>>>>> 148724d8b9a0e8924d19764e243476affcd0c50b
     
 }
 
@@ -72,13 +69,10 @@ void getBlackMove(struct dataBoard *mainBoard, bool *status) {
         return;
     }
     printf("B is playing:\n");
+    printMove(choice);
     buildFromHalfMove(mainBoard, choice, 'B', status);
     printDataBoard(mainBoard, true);
-<<<<<<< HEAD
     free(choice);
-=======
-   
->>>>>>> 148724d8b9a0e8924d19764e243476affcd0c50b
 }
 
 int main(int argc, char **argv) {
