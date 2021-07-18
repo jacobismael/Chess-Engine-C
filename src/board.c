@@ -7,6 +7,13 @@ unsigned char getDataPiece(const struct dataBoard *board, signed char row, signe
 	return board->board[row][col];
 }
 
+void setDataPiece(struct dataBoard *board, signed char row, signed char col, unsigned char value) {
+	assert(row >= 0 && row <= 7);
+	assert(col >= 0 && col <= 7);
+
+	board->board[row][col] = value;
+}
+
 unsigned char *getDataPieceMutable(struct dataBoard *board, signed char row, signed char col) {
 	assert(row >= 0 && row <= 7);
 	assert(col >= 0 && col <= 7);

@@ -52,6 +52,7 @@ struct boardCheck {
 
 
 
+void setDataPiece(struct dataBoard *board, signed char row, signed char col, unsigned char value);
 unsigned char getDataPiece(const struct dataBoard *board, signed char row, signed char col);
 unsigned char *getDataPieceMutable(struct dataBoard *board, signed char row, signed char col);
 
