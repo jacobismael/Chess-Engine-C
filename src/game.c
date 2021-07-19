@@ -1,192 +1,6 @@
 #include "game.h"
 
 
-struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-    short pawnDir = side == 'W' ? 1 : -1;
-    if (!attacking_if_taken) {
-        if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
-            if (TeamOnSquare(input_board, position->row + 2*pawnDir, position->col) == ' ') { 
-                validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 2*pawnDir, position->col));
-            }
-            else {
-                // printf("test:%c:\n", TeamOnSquare(input_board, position->row + 2*pawnDir, position->col));
-            }
-        }
-        if (TeamOnSquare(input_board, position->row + 1*pawnDir, position->col) == ' ') {
-            validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col));
-        }
-    }
-	//en passant tstuff
-	if (side == 'W' && position->row == 4){
-		// printf("piece to the right is of type: %d \n", getDataPiece(input_board, position->row, position->col + 1));
-		// printf("piece to the right is of special %d \n", isDataPieceSpecial(getDataPiece(input_board, position->row, position->col + 1)));
-		
-		if ( validRange(position->col + 1) && getDataPiece(input_board, position->row, position->col + 1) == 13) {
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
-		}
-		else if(validRange(position->col - 1) && getDataPiece(input_board, position->row, position->col - 1) == 13 ) { // this is else ifbecause there is never more than one en passant possibility at a time
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
-		}
-	}
-
-	if (side == 'B' && position->row == 3){
-		if (validRange(position->col + 1) && getDataPiece(input_board, position->row, position->col + 1) == 12) {
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
-		}
-		else if(validRange(position->col - 1) && getDataPiece(input_board, position->row, position->col - 1) == 12) { // this is else ifbecause there is never more than one en passant possibility at a time
-			validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
-		}
-	}
-	//en passant stuff ends here
-
-
-	// normal taking
-	if (validRange(position->row + 1*pawnDir)) {
-		if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col - 1) == oppositeSide(side)) { // this
-			if (validRange(position->row + 1*pawnDir) && validRange(position->col - 1)) {
-				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col - 1));
-			}
-		}
-
-		if (attacking_if_taken || TeamOnSquare(input_board, position->row + 1*pawnDir, position->col + 1) == oppositeSide(side)) { // this
-			if (validRange(position->row + 1*pawnDir) && validRange(position->col + 1)) {
-				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 1*pawnDir, position->col + 1));
-			}
-		}
-	}
-	
-	return validPositions;
-}
-
-struct boardCheck *knightMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-
-    int multipliers[8][2] = {
-    {2,  -1}, 
-    {2,   1},
-    {1,   2},
-    {-1, -2},
-    {-2,  1},
-    {-2, -1},
-    {-1,  2},
-    {1,  -2}
-    };
-
-	for (int i = 0; i < 8; i++) {
-		int new_row = position->row + multipliers[i][0];
-		int new_col = position->col + multipliers[i][1];
-		if (validRange(new_row)  && validRange(new_col)) {
-			char combined[] = { ' ', oppositeSide(side)};
-
-			if (attacking_if_taken || strchr(combined, pieceIdOfDataPiece(getDataPiece(input_board, new_row, new_col))) != NULL) {
-
-				validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(new_row, new_col));
-			}
-		}
-	}
-	
-	return validPositions;
-}
-
-struct boardCheck *bishopMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-	int multipliers[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	char combined[] = { ' ', oppositeSide(side)};
-	for (int i = 0; i < 4; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-               if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
-					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
-
-						break;	
-					}
-                }
-				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
-
-					break;
-				}
-			}
-		}
-	}
-	
-	return validPositions;
-}
-
-struct boardCheck *rookMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-	int multipliers[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-
-	char combined[] = { ' ', oppositeSide(side)};
-	for (int i = 0; i < 4; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-                if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
-					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
-
-						break;	
-					}
-                }
-				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
-
-					break;
-				}
-            }
-		}
-	}
-	// printPosList(validPositions);
-	return validPositions;
-}
-
-struct boardCheck *queenMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-	
-	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	char combined[] = {' ', oppositeSide(side)};
-	for (int i = 0; i < 8; i ++) {
-		for (int j = 1; j < 8; j++) {
-			if (validRange(position->row + j*multipliers[i][0]) && validRange(position->col + j*multipliers[i][1])) {
-                if (strchr(combined, sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]))) != NULL || attacking_if_taken) {
-					validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + j*multipliers[i][0], position->col + j*multipliers[i][1]));
-					if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == oppositeSide(side)) {
-
-						break;	
-					}
-                }
-				else if (sideOfDataPiece(getDataPiece(input_board, position->row + j*multipliers[i][0], position->col + j*multipliers[i][1])) == side) {
-					break;
-				}
-			}
-		}
-	}
-	// printPosList(validPositions);
-	return validPositions;
-}
-
-
-struct boardCheck *kingMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken) {
-	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-	struct standardPos *position_cpy = malloc(sizeof(struct standardPos));
-
-	for (int i = 0; i < 8; i++) {
-		position_cpy->row = position->row + multipliers[i][0];
-		position_cpy->col = position->col + multipliers[i][1];
-        if (validRange(position_cpy->row) && validRange(position_cpy->col)) {
-            if (attacking_if_taken || sideOfDataPiece(getDataPiece(input_board, position_cpy->row, position_cpy->col)) != side) {
-                validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + multipliers[i][0], position->col + multipliers[i][1]));
-            }	
-        }
-	}
-	// printf("king\n");
-	// printBoardCheck(validPositions);
-
-	
-	// printPosList(validPositions->next);
-	free(position_cpy);
-
-	return validPositions;
-}
-
 struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self) { //replace original board with a struct called board diff or smth
 	struct boardCheck *validPositions = malloc(sizeof(struct boardCheck));
     validPositions->mask = 0;
@@ -252,7 +66,7 @@ struct dataBoard *castleHandling(struct dataBoard *input_board, struct fullDataT
         return input_board;
     }
     int end_row = side == 'W' ? 0 : 7;
-    unsigned char blank_piece = makeDataPiece(' ', ' ', false);
+    unsigned char blank_piece = makeEmptyPiece();
     unsigned char king_piece = makeDataPiece('K', side, true);
     unsigned char rook_piece = makeDataPiece('R', side, true);
     if (truemove->is_king_side) {
@@ -373,7 +187,7 @@ struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, struct dataBoar
 
 	struct standardPos temp_position = {.row = 0, .col = 0};
 	struct boardCheck *lolm = NULL;
-	struct Pos expected_result = {.row = input_turn->final_position.row -1, .col = input_turn->final_position.col, .next=NULL};
+	struct standardPos expected_result = {.row = input_turn->final_position.row -1, .col = input_turn->final_position.col};
 	struct standardPos restrictors = input_turn->restrictors;
 
 	for (int i = 0; i < 8; i++) {
@@ -488,7 +302,7 @@ bool isMate(const struct dataBoard *input_board, char side) {
 
 }
 
-inline int randomInt(int min, int max) { // stolen from stack overflow user= sleutheye
+extern inline int randomInt(int min, int max) { // stolen from stack overflow user= sleutheye
    return min + rand() % ((max - min) > 0 ? (max - min) : 1);
 }
 
@@ -716,7 +530,7 @@ inline unsigned char makeEmptyPiece() {
 	return makeDataPiece(' ', ' ', false);
 }
 
-bool moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) {
+bool moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) { // this function should be more rigorous and larger
 	if (truemove->takes) {
 		assert(pieceIdOfDataPiece(getDataPiece(input_board, truemove->final_position.row, truemove->final_position.col)) != ' ');
 	}
@@ -738,7 +552,7 @@ struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDa
     	}
 	//remove pieces marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
-	setDataPiece(input_board, truemove->starting_position.row, truemove->starting_position.col, makeDataPiece(' ', ' ', false));
+	setDataPiece(input_board, truemove->starting_position.row, truemove->starting_position.col, makeEmptyPiece());
 
 	//assigns special pieces
 	if (*status) {
@@ -747,7 +561,7 @@ struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDa
 	//en passant remove piece that was taken
 	if (truemove->is_en_passant) {
 		assert(truemove->piece == 'P');
-		setDataPiece(input_board, truemove->final_position.row + (side == 'W' ? -1 : 1), truemove->final_position.col, makeDataPiece(' ', ' ', false));
+		setDataPiece(input_board, truemove->final_position.row + (side == 'W' ? -1 : 1), truemove->final_position.col, makeEmptyPiece());
 	}
 	//promotion
 	if (truemove->piece =='P') {

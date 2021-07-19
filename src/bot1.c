@@ -6,7 +6,7 @@
 struct fullDataTurn *bot1Choice(const struct dataBoard *input_board, char side, bool *status) {
 	struct standardList *head; // en passant might not work
 	head = allBasicLegalMoves(input_board, side);
-	// printf("number of legal moves: %d\n", lengthOfBasicDataTurn(head));
+	printf("number of legal moves: %d\n", lengthOfStandardList(head));
 	struct standardList *random_move = getElementOfStandardList(head, randomInt(0, lengthOfStandardList(head)));
 	*status = 1;
 	if (random_move == NULL) {

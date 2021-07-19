@@ -6,24 +6,17 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "piece-movements.h"
 #include "standardlist.h"
 #include "board.h"
 #include "move.h"
-
-
-struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *knightMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *bishopMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *rookMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *queenMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *kingMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self);
 
 struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head);
 struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move);
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status);
 
 struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *turn, char side, bool *status);
+extern inline unsigned char makeEmptyPiece();
 struct dataBoard *castleHandling(struct dataBoard *input_board, struct fullDataTurn *cmove, char side, bool *status);
 struct dataBoard *removeEnPassants(struct dataBoard *input_board, char side);
 bool isMate(const struct dataBoard *input_board, char side);
