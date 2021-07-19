@@ -176,7 +176,8 @@ struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, struct dataBoar
 	
 	if (input_turn->takes && validRange(input_turn->final_position.row - 1)) {
 		if (sideOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == oppositeSide(side)) {
-			if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == NULL )) { // adds replaced peice to list of pieces that are off the board
+			// adds replaced peice to list of pieces that are off the board
+			if (strchr("K ",  pieceIdOfDataPiece(getDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col)) == '\0')) { 
 				setDataPiece(copy_board, input_turn->final_position.row -1, input_turn->final_position.col, 31);
 			}
 		}
@@ -523,11 +524,11 @@ struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *t
 	return truemove;
 }
 
-inline unsigned char makeEmptyPiece() {
+extern inline unsigned char makeEmptyPiece() {
 	return makeDataPiece(' ', ' ', false);
 }
 
-bool moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) { // this function should be more rigorous and larger
+void moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) { // this function should be more rigorous and larger
 	if (truemove->takes) {
 		assert(pieceIdOfDataPiece(getDataPiece(input_board, truemove->final_position.row, truemove->final_position.col)) != ' ');
 	}
