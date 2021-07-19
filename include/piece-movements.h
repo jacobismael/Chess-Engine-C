@@ -15,6 +15,5 @@ struct boardCheck *bishopMovement(const struct dataBoard *input_board, struct bo
 struct boardCheck *rookMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
 struct boardCheck *queenMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
 struct boardCheck *kingMovement(const struct dataBoard *input_board, struct boardCheck *validPositions, const struct standardPos *position, char side, bool attacking_if_taken);
-struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self);
 
 #endif

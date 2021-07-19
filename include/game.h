@@ -11,6 +11,7 @@
 #include "board.h"
 #include "move.h"
 
+struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self);
 struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head, bool *status);
 struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move, bool *status);
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status);
