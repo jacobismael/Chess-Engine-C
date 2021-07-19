@@ -33,9 +33,10 @@ struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const s
 	return validPositions;
 }
 
-struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head) {
+struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head, bool *status) {
+
 	while (head != NULL) {
-		input_board = buildFromMove(input_board, head);
+		input_board = buildFromMove(input_board, head, status);
 		printDataBoard(input_board, true);
 		
 		head = head->next;
@@ -44,19 +45,15 @@ struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *hea
 }
 
 
-struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move) {
-	/*
+struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move, bool *status) {
 	//white's move
-	char white_move[6];
-	strncpy(white_move, move->white_notation, 6);
-	
-	input_board = buildFromHalfMove(input_board, white_move, 'W', NULL);
-	
-	char black_move[6];
-	strncpy(black_move, move->black_notation, 6);
-	input_board = buildFromHalfMove(input_board, black_move, 'B', NULL);
+	struct fullDataTurn *choice = stringToFullDataTurn(input_board, move->white_notation, 'W', status);
+	input_board = buildFromHalfMove(input_board, choice, 'W', NULL);
+	free(choice);
+	choice = stringToFullDataTurn(input_board, move->white_notation, 'W', status);
+	input_board = buildFromHalfMove(input_board, choice, 'B', NULL);
+	free(choice);
 
-	*/
 	return input_board;
 }
 

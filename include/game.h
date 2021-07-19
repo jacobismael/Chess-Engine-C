@@ -11,8 +11,8 @@
 #include "board.h"
 #include "move.h"
 
-struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head);
-struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move);
+struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head, bool *status);
+struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move, bool *status);
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status);
 
 struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *turn, char side, bool *status);
