@@ -7,11 +7,11 @@ struct standardList {
     void* data;
 };
 
-struct standardList* prependToStandardList(struct standardList* list_head,  void const* data);
+struct standardList* prependToStandardList(struct standardList* list_head,  void *data);
 void freeStandardList(struct standardList *head);
 void freeStandardListWithoutData(struct standardList *head);
 int lengthOfStandardList(const struct standardList *head);
-struct standardList *getElementOfStandardList(const struct standardList *head, int position);
+struct standardList *getElementOfStandardList(struct standardList *head, int position);
 
 
 #endif

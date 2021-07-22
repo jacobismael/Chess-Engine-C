@@ -11,6 +11,7 @@
 #include "bot1.h"
 #include "bot2.h"
 #include "bot3.h"
+#include "bot4.h"
 
 struct dataBoard *mainBoard;
 static sig_atomic_t continueRunning = 1;
@@ -46,7 +47,7 @@ void checkForGameEnd(const struct dataBoard *input_board, char side) {
 void getWhiteMove(struct dataBoard *mainBoard, bool *status) {
     // scanf("%s", input);
     // choice = buildFromHalfMove(mainBoard, stringToFullDataTurn(mainBoard, input, 'W', status), 'W', status);
-    struct fullDataTurn *choice = bot3Choice(mainBoard, 'W', status);
+    struct fullDataTurn *choice = bot4Choice(mainBoard, 'W', status);
     if (choice == NULL) {
         *status = false;
         return;

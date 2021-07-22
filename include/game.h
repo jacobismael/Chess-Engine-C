@@ -11,13 +11,13 @@
 #include "board.h"
 #include "move.h"
 
+unsigned char makeEmptyPiece();
 struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self);
 struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *head, bool *status);
 struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move, bool *status);
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status);
 
 struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *turn, char side, bool *status);
-extern inline unsigned char makeEmptyPiece();
 struct dataBoard *castleHandling(struct dataBoard *input_board, struct fullDataTurn *cmove, char side, bool *status);
 struct dataBoard *removeEnPassants(struct dataBoard *input_board, char side);
 bool isMate(const struct dataBoard *input_board, char side);

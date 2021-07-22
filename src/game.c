@@ -1,6 +1,10 @@
 #include "game.h"
 
 
+unsigned char makeEmptyPiece() {
+	return makeDataPiece(' ', ' ', false);
+}
+
 struct boardCheck *listOfLegalMoves(const struct dataBoard *input_board, const struct standardPos *position, const struct dataBoard *original_board, bool attacking_self) { //replace original board with a struct called board diff or smth
 	struct boardCheck *validPositions = malloc(sizeof(struct boardCheck));
     validPositions->mask = 0;
@@ -524,9 +528,6 @@ struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *t
 	return truemove;
 }
 
-extern inline unsigned char makeEmptyPiece() {
-	return makeDataPiece(' ', ' ', false);
-}
 
 void moveIsValid(struct dataBoard *input_board, struct fullDataTurn *truemove) { // this function should be more rigorous and larger
 	if (truemove->takes) {
