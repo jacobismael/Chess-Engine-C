@@ -32,7 +32,7 @@ void freeStandardListWithoutData(struct standardList *head) {
 	}
 }
 
-struct standardList *getElementOfStandardList(const struct standardList *head, int position) {	
+struct standardList *getElementOfStandardList(struct standardList *head, int position) {	
     if (position > lengthOfStandardList(head)) {
         return NULL;
     }
@@ -48,7 +48,7 @@ struct standardList *getElementOfStandardList(const struct standardList *head, i
     return NULL;
 }
 
-struct standardList *prependToStandardList(struct standardList *list_head,  void const *data) {
+struct standardList *prependToStandardList(struct standardList *list_head,  void *data) {
     struct standardList *new_head = malloc(sizeof(struct standardList));
     new_head->data = data;
     new_head->next = list_head;
