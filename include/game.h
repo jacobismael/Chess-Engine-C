@@ -31,4 +31,5 @@ bool positionUnderAttack(const struct dataBoard *input_board, char attacking_sid
 bool kingInCheck(const struct dataBoard *input_board, char side);
 bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side);
 
+float getBoardScore(const struct dataBoard *input_board);
 #endif 

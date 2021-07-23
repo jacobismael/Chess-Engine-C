@@ -43,6 +43,7 @@ char sideOfDataPiece(const unsigned char dp) {
 	return ' ';
 }
 
+
 float getBasicBoardScore(const struct dataBoard *input_board) {
 	float score = 0;
 	float temp = 0;

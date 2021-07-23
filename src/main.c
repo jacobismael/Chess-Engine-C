@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 
     status = malloc(sizeof(int));
     *status = 0;
-    while(move_number != -10) {
+    while(move_number != -5) {
         move_number++;
         *status = 0;
         while(*status == 0) { 

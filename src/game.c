@@ -388,9 +388,13 @@ struct standardList *allLegalMoves(const struct dataBoard *input_board, char sid
 	}
 	
 	struct standardList *basic_move_head = allBasicLegalMoves(input_board, side);
+	if (basic_move_head == NULL) {
+		return NULL;
+	}
 	struct standardList *basic_move_head_cpy = basic_move_head;
 	while (basic_move_head->next != NULL) {
 		struct fullDataTurn *new = malloc(sizeof(struct fullDataTurn));
+		new->castles = false;
 		new->final_position = ((struct basicDataTurn*)(basic_move_head->data))->ending_pos;
 		// printf("ending_pos = %d, %d\n", new->final_position.row, new->final_position.col);
 		new->starting_position = ((struct basicDataTurn*)(basic_move_head->data))->starting_pos;
@@ -426,7 +430,6 @@ struct standardList *allLegalMoves(const struct dataBoard *input_board, char sid
 			new->is_special = false;
 		}
 		new->takes = sideOfDataPiece(getDataPiece(input_board, new->final_position.row, new->final_position.col)) == oppositeSide(side);
-		new->castles = 0;
 		new->is_king_side = false;
 
 		new->piece_promotes_to = ' ';
@@ -635,7 +638,7 @@ bool kingInCheck(const struct dataBoard *input_board, char side) {
 			}
 		}
 	}
-	assert(false); //this means there is no king on the board which shouldnt happen
+	//assert(false); //this means there is no king on the board which shouldnt happen
 
 }
 
@@ -671,3 +674,20 @@ bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side
 	}
 }
 
+float getBoardScore(const struct dataBoard *input_board) {
+	if(isMate(input_board, 'W')) {
+		return -INFINITY;
+	}
+	if(isMate(input_board, 'B')) {
+		return INFINITY;
+	}
+
+	float score = getBasicBoardScore(input_board);
+	if (kingInCheck(input_board, 'B')) {
+		score += 0.5;
+	}
+	if (kingInCheck(input_board, 'W')) {
+		score -= 0.5;
+	}
+	return score;
+}

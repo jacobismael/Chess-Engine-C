@@ -15,8 +15,6 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 
 	struct standardList const *current_move = all_moves_list;
 	while (current_move != NULL && current_move->next != NULL) {
-		struct fullDataTurn *temp = (struct fullDataTurn*)current_move->data;
-
 		memcpy(copy_board, input_board, sizeof(struct dataBoard));
 		buildFromHalfMove(copy_board, (current_move->data), side, status);
 		float board_score = getBasicBoardScore(copy_board);
@@ -24,7 +22,7 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
 			// printf("Prepending to best_nodes:\n");
 		}
-		else if (board_score > highest_score || (board_score == highest_score && kingExists(copy_board, oppositeSide(side)) && kingInCheck(copy_board, oppositeSide(side)))) {
+		else if ((board_score > highest_score && side == 'W') || (board_score < highest_score && side == 'B') || (board_score == highest_score && kingInCheck(copy_board, oppositeSide(side)))) {
 			highest_score = board_score;
 			//freeLinkedList(best_nodes);
 			freeStandardListWithoutData(best_nodes);
@@ -33,7 +31,7 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 			best_nodes = prependToStandardList(best_nodes, current_move->data);
 			// printf("Prepending to best_nodes:\n");
 		}
-		else if(kingExists(copy_board, oppositeSide(side)) && kingInCheck(copy_board, oppositeSide(side))) {
+		else if(kingInCheck(copy_board, oppositeSide(side))) {
 			highest_score++;
 			//freeLinkedList(best_nodes);
 			freeStandardListWithoutData(best_nodes);
