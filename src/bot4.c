@@ -3,7 +3,7 @@
 
 
 //this needs to be odd I thyink
-#define DEPTH 17
+#define DEPTH 7
 
 /*
 

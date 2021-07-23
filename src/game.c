@@ -675,10 +675,10 @@ bool canCastle(const struct dataBoard *input_board, char side, bool is_king_side
 }
 
 float getBoardScore(const struct dataBoard *input_board) {
-	if(isMate(input_board, 'W')) {
+	if(isMate(input_board, 'B')) {
 		return -INFINITY;
 	}
-	if(isMate(input_board, 'B')) {
+	if(isMate(input_board, 'W')) {
 		return INFINITY;
 	}
 
