@@ -17,7 +17,8 @@ struct dataBoard *buildFromStart(struct dataBoard *input_board, struct Move *hea
 struct dataBoard *buildFromMove(struct dataBoard *input_board, struct Move *move, bool *status);
 struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDataTurn *truemove, char side, bool *status);
 
-struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *turn, char side, bool *status);
+struct fullDataTurn *stringToFullDataTurn(const struct dataBoard *input_board, char *turn, char side, bool *status);
+struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, const struct dataBoard *input_board, char side, bool *status);
 struct dataBoard *castleHandling(struct dataBoard *input_board, struct fullDataTurn *cmove, char side, bool *status);
 struct dataBoard *removeEnPassants(struct dataBoard *input_board, char side);
 bool isMate(const struct dataBoard *input_board, char side);

@@ -21,7 +21,7 @@
 	x--o---o---o---o---o
 */
 
-struct fullDataTurn *getBest(struct dataBoard *input_board, const char side) {
+struct fullDataTurn *getBest(const struct dataBoard *input_board, const char side) {
 	struct dataBoard *copy_board = malloc(sizeof(struct dataBoard));
 	struct standardList *all_moves = allLegalMoves(input_board, side);
 //	struct standardList *list_of_lists = NULL;
@@ -111,7 +111,7 @@ void generateListofMoveForStartingMove(struct standardList *head, const char sid
 }
 
 
-struct fullDataTurn *bot4Choice(struct dataBoard *input_board, const char side, bool *status) {
+struct fullDataTurn *bot4Choice(const struct dataBoard *input_board, const char side, bool *status) {
 	*status = true;
 	return getBest(input_board, side);
 }

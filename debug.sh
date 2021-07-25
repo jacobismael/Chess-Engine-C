@@ -1,3 +1,3 @@
 #!/bin/bash
 
-valgrind --leak-check=full -v --track-origins=yes --show-leak-kinds=all ./chess y y y
+valgrind --leak-check=full -v --track-origins=yes --show-leak-kinds=all ./chess -w bot1 -b bot1 

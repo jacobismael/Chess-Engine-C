@@ -15,6 +15,6 @@ struct boardMove {
 };
 
 void generateListofMoveForStartingMove(struct standardList *head, const char side, unsigned short depth_reached);
-struct fullDataTurn *getBest(struct dataBoard *input_board, const char side);
+struct fullDataTurn *getBest(const struct dataBoard *input_board, const char side);
 
-struct fullDataTurn *bot4Choice(struct dataBoard *input_board, char side, bool *status);
+struct fullDataTurn *bot4Choice(const struct dataBoard *input_board, char side, bool *status);

@@ -15,31 +15,35 @@
 #include "bot4.h"
 
 
-typedef struct fullDataTurn* (*trnptr())(struct fullDataBoard *, char, bool *);
-
+//typedef struct fullDataTurn* (*trnptrog())(struct fullDataBoard *, char, bool *); this one is wrong
+typedef struct fullDataTurn* (trnptr)(const struct dataBoard *, char, bool *);
+struct sides *chosen_sides;
 struct dataBoard *main_board;
 static sig_atomic_t continueRunning = 1;
 bool *status;
 char *input;
 
-static void exit_function()
-{
+struct sides {
+    trnptr *white;
+    trnptr *black;
+};
+
+static void exit_function() {
     continueRunning = 0;
     free(main_board);
     free(status);
+    free(chosen_sides);
     free(input);
     exit(0);
 }
 
-static void signal_handler(int _)
-{
+static void signal_handler(int _) {
     (void)_;
     printf("\n");
     exit_function();
 }
 
-void checkForGameEnd(const struct dataBoard *input_board, char side)
-{
+void checkForGameEnd(const struct dataBoard *input_board, char side) {
     if (isMate(input_board, oppositeSide(side)))
     {
         printf("%c Checkmate!\n", side);
@@ -52,124 +56,79 @@ void checkForGameEnd(const struct dataBoard *input_board, char side)
     }
 }
 
-void getWhiteMove(struct dataBoard *main_board, bool *status)
-{
-    // scanf("%s", input);
-    // choice = buildFromHalfMove(main_board, stringToFullDataTurn(main_board, input, 'W', status), 'W', status);
-    struct fullDataTurn *choice = bot4Choice(main_board, 'W', status);
-    if (choice == NULL)
-    {
-        *status = false;
-        return;
-    }
-    printf("W is playing:\n");
-    // printf("choice: \n%d %d : %d %d\n", choice->starting_position.row, choice->starting_position.col, choice->final_position.row, choice->final_position.col);
-    printMove(choice);
-    buildFromHalfMove(main_board, choice, 'W', status);
-    printDataBoard(main_board, true);
-    free(choice);
-}
-
-void getBlackMove(struct dataBoard *main_board, bool *status)
-{
-    // printf("\nPlayer 2 Move: ");
-    //scanf("%s", input);
-    struct fullDataTurn *choice = bot1Choice(main_board, 'B', status);
-    if (choice == NULL)
-    {
-        *status = false;
-        return;
-    }
-    printf("B is playing:\n");
-    printMove(choice);
-    buildFromHalfMove(main_board, choice, 'B', status);
-    printDataBoard(main_board, true);
-    free(choice);
-}
-
-void getPlayerWhiteMove(struct dataBoard *main_board, bool *status)
-{
-    printf("\nWhite Move: ");
+struct fullDataTurn *playerMove(const struct dataBoard *main_board, char side, bool *status) {
+    printf("\n%s Move: ", side == 'W' ? "White" : "Black");
     scanf("%s", input);
-    struct fullDataTurn *choice = stringToFullDataTurn(main_board, input, 'W', status);
-    buildFromHalfMove(main_board, choice, 'W', status);
-    printf("W is playing:\n");
-    printMove(choice);
-    printDataBoard(main_board, true);
-    free(choice);
-}
-
-void getPlayerBlackMove(struct dataBoard *main_board, bool *status)
-{
-    printf("\nBlack Move: ");
-    scanf("%s", input);
-    struct fullDataTurn *choice = stringToFullDataTurn(main_board, input, 'B', status);
-    buildFromHalfMove(main_board, choice, 'B', status);
-    printf("B is playing:\n");
-    printMove(choice);
-    printDataBoard(main_board, true);
-    free(choice);
-}
-
-struct fullDataTurn *playerMove(struct dataBoard *main_board, char side, bool *status)
-{
-    printf("\n%c Move: ", side);
-    scanf("%s", input);
-    struct fullDataTurn *choice = stringToFullDataTurn(main_board, input, 'W', status);
-    free(input);
+    struct fullDataTurn *choice = stringToFullDataTurn(main_board, input, side, status);
     return choice;
 }
 
-void makeMove(struct dataBoard *main_board, char side, trnptr func_ptr)
-{
+void makeMove(struct dataBoard *main_board, char side, trnptr* func_ptr) {
     bool status = true;
+    (void *)status;
     struct fullDataTurn *choice = func_ptr(main_board, side, &status);
     main_board = buildFromHalfMove(main_board, choice, side, &status);
     free(choice);
     assert(status);
 }
 
-trnptr getFlags(int argc, char **argv)
-{
-    for (int i = 1; i < argc; i++)
-    {
-        if (argv[i][0] == '-')
-        {
+
+struct sides *getFlags(int argc, char **argv) {
+    struct sides *result = malloc(sizeof(struct sides));
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') {
             assert(argv[i][1] == 'b' || argv[i][1] == 'w');
 
-            if (argv[i][1] == 'b')
-            {
-                if (strcmp(argv[i + 1], "player"))
-                {
-                    return &playerMove;
+            if (argv[i][1] == 'b') {
+                if (!strcmp(argv[i + 1], "player")) {
+                    result->black = &playerMove;
                 }
-                else if (strcmp(argv[i + 1], "bot1"))
-                {
-                    return &playerMove;
+                else if (!strcmp(argv[i + 1], "bot1")) { 
+                    result->black = &bot1Choice;
+                    printf("yeet");
                 }
-                else if (strcmp(argv[i + 1], "bot2"))
-                {
-                    return &playerMove;
+                else if (!strcmp(argv[i + 1], "bot2")) {
+                    result->black = &bot2Choice;
                 }
-                else if (strcmp(argv[i + 1], "bot3"))
-                {
-                    return &playerMove;
+                else if (!strcmp(argv[i + 1], "bot3")) {
+                    result->black = &bot3Choice;
                 }
-                else if (strcmp(argv[i + 1], "bot4"))
-                {
-                    return &playerMove;
+                else if (!strcmp(argv[i + 1], "bot4")) {
+                    result->black = &bot4Choice;
                 }
-                else
-                {
-                    assert(false);
+                else {
+                    printf("black defaulting\n");
+                    result->black = &playerMove;
+                }
+            }
+            else if (argv[i][1] == 'w') {
+                if (!strcmp(argv[i + 1], "player")) {
+                    result->white = &playerMove;
+                }
+                else if (!strcmp(argv[i + 1], "bot1")) { 
+                    printf("yeet");
+                    result->white = &bot1Choice;
+                }
+                else if (!strcmp(argv[i + 1], "bot2")) {
+                    result->white = &bot2Choice;
+                }
+                else if (!strcmp(argv[i + 1], "bot3")) {
+                    result->white = &bot3Choice;
+                }
+                else if (!strcmp(argv[i + 1], "bot4")) {
+                    result->white = &bot4Choice;
+                }
+                else {
+                    printf("white defaulting\n");
+                    result->white = &playerMove;
                 }
             }
         }
     }
+    return result;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     signal(SIGINT, signal_handler);
     srand(time(NULL));
     input = malloc(6);
@@ -190,25 +149,27 @@ int main(int argc, char **argv)
 
     printDataBoard(main_board, true);
 
-    trnptr func_ptr = getFlags(argc, argv);
+    chosen_sides = getFlags(argc, argv);
 
-    status = malloc(sizeof(int));
-    *status = 0;
-    while (move_number != -5)
-    {
+    status = malloc(sizeof(bool));
+    *status = false;
+    while (move_number != -5) {
         move_number++;
         *status = 0;
 
-        makeMove(main_board, 'W', func_ptr);
-
+        makeMove(main_board, 'W', chosen_sides->white);
+        printDataBoard(main_board, true);
         checkForGameEnd(main_board, 'W');
 
         *status = 0;
-        makeMove(main_board, 'B', func_ptr);
+        makeMove(main_board, 'B', chosen_sides->black);
+        printDataBoard(main_board, true);
         checkForGameEnd(main_board, 'B');
+        
+        
         printf("move_number: %d\n", move_number);
     }
-
+    free(chosen_sides);
     free(status);
     free(main_board);
 

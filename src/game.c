@@ -133,7 +133,7 @@ struct dataBoard *removeEnPassants(struct dataBoard *input_board, char side) {
 	return input_board;
 }
 
-struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, struct dataBoard *input_board, char side, bool *status) {
+struct fullDataTurn *toFullDataTurn(struct dataTurn *input_turn, const struct dataBoard *input_board, char side, bool *status) {
 	struct fullDataTurn *final = malloc(sizeof(struct fullDataTurn));
 	final->is_special = false;
 	*status = 0;
@@ -517,7 +517,7 @@ bool isDraw(const struct dataBoard *input_board, char side) { // very simple and
 }
 
 
-struct fullDataTurn *stringToFullDataTurn(struct dataBoard *input_board, char *turn, char side, bool *status) {
+struct fullDataTurn *stringToFullDataTurn(const struct dataBoard *input_board, char *turn, char side, bool *status) {
 	struct dataTurn *cmove = toDataTurn(turn);
 
 	if (cmove == NULL) {
@@ -604,10 +604,13 @@ bool positionUnderAttack(const struct dataBoard *input_board, char attacking_sid
 			for (int j = 0; j < 8; j++) {
 				if (sideOfDataPiece(getDataPiece(input_board, i, j)) == attacking_side) {
 					setDataPiece(pawn_board, position->row, position->col, makeDataPiece('K', oppositeSide(attacking_side), true)); // the last bool can be true or false in this situation 
-					struct standardPos temp_pos = {.row = i, .col = j};
-					temp = listOfLegalMoves(input_board, &temp_pos, pawn_board, true);
+					struct standardPos *temp_pos = malloc(sizeof(struct standardPos));
+					temp_pos->row = i;
+					temp_pos->col = j;
+					temp = listOfLegalMoves(input_board, temp_pos, pawn_board, true);
                     lolm->mask |= temp->mask;
                     free(temp);
+					free(temp_pos);
 				}	
 			}	
 		}

@@ -166,7 +166,6 @@ struct boardCheck *kingMovement(const struct dataBoard *input_board, struct boar
 	int multipliers[8][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
 	struct standardPos *position_cpy = malloc(sizeof(struct standardPos));
-
 	for (int i = 0; i < 8; i++) {
 		position_cpy->row = position->row + multipliers[i][0];
 		position_cpy->col = position->col + multipliers[i][1];
