@@ -103,7 +103,7 @@ struct sides *getFlags(int argc, char **argv) {
                     result->black = &bot4Choice;
                 }
                 else {
-                    printf("unrecognised player\n");
+                    printf("unrecognized player\n");
                 }
             }
             else if (argv[i][1] == 'w') {
@@ -124,7 +124,7 @@ struct sides *getFlags(int argc, char **argv) {
                     result->white = &bot4Choice;
                 }
                 else {
-                    printf("unrecognised player\n");
+                    printf("unrecognized player\n");
                 }
             }
         }
