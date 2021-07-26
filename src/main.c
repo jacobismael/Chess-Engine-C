@@ -15,18 +15,18 @@
 #include "bot4.h"
 
 
-//typedef struct fullDataTurn* (*trnptrog())(struct fullDataBoard *, char, bool *); this one is wrong
 typedef struct fullDataTurn* (trnptr)(const struct dataBoard *, char, bool *);
-struct sides *chosen_sides;
-struct dataBoard *main_board;
-static sig_atomic_t continueRunning = 1;
-bool *status;
-char *input;
 
 struct sides {
     trnptr *white;
     trnptr *black;
 };
+
+struct sides *chosen_sides;
+struct dataBoard *main_board;
+static sig_atomic_t continueRunning = 1;
+bool *status;
+char *input;
 
 static void exit_function() {
     continueRunning = 0;
@@ -63,21 +63,27 @@ struct fullDataTurn *playerMove(const struct dataBoard *main_board, char side, b
     return choice;
 }
 
-void makeMove(struct dataBoard *main_board, char side, trnptr* func_ptr) {
-    bool status = true;
-    (void *)status;
-    struct fullDataTurn *choice = func_ptr(main_board, side, &status);
-    main_board = buildFromHalfMove(main_board, choice, side, &status);
+void makeMove(struct dataBoard *main_board, char side, trnptr *func_ptr, bool *status) {
+    struct fullDataTurn *choice = NULL;
+    choice = func_ptr(main_board, side, status);
+    if (choice == NULL) {
+        *status = false;
+        return;
+    }
+    main_board = buildFromHalfMove(main_board, choice, side, status);
     free(choice);
-    assert(status);
+    //assert(status);
 }
 
 
 struct sides *getFlags(int argc, char **argv) {
     struct sides *result = malloc(sizeof(struct sides));
+    result->white = NULL;
+    result->black = NULL;
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             assert(argv[i][1] == 'b' || argv[i][1] == 'w');
+            assert(strlen(argv[i]) == 2);
 
             if (argv[i][1] == 'b') {
                 if (!strcmp(argv[i + 1], "player")) {
@@ -97,8 +103,7 @@ struct sides *getFlags(int argc, char **argv) {
                     result->black = &bot4Choice;
                 }
                 else {
-                    printf("black defaulting\n");
-                    result->black = &playerMove;
+                    printf("unrecognised player\n");
                 }
             }
             else if (argv[i][1] == 'w') {
@@ -119,12 +124,20 @@ struct sides *getFlags(int argc, char **argv) {
                     result->white = &bot4Choice;
                 }
                 else {
-                    printf("white defaulting\n");
-                    result->white = &playerMove;
+                    printf("unrecognised player\n");
                 }
             }
         }
     }
+    if (result->white == NULL) {
+        printf("white defaulting\n");
+        result->white = &playerMove;
+        
+    }
+    if (result->black == NULL) {
+        printf("black defaulting\n");
+        result->black = &playerMove;
+    } 
     return result;
 }
 
@@ -133,36 +146,29 @@ int main(int argc, char **argv) {
     srand(time(NULL));
     input = malloc(6);
     int move_number = 0;
-
-    // if(argc == 1) {
-    //     // visual mode
-    //     printf("Visual Mode\n");
-    //     return 0;
-    // }
-
-    // else if(argc != 4) {
-    //     printf("Need Event Name\n");
-    //     return 0;
-    // }
+    chosen_sides = getFlags(argc, argv);
 
     main_board = setupDataBoard();
 
     printDataBoard(main_board, true);
 
-    chosen_sides = getFlags(argc, argv);
 
     status = malloc(sizeof(bool));
     *status = false;
     while (move_number != -5) {
         move_number++;
-        *status = 0;
+        *status = false;
 
-        makeMove(main_board, 'W', chosen_sides->white);
+        while (!*status) {
+            makeMove(main_board, 'W', chosen_sides->white, status);
+        }
         printDataBoard(main_board, true);
         checkForGameEnd(main_board, 'W');
 
-        *status = 0;
-        makeMove(main_board, 'B', chosen_sides->black);
+        *status = false;
+        while (!*status) {
+            makeMove(main_board, 'B', chosen_sides->black, status);
+        }
         printDataBoard(main_board, true);
         checkForGameEnd(main_board, 'B');
         

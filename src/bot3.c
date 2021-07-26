@@ -24,7 +24,7 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 		}
 		else if ((board_score > highest_score && side == 'W') || (board_score < highest_score && side == 'B') || (board_score == highest_score && kingInCheck(copy_board, oppositeSide(side)))) {
 			highest_score = board_score;
-			//freeLinkedList(best_nodes);
+
 			freeStandardListWithoutData(best_nodes);
 			best_nodes = NULL;
 
@@ -33,7 +33,7 @@ struct fullDataTurn *bot3Choice(const struct dataBoard *input_board, const char 
 		}
 		else if(kingInCheck(copy_board, oppositeSide(side))) {
 			highest_score++;
-			//freeLinkedList(best_nodes);
+
 			freeStandardListWithoutData(best_nodes);
 			best_nodes = NULL;
 

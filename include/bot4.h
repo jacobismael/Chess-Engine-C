@@ -9,9 +9,9 @@
 
 
 struct boardMove {
-    struct dataBoard *board;
+    struct dataBoard board;
     float score;
-    struct fullDataTurn *turn;
+    struct fullDataTurn turn;
 };
 
 void generateListofMoveForStartingMove(struct standardList *head, const char side, unsigned short depth_reached);
