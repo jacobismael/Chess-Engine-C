@@ -14,6 +14,7 @@ struct fullDataTurn *bot1Choice(const struct dataBoard *input_board, char side, 
 	}
 	if (random_move == NULL) {
 		*status = 0;
+		exit(0);
 		return NULL;
 	}
 	struct standardPos start =  ((struct basicDataTurn*)random_move->data)->starting_pos;

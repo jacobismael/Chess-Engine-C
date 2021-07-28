@@ -14,7 +14,16 @@ struct boardMove {
     struct fullDataTurn turn;
 };
 
-void generateListofMoveForStartingMove(struct standardList *head, const char side, unsigned short depth_reached);
-struct fullDataTurn *getBest(const struct dataBoard *input_board, const char side);
+struct branch {
+    struct branch *child;
+    struct branch *parent;
+    struct branch *next;
+    struct boardMove data;
+};
 
-struct fullDataTurn *bot4Choice(const struct dataBoard *input_board, char side, bool *status);
+
+void addToTree(struct branch *head, const struct dataBoard *input_board, const char side, unsigned char depth_reached);
+struct branch *generateTree(const struct dataBoard *input_board, const char side);
+void prependToChildren(struct branch *input_branch, struct boardMove new_data);
+struct fullDataTurn *getBest(const struct branch *head, const char starting_side);
+float getBestScoreOfBranch(const struct branch *head, bool aim_high);

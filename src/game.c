@@ -549,9 +549,8 @@ struct dataBoard *buildFromHalfMove(struct dataBoard *input_board, struct fullDa
 	struct dataBoard copy_board = *input_board;
 	//castle handling
 	if (truemove->castles) {
-		printf("in castles\n");
 		return castleHandling(input_board, truemove, side, status);
-    	}
+	}
 	//remove pieces marked as being able to be enpassanted with
 	input_board = removeEnPassants(input_board, side); // remove en passants for own side from previous move
 	setDataPiece(input_board, truemove->starting_position.row, truemove->starting_position.col, makeEmptyPiece());
