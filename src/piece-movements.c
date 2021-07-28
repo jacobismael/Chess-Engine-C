@@ -4,7 +4,7 @@ struct boardCheck *pawnMovement(const struct dataBoard *input_board, struct boar
     short pawnDir = side == 'W' ? 1 : -1;
     if (!attacking_if_taken) {
         if ((position->row == 1 && side == 'W') || (position->row == 6 && side == 'B')) { // for moving forward two steps if on row 2
-            if (TeamOnSquare(input_board, position->row + 2*pawnDir, position->col) == ' ') { 
+            if (TeamOnSquare(input_board, position->row + 2*pawnDir, position->col) == ' ' && TeamOnSquare(input_board, position->row + 1*pawnDir, position->col) == ' ') { 
                 validPositions->mask = setBitOfBoardCheck(validPositions, positionToIndex(position->row + 2*pawnDir, position->col));
             }
             else {
