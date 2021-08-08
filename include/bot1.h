@@ -6,4 +6,4 @@
 #include "game.h"
 #include "move.h"
 
-struct fullDataTurn* bot1Choice(const struct dataBoard* input_board, char side, bool* status);
+struct fullDataTurn *bot1Choice(const struct dataBoard *input_board, char side, bool *status);

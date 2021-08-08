@@ -7,20 +7,19 @@
 #include <string.h>
 #include <assert.h>
 
-struct pos { 
+struct Pos { 
 	int row:4;
 	int col:4;
-	struct pos*  next; //optional
+	struct Pos*  next; //optional
 };
 
 
-struct standard_pos { 
+struct standardPos { 
 	int row:4;
 	int col:4;
 };
 
 struct Turn {
-
     char side;
     char move[6];
 
@@ -34,15 +33,14 @@ struct Move {
     struct Move* next;
 };
 
-struct basicDataTurnNode {
-	struct standard_pos starting_pos;
-	struct standard_pos ending_pos;
-	struct basicDataTurnNode* next;
+struct basicDataTurn {
+	struct standardPos starting_pos;
+	struct standardPos ending_pos;
 };
 
 struct dataTurn {
-    struct standard_pos restrictors;
-    struct standard_pos final_position;
+    struct standardPos restrictors;
+    struct standardPos final_position;
     char piece;
     bool takes;
     bool castles;
@@ -52,8 +50,8 @@ struct dataTurn {
 };
 
 struct fullDataTurn {
-    struct standard_pos final_position;
-    struct standard_pos starting_position;
+    struct standardPos final_position;
+    struct standardPos starting_position;
     char piece;
     bool is_en_passant;
     bool is_special;
@@ -65,17 +63,20 @@ struct fullDataTurn {
     char piece_promotes_to;
 };
 
-struct standard_pos posToStandard_pos(const struct pos* input_pos);
 
-struct pos standard_posToPos(const struct standard_pos* input_pos);
+
+struct standardPos posToStandard_pos(const struct Pos* input_pos);
+
+struct Pos standard_posToPos(const struct standardPos* input_pos);
 
 int letterToCol(char letter);
 int ColToLetter(int col);
-struct pos* getRestrictors(char* move);
+struct Pos* getRestrictors(char* move);
 struct dataTurn* toDataTurn(const char* main);
 struct Move* AddMove(struct Move* head, char* w_notation, char* b_notation);
+void printMove(const struct fullDataTurn* node);
 
-struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standard_pos* starting_pos, struct standard_pos* ending_pos);
+struct basicDataTurnNode* appendBasicDataTurn(struct basicDataTurnNode* head, struct standardPos* starting_pos, struct standardPos* ending_pos);
 int lengthOfBasicDataTurn(struct basicDataTurnNode* head);
 struct basicDataTurnNode* getElementOfBasicDataTurn(struct basicDataTurnNode* head, int position);
 void freeBasicDataTurn(struct basicDataTurnNode* head);
@@ -83,10 +84,9 @@ void freeBasicDataTurn(struct basicDataTurnNode* head);
 char* getMoveList(struct Move* head);
 void PrintMoveList(struct Move* head);
 
-void printPosList(struct pos* head);
-
-void appendPos(struct pos* head, int row, int col);
-void freePosList(struct pos* head);
-bool posLlContains(struct pos* head, struct pos* to_compare);
+void printPosList(struct Pos* head);
+void appendPos(struct Pos* head, int row, int col);
+void freePosList(struct Pos* head);
+bool posLlContains(struct Pos* head, struct Pos* to_compare);
 
 #endif

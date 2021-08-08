@@ -1,13 +1,20 @@
 #include "board.h"
 
-unsigned char getDataPiece(const struct dataBoard* board, signed char row, signed char col) {
+unsigned char getDataPiece(const struct dataBoard *board, signed char row, signed char col) {
 	assert(row >= 0 && row <= 7);
 	assert(col >= 0 && col <= 7);
 
 	return board->board[row][col];
 }
 
-unsigned char* getDataPieceMutable(struct dataBoard* board, signed char row, signed char col) {
+void setDataPiece(struct dataBoard *board, signed char row, signed char col, unsigned char value) {
+	assert(row >= 0 && row <= 7);
+	assert(col >= 0 && col <= 7);
+
+	board->board[row][col] = value;
+}
+
+unsigned char *getDataPieceMutable(struct dataBoard *board, signed char row, signed char col) {
 	assert(row >= 0 && row <= 7);
 	assert(col >= 0 && col <= 7);
 
@@ -34,6 +41,27 @@ char sideOfDataPiece(const unsigned char dp) {
 	}
 	
 	return ' ';
+}
+
+
+float getBasicBoardScore(const struct dataBoard *input_board) {
+	float score = 0;
+	float temp = 0;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'W') {
+				temp = valueOfDataPiece(getDataPiece(input_board, i, j));
+			}
+			else {
+				temp = -valueOfDataPiece(getDataPiece(input_board, i, j));
+			}
+			if (temp != INFINITY && temp != -INFINITY) {
+				score += temp;
+			}
+		}
+	}
+
+	return score;
 }
 
 char pieceIdOfDataPiece(const unsigned char dp) {
@@ -69,6 +97,36 @@ char pieceIdOfDataPiece(const unsigned char dp) {
 	return ' ';
 }
 
+float valueOfDataPiece(const unsigned char dp) { // float ofr infinity and for future changes to weights of peices?
+	if (dp <= 11) {
+		switch (dp % 6) {
+			case 0:
+				return 1;
+			case 1:
+				return 5;
+			case 2:
+				return 3;
+			case 3:
+				return 3;
+			case 4:
+				return 9;
+			case 5:
+				return INFINITY;
+		}
+	}
+	else if (dp <= 17) {
+		if (dp == 12 || dp == 13) {
+			return 1;
+		}
+		else if(dp == 14 || dp == 15) {
+			return INFINITY;
+		}
+		else if(dp == 16 || dp == 17) {
+			return 5;
+		}
+	}
+	return 0;
+}
 
 unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
 	unsigned char result;
@@ -125,68 +183,21 @@ unsigned char makeDataPiece(char pieceId, char side, bool isSpecial) {
 	return result;
 }
 
-struct dataPiece pieceToDataPiece(struct piece* p) {
-	struct dataPiece result;
-	if (p->side == ' ') {
-		result.id = 31;
-		return result;
+bool doesTake(const struct dataBoard *input_board, struct standardPos *starting_position, struct standardPos *final_position) {
+	char side = sideOfDataPiece(getDataPiece(input_board, starting_position->row, starting_position->col));
+	if (sideOfDataPiece(getDataPiece(input_board, final_position->row, final_position->col)) == oppositeSide(side)) {
+		return true; 
 	}
-	else if (p->side == 'W') {
-		result.id = 0;
+	//includes en passant in taking
+	if(pieceIdOfDataPiece(getDataPiece(input_board, starting_position->row, starting_position->col)) == 'P') {
+		if (starting_position->col != final_position->col) {
+			return true;
+		}
 	}
-	else if (p->side == 'B') {
-		result.id = 6;
-	}
-
-	switch ( p->pieceId) {
-		case 'P':
-			break;
-		case 'R':
-			result.id += 1;
-			break;
-		case 'N':
-			result.id += 2;
-			break;
-		case 'B':
-			result.id += 3;
-			break;
-		case 'Q':
-			result.id += 4;
-			break;
-		case 'K':
-			result.id += 5;
-			break;
-		default:
-			result.id = 31;
-	}
-
-	return result;
-	
+	return false;
 }
 
-
-void printBoard(const struct board* input_board) {
-	printf("\n\n\n");
-	for (int i = 7; i >= 0; i--) {
-		printf("%d  ", i+ 1);
-		for (int j = 0; j < 8; j++) {
-			printf("%c%c", input_board->board[i][j].side, input_board->board[i][j].pieceId);
-			if (j != 7) { 
-				printf("|");
-			}
-		}
-		if (i != 0) {
-			printf("\n   --+--+--+--+--+--+--+--\n");
-		}
-		else {
-			printf("\n");
-		}
-		
-	}
-	printf("   a  b  c  d  e  f  g  h\n");
-}
-
-void printDataBoardDebug(const struct dataBoard* input_board) {
+void printDataBoardDebug(const struct dataBoard *input_board) {
 
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {
@@ -210,8 +221,7 @@ void printDataBoardDebug(const struct dataBoard* input_board) {
 	printf("   a  b  c  d  e  f  g  h\n");
 }
 
-
-void printDataBoard(const struct dataBoard* input_board) {
+void printDataBoard(const struct dataBoard *input_board, const bool borderless) {
 
 	printf("\n\n\n");
 	for (int i = 7; i >= 0; i--) {
@@ -220,43 +230,57 @@ void printDataBoard(const struct dataBoard* input_board) {
 			if (sideOfDataPiece(getDataPiece(input_board, i, j)) == 'W') {
 				printf("\033[30;47m%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
 			}
-			else if (sideOfDataPiece(sideOfDataPiece(getDataPiece(input_board, i, j)) == 'B')){
-				printf("\033[37;40m%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
-			}
-			else { // this doesnt just printf "  " for debugging reasons
-				printf("%c%c\033[0m", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+			else { 
+				if ((i + j + 1) % 2 == 0) {
+					printf("\033[37;40m");
+				}
+				else {
+					printf("\033[0m");
+				}
+				if (sideOfDataPiece(sideOfDataPiece(getDataPiece(input_board, i, j)) == 'B')){
+					printf("%c%c", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+				}
+				else { // this doesnt just printf "  " for debugging reasons
+					printf("%c%c", sideOfDataPiece(getDataPiece(input_board, i, j)), pieceIdOfDataPiece(getDataPiece(input_board, i, j)));
+				}
+				printf("\033[0m");
 			}
 
-			if (j != 7) { 
+			if (j != 7 && !borderless) { 
 				printf("|");
 			}
 		}
-		if (i != 0) {
-			printf("\n  --+--+--+--+--+--+--+--\n");
+		if (i != 0 && !borderless) {
+			printf("\n  --+--+--+--+--+--+--+--\033[0m\n");
 		}
 		else {
 			printf("\n");
 		}
 		
 	}
-	printf("   a  b  c  d  e  f  g  h\n");
+	if (!borderless) {
+		printf("   a  b  c  d  e  f  g  h\n");
+	}
+	else {
+		printf("  a b c d e f g h\n");
+	}
 }
 
-bool getBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
+bool getBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index) {
 	return !!(((uint64_t)1 << index) & input_mask->mask);
 }
 
-uint64_t setBitOfBoardCheck(struct boardCheck* input_mask, unsigned char index) {
+uint64_t setBitOfBoardCheck(struct boardCheck *input_mask, unsigned char index) {
 	return (((uint64_t)1 << index) | input_mask->mask);
 }
 
 unsigned char positionToIndex( char row,  char col) {
 	assert(row <= 8 && row >= 0);
 	assert(col <= 8 && col >= 0);
-	return ((row * 8) + col);
+	return ((row  *8) + col);
 }
 
-void printBoardCheck(struct boardCheck* input_mask) {
+void printBoardCheck(struct boardCheck *input_mask) {
 	for (int i = 0; i < 8; i++) {
 		printf("%d ", i);
 		for (int j = 0; j < 8; j++) {
@@ -268,30 +292,10 @@ void printBoardCheck(struct boardCheck* input_mask) {
 }
 
 
-struct board* setupBoard() {
-	char* side_template = "RNBQKBNR";
-	struct board* newBoard = malloc(sizeof(struct board));
-	//fills in the board with the standard configuration
-	for (int row = 0; row < 8; row++) {
-		for (int col = 0; col < 8; col++) {
-			newBoard->board[row][col].side = row <= 1 ? 'W' : (row >= 6 ? 'B' : ' ');
-			if (row == 0 || row == 7) { 
-			        newBoard->board[row][col].pieceId = side_template[col];
-			}
-			else if (row == 1 || row == 6) {
-				newBoard->board[row][col].pieceId = 'P';
-			}
-			else {
-			    newBoard->board[row][col].pieceId = ' ';
-			}
-		}
-	}
-	return newBoard;
-}
 
-struct dataBoard* setupDataBoard() {
+struct dataBoard *setupDataBoard() {
 	int side_template[8] = {1, 2, 3, 4, 5, 3, 2, 1};
-	struct dataBoard* newBoard = malloc(sizeof(struct dataBoard));
+	struct dataBoard *newBoard = malloc(sizeof(struct dataBoard));
 	//fills in the board with the standard configuration
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 8; col++) {
@@ -314,9 +318,20 @@ bool validRange(int input) {
 	return false;
 }
 
-char TeamOnSquare(const struct dataBoard* input_board, int row, int col) {
+char TeamOnSquare(const struct dataBoard *input_board, int row, int col) {
 	if (!validRange(row) || !validRange(col)) {
 		return ' ';
 	}
 	return sideOfDataPiece(getDataPiece(input_board, row, col));
+}
+
+bool kingExists(const struct dataBoard *input_board, char side) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (pieceIdOfDataPiece(getDataPiece(input_board, i, j)) == 'K' && sideOfDataPiece(getDataPiece(input_board, i, j)) == side) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
